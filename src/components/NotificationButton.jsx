@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-// import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '../services/pushNotification';
+//import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '../services/pushNotification';
+import pwaAnalytics from '../services/pwaAnalytics';
 
 export default function NotificationButton() {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -33,12 +34,15 @@ export default function NotificationButton() {
       if (isSubscribed) {
         await unsubscribeFromPushNotifications();
         setIsSubscribed(false);
+        pwaAnalytics.trackNotification('unsubscribe');
       } else {
         await subscribeToPushNotifications();
         setIsSubscribed(true);
+        pwaAnalytics.trackNotification('subscribe');
       }
     } catch (error) {
       console.error('Error toggling subscription:', error);
+      pwaAnalytics.trackEvent('notification', 'error', error.message);
     } finally {
       setIsLoading(false);
     }
