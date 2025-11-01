@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NotificationButton from './NotificationButton';
 import pwaAnalytics from '../services/pwaAnalytics';
 import notificationPrefs from '../services/notificationPreferences';
+import AnalyticsVisualizations from './AnalyticsVisualizations';
 
 export default function PWADebugPanel() {
   const [isOpen, setIsOpen] = useState(false);
@@ -222,36 +223,18 @@ export default function PWADebugPanel() {
 
           {activeTab === 'analytics' && stats && (
             <div className="space-y-4">
-              <div className="space-y-2 text-sm">
-                <h4 className="font-semibold">Usage Statistics</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2 bg-gray-50 rounded">
-                    <div className="text-xs text-gray-500">Total Sessions</div>
-                    <div className="font-medium">{stats.totalSessions}</div>
-                  </div>
-                  <div className="p-2 bg-gray-50 rounded">
-                    <div className="text-xs text-gray-500">Avg. Session</div>
-                    <div className="font-medium">{Math.round(stats.averageSessionLength / 1000 / 60)}min</div>
-                  </div>
-                  <div className="p-2 bg-gray-50 rounded">
-                    <div className="text-xs text-gray-500">Notifications</div>
-                    <div className="font-medium">{stats.notifications.received}</div>
-                  </div>
-                  <div className="p-2 bg-gray-50 rounded">
-                    <div className="text-xs text-gray-500">Offline Uses</div>
-                    <div className="font-medium">{stats.offline.usage}</div>
-                  </div>
+                <AnalyticsVisualizations stats={stats} />
+                <div className="mt-4 pt-4 border-t">
+                  <button
+                    onClick={() => {
+                      pwaAnalytics.clearData();
+                      updateStats();
+                    }}
+                    className="w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                  >
+                    Reset Analytics Data
+                  </button>
                 </div>
-
-                <div className="mt-4">
-                  <h4 className="font-semibold mb-2">Timeline</h4>
-                  <div className="text-xs space-y-1">
-                    <div>Installed: {stats.installDate ? new Date(stats.installDate).toLocaleString() : 'Not installed'}</div>
-                    <div>Last Session: {stats.lastSession ? new Date(stats.lastSession).toLocaleString() : 'N/A'}</div>
-                    <div>Last Offline: {stats.offline.lastUsed ? new Date(stats.offline.lastUsed).toLocaleString() : 'Never'}</div>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 

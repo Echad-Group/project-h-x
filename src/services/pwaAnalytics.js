@@ -26,7 +26,8 @@ class PWAAnalytics {
         granted: false,
         subscribed: false,
         received: 0,
-        clicked: 0
+        clicked: 0,
+        categories: {} // Track notifications by category
       },
       offline: {
         usage: 0,
@@ -101,6 +102,10 @@ class PWAAnalytics {
         break;
       case 'receive':
         this.data.notifications.received++;
+          if (category) {
+            this.data.notifications.categories[category] = 
+              (this.data.notifications.categories[category] || 0) + 1;
+          }
         break;
       case 'click':
         this.data.notifications.clicked++;
@@ -121,14 +126,24 @@ class PWAAnalytics {
     const now = new Date();
     const sessions = this.data.sessions;
     
+      // Calculate session trends
+      const last7Days = this.getLast7DaysSessions();
+      const sessionsPerDay = this.getSessionsPerDay();
+    
     return {
       totalSessions: sessions.length,
-      installDate: this.data.installDate ? new Date(this.data.installDate) : null,
-      lastSession: sessions.length > 0 ? new Date(sessions[sessions.length - 1].startTime) : null,
+        installDate: this.data.installDate,
+        lastSession: sessions.length > 0 ? sessions[sessions.length - 1].startTime : null,
       averageSessionLength: this.calculateAverageSessionLength(),
-      notifications: { ...this.data.notifications },
+        notifications: {
+          ...this.data.notifications,
+          categories: this.data.notifications.categories
+        },
       offline: { ...this.data.offline },
-      events: this.data.events.length
+        events: this.data.events.length,
+        sessions: this.data.sessions, // Include full session data for trending
+        sessionsPerDay,
+        lastWeekSessions: last7Days
     };
   }
 
@@ -144,6 +159,35 @@ class PWAAnalytics {
 
     return totalLength / completedSessions.length;
   }
+
+    getLast7DaysSessions() {
+      const now = new Date();
+      const days = Array(7).fill(0);
+    
+      this.data.sessions.forEach(session => {
+        const sessionDate = new Date(session.startTime);
+        const dayDiff = Math.floor((now - sessionDate) / (1000 * 60 * 60 * 24));
+        if (dayDiff < 7) {
+          days[6 - dayDiff]++;
+        }
+      });
+
+      return days;
+    }
+
+    getSessionsPerDay() {
+      const sessionsByDay = {};
+      this.data.sessions.forEach(session => {
+        const date = new Date(session.startTime).toLocaleDateString();
+        sessionsByDay[date] = (sessionsByDay[date] || 0) + 1;
+      });
+      return sessionsByDay;
+    }
+
+    clearData() {
+      this.data = this.getInitialData();
+      this.saveData();
+    }
 }
 
 export const pwaAnalytics = new PWAAnalytics();
