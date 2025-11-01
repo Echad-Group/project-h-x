@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="170.67" fill="#EF4444"/>
+  <rect y="170.67" width="512" height="170.67" fill="#16A34A"/>
+  <rect y="341.34" width="512" height="170.67" fill="#1C1917"/>
+  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="200" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">NK</text>
+</svg>

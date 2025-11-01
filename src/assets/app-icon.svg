@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with Kenya flag colors -->
+  <rect width="192" height="64" fill="#EF4444"/>
+  <rect y="64" width="192" height="64" fill="#16A34A"/>
+  <rect y="128" width="192" height="64" fill="#1C1917"/>
+  
+  <!-- NK Logo -->
+  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">NK</text>
+</svg>

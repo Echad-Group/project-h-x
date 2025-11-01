@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useMeta } from '../components/MetaTags'
 
-const EventCard = ({title, date, location})=> (
+const EventCard = ({title, date, location, startDate})=> (
   <div className="p-4 bg-white rounded-lg card-shadow">
     <div className="text-sm text-gray-500">{date} — {location}</div>
     <h4 className="font-semibold mt-1">{title}</h4>
@@ -9,11 +10,62 @@ const EventCard = ({title, date, location})=> (
 )
 
 export default function Events(){
+  const { updateMeta } = useMeta();
+  
   const events = [
-    {title: 'Townhall - Kisumu', date: 'Nov 12, 2025', location: 'Kisumu Stadium'},
-    {title: 'Youth Summit - Nairobi', date: 'Nov 28, 2025', location: 'KICC'},
-    {title: 'Roadshow - Mombasa', date: 'Dec 5, 2025', location: 'Mombasa Grounds'}
-  ]
+    {
+      title: 'Townhall - Kisumu',
+      date: 'Nov 12, 2025',
+      location: 'Kisumu Stadium',
+      startDate: '2025-11-12T14:00'
+    },
+    {
+      title: 'Youth Summit - Nairobi',
+      date: 'Nov 28, 2025',
+      location: 'KICC',
+      startDate: '2025-11-28T09:00'
+    },
+    {
+      title: 'Roadshow - Mombasa',
+      date: 'Dec 5, 2025',
+      location: 'Mombasa Grounds',
+      startDate: '2025-12-05T10:00'
+    }
+  ];
+
+  useEffect(() => {
+    updateMeta({
+      title: 'Events - New Kenya Campaign',
+      description: 'Join us at our upcoming events across Kenya. Town halls, youth summits, and community meetings.',
+      image: '/assets/og-image.svg',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: events.map((event, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'Event',
+            name: event.title,
+            startDate: event.startDate,
+            location: {
+              '@type': 'Place',
+              name: event.location,
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: event.location.split(' ')[0],
+                addressCountry: 'KE'
+              }
+            },
+            organizer: {
+              '@type': 'Organization',
+              name: 'New Kenya Campaign'
+            }
+          }
+        }))
+      }
+    });
+  }, []);
 
   return (
     <section className="max-w-5xl mx-auto px-4 py-12">

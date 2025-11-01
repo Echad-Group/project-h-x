@@ -1,6 +1,29 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useMeta } from '../components/MetaTags'
 
 export default function About(){
+  const { updateMeta } = useMeta();
+  
+  useEffect(() => {
+    updateMeta({
+      title: 'About - New Kenya Campaign',
+      description: 'Learn about our vision for a New Kenya and our track record of public service.',
+      image: '/assets/og-image.svg',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: 'New Kenya Campaign Leader',
+        description: 'A modern, dynamic campaign — focused on renewing institutions, investing in youth, and delivering inclusive growth.',
+        url: 'https://newkenya.org/about',
+        image: 'https://newkenya.org/assets/og-image.svg',
+        jobTitle: 'Political Leader',
+        worksFor: {
+          '@type': 'Organization',
+          name: 'New Kenya Campaign'
+        }
+      }
+    });
+  }, []);
   return (
     <section className="max-w-4xl mx-auto py-16 px-4">
       <h1 className="text-3xl font-extrabold brand-gradient">About the Candidate</h1>

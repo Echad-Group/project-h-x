@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - New Kenya Campaign</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 600px;
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #16A34A; }
+        .flag-colors {
+            display: flex;
+            height: 6px;
+            margin: 2rem 0;
+        }
+        .flag-colors div {
+            flex: 1;
+        }
+        .red { background: #EF4444; }
+        .green { background: #16A34A; }
+        .black { background: #1C1917; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="flag-colors">
+            <div class="red"></div>
+            <div class="green"></div>
+            <div class="black"></div>
+        </div>
+        <h1>You're Offline</h1>
+        <p>Please check your internet connection and try again.</p>
+        <p>The New Kenya Campaign continues even when offline!</p>
+        <button onclick="window.location.reload()">Try Again</button>
+    </div>
+</body>
+</html>

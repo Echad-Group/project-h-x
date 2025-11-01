@@ -1,9 +1,12 @@
 import React from 'react'
-import { color, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
+
+import HeroCarousel from '../components/HeroCarousel'
 
 export default function Hero(){
+
   return (
-    <section className="relative overflow-hidden" style={{background: 'url(https://commonwealthchamber.com/wp-content/uploads/2021/07/kenya-1.jpg) no-repeat center', backgroundSize: 'cover'}}>
+    <section className="relative overflow-hidden" style={{ background: 'url(/src/assets/fluent-style-nk-bg.png) no-repeat center', backgroundSize: 'cover'}}>
       <div className="absolute inset-0 flex">
         <div className="w-1/3 bg-[var(--kenya-green)]/8" />
         <div className="w-1/3 bg-[var(--kenya-black)]/8" />
@@ -27,15 +30,9 @@ export default function Hero(){
           </div>
 
           <div className="flex justify-center">
-            <div className="w-full max-w-md bg-white rounded-2xl p-6 card-shadow">
-              <div className="h-48 rounded-lg bg-gradient-to-br from-[var(--kenya-green)] to-[var(--kenya-red)] flex items-center justify-center text-white font-bold text-xl">Join the movement</div>
-              <div className="mt-4">
-                <p className="text-sm text-gray-600">Subscribe for updates and events near you.</p>
-                <div className="mt-3 flex gap-2">
-                  <input aria-label="email" className="flex-1 px-3 py-2 border rounded-md" placeholder="Your email" />
-                  <button className="px-4 py-2 bg-[var(--kenya-black)] text-white rounded-md">Subscribe</button>
-                </div>
-              </div>
+            {/* Carousel component */}
+            <div className="w-full max-w-md">
+              <HeroCarousel />
             </div>
           </div>
 

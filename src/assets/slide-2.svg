@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <defs>
+    <linearGradient id="g2" x1="0" x2="1">
+      <stop offset="0" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#g2)" />
+  <g fill="#ffffff" font-family="Inter, Arial, sans-serif" font-weight="700">
+    <text x="60" y="140" font-size="48">Community Dialogues</text>
+    <text x="60" y="210" font-size="28" font-weight="400">Townhalls and listening sessions across counties</text>
+  </g>
+</svg>

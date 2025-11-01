@@ -1,0 +1,43 @@
+{
+  "name": "New Kenya Campaign",
+  "short_name": "New Kenya",
+  "description": "A modern vision for unity, jobs, and opportunity in Kenya",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#16A34A",
+  "icons": [
+    {
+      "src": "/src/assets/icons/icon-16.svg",
+      "sizes": "16x16",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/src/assets/icons/icon-512.svg",
+      "sizes": "48x48 72x72 96x96 128x128 144x144 152x152 192x192 384x384 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Get Involved",
+      "url": "/get-involved",
+      "description": "Join the movement"
+    },
+    {
+      "name": "Events",
+      "url": "/events",
+      "description": "View upcoming events"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/src/assets/og-image.svg",
+      "sizes": "1200x630",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "New Kenya Campaign Homepage"
+    }
+  ]
+}

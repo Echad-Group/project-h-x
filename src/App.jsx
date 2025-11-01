@@ -1,8 +1,11 @@
-import React, {useState} from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
+import React, {useState, useEffect} from 'react'
+import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import { MetaProvider } from './components/MetaTags'
+import PWADebugPanel from './components/PWADebugPanel'
+import NotificationButton from './components/NotificationButton'
 import Home from './pages/Home'
 import About from './pages/About'
 import Issues from './pages/Issues'
@@ -11,8 +14,9 @@ import GetInvolved from './pages/GetInvolved'
 
 export default function App(){
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--kenya-white)] text-gray-900">
-      <Navbar />
+    <MetaProvider>
+      <div className="min-h-screen flex flex-col bg-[var(--kenya-white)] text-gray-900">
+        <Navbar />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home/>} />
@@ -23,6 +27,11 @@ export default function App(){
         </Routes>
       </main>
       <Footer />
+      <PWADebugPanel />
+      <div className="fixed top-20 right-4 z-40">
+        <NotificationButton />
+      </div>
     </div>
+    </MetaProvider>
   )
 }
