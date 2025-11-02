@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react'
 import { useMeta } from '../components/MetaTags'
+import { useTranslation } from 'react-i18next'
 
 export default function Contact(){
   const { updateMeta } = useMeta();
+  const { t } = useTranslation();
 
   useEffect(() => {
     updateMeta({
@@ -22,23 +24,23 @@ export default function Contact(){
 
   return (
     <section className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Contact</h1>
-      <p className="mt-3 text-gray-600">Questions about the campaign, press inquiries, or partnership requests — reach out to us.</p>
+      <h1 className="text-3xl font-bold">{t('contact.title')}</h1>
+      <p className="mt-3 text-gray-600">{t('contact.description')}</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4 bg-white p-6 rounded-lg card-shadow">
         <div>
-          <label className="block text-sm font-medium">Name</label>
+          <label className="block text-sm font-medium">{t('contact.form.name')}</label>
           <input name="name" required className="fluent-input mt-1" />
         </div>
         <div>
-          <label className="block text-sm font-medium">Email</label>
+          <label className="block text-sm font-medium">{t('contact.form.email')}</label>
           <input name="email" type="email" required className="fluent-input mt-1" />
         </div>
         <div>
-          <label className="block text-sm font-medium">Message</label>
+          <label className="block text-sm font-medium">{t('contact.form.message')}</label>
           <textarea name="message" required className="fluent-input mt-1" rows={5} />
         </div>
-        <button type="submit" className="fluent-btn fluent-btn-primary">Send Message</button>
+        <button type="submit" className="fluent-btn fluent-btn-primary">{t('contact.form.send')}</button>
       </form>
     </section>
   )

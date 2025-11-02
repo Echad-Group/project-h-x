@@ -1,4 +1,30 @@
 {
+  "notificationTester": {
+    "title": "Kipima Arifa",
+    "defaults": {
+      "title": "Arifa ya Majaribio",
+      "body": "Hii ni arifa ya majaribio"
+    },
+    "errors": {
+      "notSupported": "Arifa hazitumiki",
+      "notEnabled": "Tafadhali washa arifa kwanza",
+      "categoryDisabled": "Aina hii ya arifa imezimwa au ni saa za utulivu"
+    },
+    "action": {
+      "defaultTitle": "Kitendo {{num}}"
+    },
+    "form": {
+      "title": "Kichwa",
+      "body": "Mwili",
+      "category": "Aina",
+      "imageUrl": "URL ya Picha (hiari)",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "actions": "Vitendo",
+      "actionTitlePlaceholder": "Kichwa cha kitendo",
+      "addAction": "+ Ongeza Kitendo",
+      "sendTest": "Tuma Arifa ya Majaribio"
+    }
+  },
   "nav": {
     "home": "Nyumbani",
     "about": "Kuhusu",
@@ -18,5 +44,228 @@
     "label": "Lugha",
     "english": "English",
     "swahili": "Kiswahili"
+  },
+  "about": {
+    "title": "Kuhusu Kampeni",
+    "missionHeading": "Taarifa ya Malengo",
+    "missionText": "Kujenga Kenya iliyounganishwa, yenye ustawi na ubunifu kupitia utawala jumuishi, uwezeshaji wa kiuchumi, na maendeleo endelevu, kuhakikisha kila raia ana fursa ya kustawi katika taifa la kisasa na lenye nguvu.",
+    "coreValuesHeading": "Maadili ya Msingi",
+    "values": {
+      "unity": {
+        "title": "Umoja",
+        "desc": "Kuimarisha mshikamano wa kitaifa na kusherehekea utofauti wetu kama nguvu yetu."
+      },
+      "progress": {
+        "title": "Maendeleo",
+        "desc": "Kukumbatia ubunifu na maendeleo endelevu kwa vizazi vijavyo."
+      },
+      "justice": {
+        "title": "Haki",
+        "desc": "Kuhakikisha fursa sawa na haki kwa Wakenya wote."
+      },
+      "transparency": {
+        "title": "Uwazi",
+        "desc": "Kudumisha uongozi na utawala ulio wazi na uwajibikaji."
+      }
+    },
+    "visionHeading": "Maono na Uongozi",
+    "visionText": "Hii ni kampeni ya kisasa na yenye nguvu — inayolenga kufufua taasisi, kuwekeza katika vijana, na kuleta ukuaji jumuishi. Mgombea analeta uzoefu wa huduma za umma, mpango wazi wa mageuzi ya kiuchumi, na kujitolea kwa umoja wa kitaifa.",
+    "vision": {
+      "visionTitle": "Maono",
+      "visionText": "Kenya Mpya — iliyounganishwa, yenye ustawi na usalama kwa kila raia. Ambapo ubunifu unaongoza ukuaji na fursa zinafikia kila pembe ya taifa letu.",
+      "trackRecordTitle": "Historia ya Kazi",
+      "trackRecordText": "Uongozi wa umma katika sekta mbalimbali kwa kuzingatia matokeo na uwazi. Mafanikio yaliyothibitishwa katika maendeleo ya kiuchumi na mageuzi ya kitaasisi."
+    },
+    "promise": {
+      "heading": "Ahadi ya Kampeni",
+      "quote": "Pamoja, tutajenga Kenya Mpya ambapo umoja ni nguvu yetu, ubunifu unaongoza maendeleo yetu, na ustawi unawafikia raia wote. Hii sio tu kampeni — ni harakati za mabadiliko ya kina."
+    }
+  },
+  "contact": {
+    "title": "Wasiliana",
+    "description": "Maswali kuhusu kampeni, maombi ya vyombo vya habari, au ushirikiano — wasiliana nasi.",
+    "form": {
+      "name": "Jina",
+      "email": "Barua pepe",
+      "message": "Ujumbe",
+      "send": "Tuma Ujumbe"
+    }
+  },
+  "events": {
+    "title": "Matukio",
+    "rsvp": "Jiandikishe",
+    "form": {
+      "name": "Jina kamili",
+      "email": "Barua pepe",
+      "phone": "Simu"
+    }
+  },
+  "faq": {
+    "title": "Maswali",
+    "items": {
+      "volunteer": {
+        "q": "Ninawezaje kujitolea?",
+        "a": "Tembelea ukurasa wa Jishughulishe na ujaze fomu ya kujitolea."
+      },
+      "donations": {
+        "q": "Je, tovuti hii ni salama kwa michango?",
+        "a": "Michango katika majaribio haya ni ya mfano tu. Malipo halisi yataunganishwa wakati wa uzinduzi."
+      },
+      "events": {
+        "q": "Ninawezaje kuhudhuria tukio?",
+        "a": "Nenda kwenye ukurasa wa Matukio na ujiandikishe kwa tukio."
+      }
+    }
+  },
+  "gallery": {
+    "title": "Picha"
+  },
+  "footer": {
+    "tagline": "Kampeni kwa kila Mkenya — umoja, ukuaji, na fursa.",
+    "quickLinksHeading": "Viungo vya Haraka",
+    "contactHeading": "Wasiliana",
+    "rights": "Haki zote zimehifadhiwa"
+  },
+  "getInvolved": {
+    "title": "Jishughulishe",
+    "description": "Jitolee, andaa tukio, au jiunge na tawi la karibu."
+  },
+  "news": {
+    "title": "Habari na Visasisho",
+    "readMore": "Soma zaidi →",
+    "notFound": "Makala haijapatikana",
+    "articles": {
+      "youthAgenda": {
+        "title": "Kampeni yazindua ajenda ya vijana kitaifa",
+        "content": "Leo tumekuza ajenda ya vijana kitaifa ili kuunda fursa za mafunzo na ujasiriamali..."
+      },
+      "nakuruTownhall": {
+        "title": "Mkutano Nakuru wavutia maelfu",
+        "content": "Mkutano wa Nakuru uliwaleta pamoja viongozi wa jamii kujadili utawala wa mitaa na ajira."
+      },
+      "ruralConnectivity": {
+        "title": "Waraka wa sera: Uunganisho wa kidijitali vijijini",
+        "content": "Waraka wetu wa sera unaelezea mkakati wa kuleta intaneti ya kasi katika kaunti za mashambani."
+      }
+    }
+  },
+  "shop": {
+    "title": "Duka",
+    "description": "Bidhaa rasmi — duka la majaribio (hakuna malipo halisi).",
+    "product": {
+      "notFound": "Bidhaa haijapatikana",
+      "addToCart": "Ongeza kwenye kikapu",
+      "view": "Tazama →",
+      "shirt01": {
+        "title": "T-Shati ya Kenya Mpya",
+        "desc": "Shati la pamba laini."
+      },
+      "cap01": {
+        "title": "Kofia ya Kampeni",
+        "desc": "Kofia ya kampeni iliyoshonwa nembo."
+      }
+    }
+  },
+  "cart": {
+    "empty": "Kikapu ni tupu",
+    "title": "Kikapu",
+    "clear": "Futa",
+    "remove": "Ondoa",
+    "total": "Jumla",
+    "checkout": "Lipa",
+    "checkoutAlert": "Malipo ni majaribio - teua mlango wa malipo kwa uzalishaji"
+  },
+  "volunteer": {
+    "heading": "Jitolee pamoja nasi",
+    "errors": {
+      "required": "Jina na barua pepe ni muhimu."
+    },
+    "success": {
+      "title": "Asante kwa kujisajili!",
+      "desc": "Tunathamini msaada wako. Timu yetu itakuuliza hivi karibuni."
+    },
+    "form": {
+      "name": "Jina*",
+      "email": "Barua pepe*",
+      "phone": "Simu",
+      "interests": "Maslahi",
+      "interestsPlaceholder": "Ungependa kusaidia vipi?",
+      "submit": "Jisajili"
+    }
+  },
+  "share": {
+    "share": "Sambaza",
+    "twitter": "Twitter"
+  },
+  "hero": {
+    "subtitle": "Maono ya kisasa kwa umoja, kazi, na fursa",
+    "lead": "Tunajenga Kenya Mpya — inayowekeza kwenye vijana, kuimarisha jamii, na kuimarisha taasisi. Jiunge nasi kutekeleza.",
+    "cta": {
+      "getInvolved": "Jishughulishe",
+      "donate": "Toa"
+    }
+  },
+  "carousel": {
+    "featured": "Imeangaziwa",
+    "subtitle": "Mambo muhimu na visasisho",
+    "aria": {
+      "goToSlide": "Nenda kwenye slaidi {{num}}"
+    },
+    "slides": {
+      "joinMovement": "Jiunge na harakati",
+      "communityDialogues": "Mazungumzo ya Jamii",
+      "digitalConnectivity": "Uunganisho wa Kidijitali"
+    }
+  },
+  "pwa": {
+    "title": "PWA Debug Panel",
+    "tabs": {
+      "status": "Hali",
+      "analytics": "Takwimu",
+      "notifications": "Arifa"
+    },
+    "status": {
+      "installable": "Inayoweza kusakinishwa:",
+      "serviceWorker": "Service Worker:",
+      "network": "Hali ya Mtandao:",
+      "networkType": "Aina ya Mtandao:",
+      "lastUpdate": "Mwisho wa Sasisho:",
+      "cachedResources": "Rasilimali Zilizohifadhiwa:"
+    },
+    "online": "Mtandaoni",
+    "offline": "Mjini",
+    "never": "Hapana",
+    "install": "Sakinisha App",
+    "clearCache": "Futa Cache",
+    "refresh": "Sasisha Hali",
+    "resetAnalytics": "Weka Upya Data za Takwimu",
+    "notifications": {
+      "title": "Mipangilio ya Arifa",
+      "export": "Hamisha Mapendeleo",
+      "import": "Ingiza Mapendeleo",
+      "importFailed": "Imeshindwa kuingiza mapendeleo"
+    }
+  },
+  "team": {
+    "title": "Timu",
+    "description": "Kutana na timu na viongozi wa kampeni.",
+    "members": {
+      "leader": {
+        "name": "Kiongozi wa Kampeni",
+        "title": "Kiongozi",
+        "bio": "Mtumishi wa umma mwenye uzoefu anayelenga ukuaji jumuishi."
+      },
+      "manager": {
+        "name": "Meneja wa Kampeni",
+        "title": "Meneja",
+        "bio": "Anasimamia shughuli na timu za uwanjani kote nchini."
+      }
+    }
+  },
+  "install": {
+    "title": "Sakinisha Kenya Mpya",
+    "desc": "Pata upatikanaji wa haraka kwa visasisho na kuungana na harakati.",
+    "now": "Sakinisha App",
+    "later": "Labda baadaye"
   }
 }

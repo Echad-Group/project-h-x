@@ -4,13 +4,16 @@ import slide2 from '../assets/slide-2.svg'
 import slide3 from '../assets/slide-3.svg'
 
 const slides = [
-  {src: slide1, alt: 'Join the movement'},
-  {src: slide2, alt: 'Community Dialogues'},
-  {src: slide3, alt: 'Digital Connectivity'}
+  {src: slide1, altKey: 'carousel.slides.joinMovement'},
+  {src: slide2, altKey: 'carousel.slides.communityDialogues'},
+  {src: slide3, altKey: 'carousel.slides.digitalConnectivity'}
 ]
+
+import { useTranslation } from 'react-i18next'
 
 export default function HeroCarousel({className}){
   const [index, setIndex] = useState(0)
+  const { t } = useTranslation();
   const timeoutRef = useRef(null)
   const delay = 4000
 
@@ -56,8 +59,8 @@ export default function HeroCarousel({className}){
         <div className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-bold">Featured</h4>
-              <p className="text-sm text-gray-600">Highlights and updates</p>
+              <h4 className="font-bold">{t('carousel.featured')}</h4>
+              <p className="text-sm text-gray-600">{t('carousel.subtitle')}</p>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={prev} aria-label="Previous" className="p-2 rounded-md bg-gray-100 hover:bg-gray-200">
@@ -71,7 +74,7 @@ export default function HeroCarousel({className}){
 
           <div className="mt-3 flex items-center gap-2 justify-center">
             {slides.map((_, i)=> (
-              <button key={i} onClick={()=>goTo(i)} aria-label={`Go to slide ${i+1}`} className={`w-2 h-2 rounded-full ${i === index ? 'bg-[var(--kenya-green)]' : 'bg-gray-300'}`} />
+              <button key={i} onClick={()=>goTo(i)} aria-label={t('carousel.aria.goToSlide', { num: i+1 })} className={`w-2 h-2 rounded-full ${i === index ? 'bg-[var(--kenya-green)]' : 'bg-gray-300'}`} />
             ))}
           </div>
         </div>

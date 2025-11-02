@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react'
 import { useMeta } from '../components/MetaTags'
+import { useTranslation } from 'react-i18next'
 
 export default function Gallery(){
   const { updateMeta } = useMeta();
+  const { t } = useTranslation();
 
   useEffect(() => {
     updateMeta({ title: 'Gallery - New Kenya Campaign', description: 'Photo gallery of campaign events and milestones.', url: '/gallery' });
@@ -12,7 +14,7 @@ export default function Gallery(){
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Gallery</h1>
+      <h1 className="text-3xl font-bold">{t('gallery.title')}</h1>
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
         {images.map((src, i) => (
           <div key={i} className="h-40 bg-gray-100 rounded overflow-hidden flex items-center justify-center">

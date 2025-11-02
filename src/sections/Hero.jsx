@@ -1,9 +1,11 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 import HeroCarousel from '../components/HeroCarousel'
 
 export default function Hero({onOpenDonate}) {
+  const { t } = useTranslation();
 
   return (
     <section className="relative overflow-hidden" style={{ background: 'url(/src/assets/fluent-style-nk-bg.png) no-repeat center', backgroundSize: 'cover'}}>
@@ -18,14 +20,14 @@ export default function Hero({onOpenDonate}) {
           <div style={{backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', padding: '1.5rem', borderRadius: '0.5rem'}}>
             <motion.h1 initial={{y:20, opacity:0}} animate={{y:0, opacity:1}} transition={{duration:0.6}} className="text-4xl text-white sm:text-5xl font-extrabold leading-tight">
               New Kenya
-              <span className="block text-2xl font-light mt-2 text-gray-700" style={{color: 'whitesmoke'}}>A modern vision for unity, jobs, and opportunity</span>
+              <span className="block text-2xl font-light mt-2 text-gray-700" style={{color: 'whitesmoke'}}>{t('hero.subtitle')}</span>
             </motion.h1>
 
-            <p className="mt-6 text-lg text-gray-700 max-w-xl" style={{color: 'wheat'}}>We are building a New Kenya — one that invests in youth, strengthens communities, and modernizes institutions. Join us to make it happen.</p>
+            <p className="mt-6 text-lg text-gray-700 max-w-xl" style={{color: 'wheat'}}>{t('hero.lead')}</p>
 
             <div className="mt-8 flex gap-3">
-              <a href="/get-involved" className="px-6 py-3 bg-[var(--kenya-green)] text-white rounded-md font-semibold shadow-sm hover:opacity-95">Get Involved</a>
-              <a href="#donate" className="px-6 py-3 border border-[var(--kenya-red)] text-[var(--kenya-red)] rounded-md font-semibold" onClick={(e) => {e.preventDefault(); onOpenDonate(); }}>Donate</a>
+              <a href="/get-involved" className="px-6 py-3 bg-[var(--kenya-green)] text-white rounded-md font-semibold shadow-sm hover:opacity-95">{t('hero.cta.getInvolved')}</a>
+              <a href="#donate" className="px-6 py-3 border border-[var(--kenya-red)] text-[var(--kenya-red)] rounded-md font-semibold" onClick={(e) => {e.preventDefault(); onOpenDonate(); }}>{t('hero.cta.donate')}</a>
             </div>
           </div>
 

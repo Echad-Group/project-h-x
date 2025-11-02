@@ -1,4 +1,30 @@
 {
+  "notificationTester": {
+    "title": "Notification Tester",
+    "defaults": {
+      "title": "Test Notification",
+      "body": "This is a test notification"
+    },
+    "errors": {
+      "notSupported": "Notifications not supported",
+      "notEnabled": "Please enable notifications first",
+      "categoryDisabled": "This notification category is disabled or it is quiet hours"
+    },
+    "action": {
+      "defaultTitle": "Action {{num}}"
+    },
+    "form": {
+      "title": "Title",
+      "body": "Body",
+      "category": "Category",
+      "imageUrl": "Image URL (optional)",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "actions": "Actions",
+      "actionTitlePlaceholder": "Action title",
+      "addAction": "+ Add Action",
+      "sendTest": "Send Test Notification"
+    }
+  },
   "nav": {
     "home": "Home",
     "about": "About",
@@ -18,5 +44,228 @@
     "label": "Language",
     "english": "English",
     "swahili": "Kiswahili"
+  },
+  "about": {
+    "title": "About the Campaign",
+    "missionHeading": "Mission Statement",
+    "missionText": "To build a unified, prosperous, and innovative Kenya through inclusive governance, economic empowerment, and sustainable development, ensuring every citizen has the opportunity to thrive in a modern, dynamic nation.",
+    "coreValuesHeading": "Core Values",
+    "values": {
+      "unity": {
+        "title": "Unity",
+        "desc": "Fostering national cohesion and celebrating our diversity as our strength."
+      },
+      "progress": {
+        "title": "Progress",
+        "desc": "Embracing innovation and sustainable development for future generations."
+      },
+      "justice": {
+        "title": "Justice",
+        "desc": "Ensuring equal opportunities and fair treatment for all Kenyans."
+      },
+      "transparency": {
+        "title": "Transparency",
+        "desc": "Maintaining open, accountable leadership and governance."
+      }
+    },
+    "visionHeading": "Vision & Leadership",
+    "visionText": "This is a modern, dynamic campaign — focused on renewing institutions, investing in youth, and delivering inclusive growth. The candidate brings public service experience, a clear plan for economic transformation, and a commitment to national unity.",
+    "vision": {
+      "visionTitle": "Vision",
+      "visionText": "A New Kenya — united, prosperous and secure for every citizen. Where innovation drives growth and opportunity reaches every corner of our nation.",
+      "trackRecordTitle": "Track Record",
+      "trackRecordText": "Public leadership across sectors with a focus on results and transparency. Proven success in economic development and institutional reform."
+    },
+    "promise": {
+      "heading": "Campaign Promise",
+      "quote": "Together, we will build a New Kenya where unity is our strength, innovation drives our progress, and prosperity reaches every citizen. This is not just a campaign — it's a movement for transformative change."
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "description": "Questions about the campaign, press inquiries, or partnership requests — reach out to us.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "send": "Send Message"
+    }
+  },
+  "events": {
+    "title": "Events",
+    "rsvp": "RSVP",
+    "form": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone"
+    }
+  },
+  "faq": {
+    "title": "FAQ",
+    "items": {
+      "volunteer": {
+        "q": "How can I volunteer?",
+        "a": "Visit the Get Involved page and fill the volunteer signup form."
+      },
+      "donations": {
+        "q": "Is this site secure for donations?",
+        "a": "Donations in this demo are mocked. Integrate a payment gateway for production."
+      },
+      "events": {
+        "q": "How do I attend an event?",
+        "a": "Go to the Events page and RSVP for an event."
+      }
+    }
+  },
+  "gallery": {
+    "title": "Gallery"
+  },
+  "footer": {
+    "tagline": "A campaign for every Kenyan — unity, growth, and opportunity.",
+    "quickLinksHeading": "Quick Links",
+    "contactHeading": "Contact",
+    "rights": "All rights reserved"
+  },
+  "getInvolved": {
+    "title": "Get Involved",
+    "description": "Volunteer, host an event, or join a local chapter."
+  },
+  "news": {
+    "title": "News & Updates",
+    "readMore": "Read more →",
+    "notFound": "Article not found",
+    "articles": {
+      "youthAgenda": {
+        "title": "Campaign launches nationwide youth agenda",
+        "content": "Today we launched a nationwide youth agenda to create apprenticeship and startup opportunities..."
+      },
+      "nakuruTownhall": {
+        "title": "Townhall in Nakuru draws thousands",
+        "content": "The Nakuru townhall brought community leaders together to discuss local governance and jobs."
+      },
+      "ruralConnectivity": {
+        "title": "Policy paper: Rural digital connectivity",
+        "content": "Our policy paper outlines a roadmap to bring high-speed internet to rural counties."
+      }
+    }
+  },
+  "shop": {
+    "title": "Shop",
+    "description": "Official merchandise — demo store (no real payments).",
+    "product": {
+      "notFound": "Product not found",
+      "addToCart": "Add to cart",
+      "view": "View →",
+      "shirt01": {
+        "title": "New Kenya T-Shirt",
+        "desc": "Comfortable cotton tee."
+      },
+      "cap01": {
+        "title": "Campaign Cap",
+        "desc": "Embroidered campaign cap."
+      }
+    }
+  },
+  "cart": {
+    "empty": "Cart is empty",
+    "title": "Cart",
+    "clear": "Clear",
+    "remove": "Remove",
+    "total": "Total",
+    "checkout": "Checkout",
+    "checkoutAlert": "Checkout demo - implement payment gateway"
+  },
+  "volunteer": {
+    "heading": "Volunteer with Us",
+    "errors": {
+      "required": "Name and email are required."
+    },
+    "success": {
+      "title": "Thank you for signing up!",
+      "desc": "We appreciate your support. Our team will contact you soon."
+    },
+    "form": {
+      "name": "Name*",
+      "email": "Email*",
+      "phone": "Phone",
+      "interests": "Interests",
+      "interestsPlaceholder": "How would you like to help?",
+      "submit": "Sign Up"
+    }
+  },
+  "share": {
+    "share": "Share",
+    "twitter": "Twitter"
+  },
+  "hero": {
+    "subtitle": "A modern vision for unity, jobs, and opportunity",
+    "lead": "We are building a New Kenya — one that invests in youth, strengthens communities, and modernizes institutions. Join us to make it happen.",
+    "cta": {
+      "getInvolved": "Get Involved",
+      "donate": "Donate"
+    }
+  },
+  "carousel": {
+    "featured": "Featured",
+    "subtitle": "Highlights and updates",
+    "aria": {
+      "goToSlide": "Go to slide {{num}}"
+    },
+    "slides": {
+      "joinMovement": "Join the movement",
+      "communityDialogues": "Community Dialogues",
+      "digitalConnectivity": "Digital Connectivity"
+    }
+  },
+  "pwa": {
+    "title": "PWA Debug Panel",
+    "tabs": {
+      "status": "Status",
+      "analytics": "Analytics",
+      "notifications": "Notifications"
+    },
+    "status": {
+      "installable": "Installable:",
+      "serviceWorker": "Service Worker:",
+      "network": "Network Status:",
+      "networkType": "Network Type:",
+      "lastUpdate": "Last Update:",
+      "cachedResources": "Cached Resources:"
+    },
+    "online": "Online",
+    "offline": "Offline",
+    "never": "Never",
+    "install": "Install App",
+    "clearCache": "Clear Cache",
+  "refresh": "Refresh Status",
+  "resetAnalytics": "Reset Analytics Data",
+    "notifications": {
+      "title": "Notification Settings",
+      "export": "Export Preferences",
+      "import": "Import Preferences",
+      "importFailed": "Failed to import preferences"
+    }
+  },
+  "team": {
+    "title": "Team",
+    "description": "Meet the campaign team and leadership.",
+    "members": {
+      "leader": {
+        "name": "Campaign Leader",
+        "title": "Leader",
+        "bio": "Experienced public servant focused on inclusive growth."
+      },
+      "manager": {
+        "name": "Campaign Manager",
+        "title": "Manager",
+        "bio": "Leading operations and field teams across the country."
+      }
+    }
+  },
+  "install": {
+    "title": "Install New Kenya",
+    "desc": "Get quick access to updates and stay connected with the movement",
+    "now": "Install App",
+    "later": "Maybe Later"
   }
 }

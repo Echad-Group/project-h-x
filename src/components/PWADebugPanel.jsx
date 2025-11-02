@@ -3,6 +3,7 @@ import NotificationButton from './NotificationButton';
 import pwaAnalytics from '../services/pwaAnalytics';
 import notificationPrefs from '../services/notificationPreferences';
 import AnalyticsVisualizations from './AnalyticsVisualizations';
+import { useTranslation } from 'react-i18next';
 
 export default function PWADebugPanel() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +24,7 @@ export default function PWADebugPanel() {
   
   const [stats, setStats] = useState(null);
   const [notificationCategories, setNotificationCategories] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     checkPWAFeatures();
@@ -145,7 +147,7 @@ export default function PWADebugPanel() {
       {isOpen && (
         <div className="absolute bottom-12 right-0 w-96 bg-white rounded-lg shadow-xl p-4 max-h-[80vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-bold text-lg">PWA Debug Panel</h3>
+            <h3 className="font-bold text-lg">{t('pwa.title')}</h3>
             <div className="flex gap-2">
               {['status', 'analytics', 'notifications'].map(tab => (
                 <button
@@ -157,7 +159,7 @@ export default function PWADebugPanel() {
                       : 'bg-gray-100 hover:bg-gray-200'
                   }`}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {t(`pwa.tabs.${tab}`)}
                 </button>
               ))}
             </div>
@@ -167,27 +169,27 @@ export default function PWADebugPanel() {
             <div className="space-y-4">
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span>Installable:</span>
+                  <span>{t('pwa.status.installable')}</span>
                   <span>{debug.isInstallable ? '✅' : '❌'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Service Worker:</span>
+                  <span>{t('pwa.status.serviceWorker')}</span>
                   <span>{debug.serviceWorker ? '✅' : '❌'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Network Status:</span>
-                  <span>{debug.isOnline ? '🟢 Online' : '🔴 Offline'}</span>
+                  <span>{t('pwa.status.network')}</span>
+                  <span>{debug.isOnline ? `🟢 ${t('pwa.online')}` : `🔴 ${t('pwa.offline')}`}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Network Type:</span>
+                  <span>{t('pwa.status.networkType')}</span>
                   <span>{debug.networkType}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Last Update:</span>
-                  <span>{debug.lastUpdate ? new Date(debug.lastUpdate).toLocaleString() : 'Never'}</span>
+                  <span>{t('pwa.status.lastUpdate')}</span>
+                  <span>{debug.lastUpdate ? new Date(debug.lastUpdate).toLocaleString() : t('pwa.never')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Cached Resources:</span>
+                  <span>{t('pwa.status.cachedResources')}</span>
                   <span>{debug.cacheSize}</span>
                 </div>
               </div>
@@ -198,7 +200,7 @@ export default function PWADebugPanel() {
                     onClick={() => debug.installPromptEvent.prompt()}
                     className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
                   >
-                    Install App
+                    {t('pwa.install')}
                   </button>
                 )}
                 
@@ -206,7 +208,7 @@ export default function PWADebugPanel() {
                   onClick={clearCache}
                   className="w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                 >
-                  Clear Cache
+                  {t('pwa.clearCache')}
                 </button>
                 
                 <button
@@ -216,7 +218,7 @@ export default function PWADebugPanel() {
                   }}
                   className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                 >
-                  Refresh Status
+                  {t('pwa.refresh')}
                 </button>
               </div>
             </div>
@@ -233,7 +235,7 @@ export default function PWADebugPanel() {
                     }}
                     className="w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                   >
-                    Reset Analytics Data
+                    {t('pwa.resetAnalytics')}
                   </button>
                 </div>
             </div>
@@ -242,7 +244,7 @@ export default function PWADebugPanel() {
           {activeTab === 'notifications' && (
             <div className="space-y-4">
               <div>
-                <h4 className="font-semibold mb-2">Notification Settings</h4>
+                <h4 className="font-semibold mb-2">{t('pwa.notifications.title')}</h4>
                 <NotificationButton />
               </div>
 
@@ -253,10 +255,10 @@ export default function PWADebugPanel() {
                       onClick={() => notificationPrefs.exportPreferences()}
                       className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
                     >
-                      Export Preferences
+                      {t('pwa.notifications.export')}
                     </button>
                     <label className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer">
-                      Import Preferences
+                      {t('pwa.notifications.import')}
                       <input
                         type="file"
                         accept=".json"
@@ -268,7 +270,7 @@ export default function PWADebugPanel() {
                               loadNotificationPrefs();
                               setDebug(prev => ({ ...prev, importError: null }));
                             } else {
-                              setDebug(prev => ({ ...prev, importError: 'Failed to import preferences' }));
+                              setDebug(prev => ({ ...prev, importError: t('pwa.notifications.importFailed') }));
                             }
                           }
                         }}

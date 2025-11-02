@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import VolunteerSignup from '../components/VolunteerSignup';
 import { useMeta } from '../components/MetaTags';
+import { useTranslation } from 'react-i18next';
 
 export default function GetInvolved() {
   const { updateMeta } = useMeta();
+  const { t } = useTranslation();
 
   useEffect(() => {
     updateMeta({
@@ -29,8 +31,8 @@ export default function GetInvolved() {
   }, []);
   return (
     <section id="get-involved" className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Get Involved</h1>
-      <p className="mt-3 text-gray-600">Volunteer, host an event, or join a local chapter.</p>
+      <h1 className="text-3xl font-bold">{t('getInvolved.title')}</h1>
+      <p className="mt-3 text-gray-600">{t('getInvolved.description')}</p>
       <div className="mt-6">
         <VolunteerSignup />
       </div>

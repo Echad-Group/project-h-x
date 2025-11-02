@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMeta } from '../components/MetaTags'
+import { useTranslation } from 'react-i18next'
 
 const EVENTS = {
   'kisumu-townhall': {
@@ -16,6 +17,7 @@ export default function EventDetail(){
   const { id } = useParams();
   const event = EVENTS[id];
   const { updateMeta } = useMeta();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if(event) updateMeta({ title: `${event.title} - Events`, description: event.description, url: `/events/${id}` });
@@ -38,10 +40,10 @@ export default function EventDetail(){
       <p className="mt-4 text-gray-700">{event.description}</p>
 
       <form onSubmit={handleRSVP} className="mt-6 grid grid-cols-1 gap-3">
-        <input name="name" placeholder="Full name" required className="fluent-input" />
-        <input name="email" type="email" placeholder="Email" required className="fluent-input" />
-        <input name="phone" placeholder="Phone" className="fluent-input" />
-        <button className="fluent-btn fluent-btn-primary">RSVP</button>
+        <input name="name" placeholder={t('events.form.name')} required className="fluent-input" />
+        <input name="email" type="email" placeholder={t('events.form.email')} required className="fluent-input" />
+        <input name="phone" placeholder={t('events.form.phone')} className="fluent-input" />
+        <button className="fluent-btn fluent-btn-primary">{t('events.rsvp')}</button>
       </form>
     </section>
   )

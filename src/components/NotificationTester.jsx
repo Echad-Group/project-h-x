@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import notificationPrefs from '../services/notificationPreferences';
 import pwaAnalytics from '../services/pwaAnalytics';
+import { useTranslation } from 'react-i18next';
 
 export default function NotificationTester() {
+  const { t } = useTranslation();
   const [notification, setNotification] = useState({
-    title: 'Test Notification',
-    body: 'This is a test notification',
+    title: t('notificationTester.defaults.title'),
+    body: t('notificationTester.defaults.body'),
     category: 'events',
     image: '',
     actions: []
@@ -15,17 +17,17 @@ export default function NotificationTester() {
 
   const testNotification = async () => {
     if (!('Notification' in window)) {
-      alert('Notifications not supported');
+      alert(t('notificationTester.errors.notSupported'));
       return;
     }
 
     if (Notification.permission !== 'granted') {
-      alert('Please enable notifications first');
+      alert(t('notificationTester.errors.notEnabled'));
       return;
     }
 
     if (!notificationPrefs.shouldShowNotification(notification.category)) {
-      alert('This notification category is disabled or it is quiet hours');
+      alert(t('notificationTester.errors.categoryDisabled'));
       return;
     }
 
@@ -69,7 +71,7 @@ export default function NotificationTester() {
   const addAction = () => {
     const action = {
       action: 'action-' + (notification.actions.length + 1),
-      title: 'Action ' + (notification.actions.length + 1)
+      title: t('notificationTester.action.defaultTitle', { num: notification.actions.length + 1 })
     };
     setNotification(prev => ({ ...prev, actions: [...prev.actions, action] }));
   };
@@ -80,11 +82,11 @@ export default function NotificationTester() {
 
   return (
     <div className="space-y-4 p-4 bg-white rounded-lg shadow-md">
-      <h3 className="font-bold text-lg">Notification Tester</h3>
+      <h3 className="font-bold text-lg">{t('notificationTester.title')}</h3>
 
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Title</label>
+          <label className="block text-sm font-medium text-gray-700">{t('notificationTester.form.title')}</label>
           <input
             type="text"
             value={notification.title}
@@ -94,7 +96,7 @@ export default function NotificationTester() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Body</label>
+          <label className="block text-sm font-medium text-gray-700">{t('notificationTester.form.body')}</label>
           <textarea
             value={notification.body}
             onChange={(e) => setNotification(prev => ({ ...prev, body: e.target.value }))}
@@ -104,7 +106,7 @@ export default function NotificationTester() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Category</label>
+          <label className="block text-sm font-medium text-gray-700">{t('notificationTester.form.category')}</label>
           <select
             value={notification.category}
             onChange={(e) => setNotification(prev => ({ ...prev, category: e.target.value }))}
@@ -117,18 +119,18 @@ export default function NotificationTester() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Image URL (optional)</label>
+          <label className="block text-sm font-medium text-gray-700">{t('notificationTester.form.imageUrl')}</label>
           <input
             type="url"
             value={notification.image || ''}
             onChange={(e) => setNotification(prev => ({ ...prev, image: e.target.value || '' }))}
-            placeholder="https://example.com/image.jpg"
+            placeholder={t('notificationTester.form.imageUrlPlaceholder')}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Actions</label>
+          <label className="block text-sm font-medium text-gray-700">{t('notificationTester.form.actions')}</label>
           <div className="mt-2 space-y-2">
             {notification.actions.map((action, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -141,7 +143,7 @@ export default function NotificationTester() {
                     setNotification(prev => ({ ...prev, actions: newActions }));
                   }}
                   className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Action title"
+                  placeholder={t('notificationTester.form.actionTitlePlaceholder')}
                 />
                 <button
                   onClick={() => removeAction(index)}
@@ -158,7 +160,7 @@ export default function NotificationTester() {
                 type="button"
                 className="text-sm text-blue-500 hover:text-blue-700"
               >
-                + Add Action
+                {t('notificationTester.form.addAction')}
               </button>
             )}
           </div>
@@ -170,7 +172,7 @@ export default function NotificationTester() {
           onClick={testNotification}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
-          Send Test Notification
+          {t('notificationTester.form.sendTest')}
         </button>
       </div>
     </div>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import pwaAnalytics from '../services/pwaAnalytics';
+import { useTranslation } from 'react-i18next';
 
 export default function InstallPrompt() {
   const [installPromptEvent, setInstallPromptEvent] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Check if already installed
@@ -63,14 +65,14 @@ export default function InstallPrompt() {
         />
       </div>
       <div className="flex-1">
-        <h3 className="font-semibold text-gray-900">Install New Kenya</h3>
-        <p className="text-sm text-gray-600">Get quick access to updates and stay connected with the movement</p>
+        <h3 className="font-semibold text-gray-900">{t('install.title')}</h3>
+        <p className="text-sm text-gray-600">{t('install.desc')}</p>
         <div className="mt-2 flex gap-2">
           <button
             onClick={handleInstall}
             className="px-4 py-2 bg-[var(--kenya-green)] text-white rounded-md text-sm font-medium hover:bg-opacity-90"
           >
-            Install Now
+            {t('install.now')}
           </button>
           <button
             onClick={() => {
@@ -79,7 +81,7 @@ export default function InstallPrompt() {
             }}
             className="px-4 py-2 text-gray-600 text-sm font-medium hover:text-gray-900"
           >
-            Maybe Later
+            {t('install.later')}
           </button>
         </div>
       </div>

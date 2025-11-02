@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useMeta } from '../components/MetaTags'
+import { useTranslation } from 'react-i18next'
 
 const posts = [
   { id: 'youth-agenda', title: 'Campaign launches nationwide youth agenda', date: 'Oct 2025', excerpt: 'A bold plan to support startups, apprenticeships, and internships.' },
@@ -10,6 +11,7 @@ const posts = [
 
 export default function News(){
   const { updateMeta } = useMeta();
+  const { t } = useTranslation();
 
   useEffect(() => {
     updateMeta({
@@ -21,14 +23,14 @@ export default function News(){
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">News & Updates</h1>
+      <h1 className="text-3xl font-bold">{t('news.title')}</h1>
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {posts.map(p => (
           <article key={p.id} className="bg-white p-4 rounded card-shadow">
             <div className="text-xs text-gray-500">{p.date}</div>
             <h3 className="font-semibold mt-1">{p.title}</h3>
             <p className="mt-2 text-sm text-gray-600">{p.excerpt}</p>
-            <Link to={`/news/${p.id}`} className="mt-3 inline-block text-[var(--kenya-green)]">Read more →</Link>
+            <Link to={`/news/${p.id}`} className="mt-3 inline-block text-[var(--kenya-green)]">{t('news.readMore')}</Link>
           </article>
         ))}
       </div>

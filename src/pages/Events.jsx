@@ -1,16 +1,21 @@
 import React, { useEffect } from 'react'
 import { useMeta } from '../components/MetaTags'
+import { useTranslation } from 'react-i18next'
 
-const EventCard = ({title, date, location, startDate})=> (
-  <div className="p-4 bg-white rounded-lg card-shadow">
-    <div className="text-sm text-gray-500">{date} — {location}</div>
-    <h4 className="font-semibold mt-1">{title}</h4>
-    <button className="mt-3 px-3 py-2 bg-[var(--kenya-green)] text-white rounded-md">RSVP</button>
-  </div>
-)
+const EventCard = ({title, date, location, startDate})=> {
+  const { t } = useTranslation();
+  return (
+    <div className="p-4 bg-white rounded-lg card-shadow">
+      <div className="text-sm text-gray-500">{date} — {location}</div>
+      <h4 className="font-semibold mt-1">{title}</h4>
+      <button className="mt-3 px-3 py-2 bg-[var(--kenya-green)] text-white rounded-md">{t('events.rsvp')}</button>
+    </div>
+  );
+};
 
 export default function Events(){
   const { updateMeta } = useMeta();
+  const { t } = useTranslation();
   
   const events = [
     {
@@ -69,7 +74,7 @@ export default function Events(){
 
   return (
     <section className="max-w-5xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Events</h1>
+      <h1 className="text-3xl font-bold">{t('events.title')}</h1>
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {events.map(e=> <EventCard key={e.title} {...e} />)}
       </div>
