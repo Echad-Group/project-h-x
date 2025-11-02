@@ -8,7 +8,7 @@ export default function Hero({onOpenDonate}) {
   const { t } = useTranslation();
 
   return (
-    <section className="relative overflow-hidden" style={{ background: 'url(/src/assets/fluent-style-nk-bg.png) no-repeat center', backgroundSize: 'cover'}}>
+    <section className="relative overflow-hidden" style={{ background: 'url(/assets/fluent-style-nk-bg.png) no-repeat center', backgroundSize: 'cover'}}>
       <div className="absolute inset-0 flex">
         <div className="w-1/3 bg-[var(--kenya-green)]/8" />
         <div className="w-1/3 bg-[var(--kenya-black)]/8" />
