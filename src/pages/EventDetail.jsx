@@ -38,10 +38,10 @@ export default function EventDetail(){
       <p className="mt-4 text-gray-700">{event.description}</p>
 
       <form onSubmit={handleRSVP} className="mt-6 grid grid-cols-1 gap-3">
-        <input name="name" placeholder="Full name" required className="p-2 border rounded" />
-        <input name="email" type="email" placeholder="Email" required className="p-2 border rounded" />
-        <input name="phone" placeholder="Phone" className="p-2 border rounded" />
-        <button className="px-4 py-2 bg-[var(--kenya-green)] text-white rounded">RSVP</button>
+        <input name="name" placeholder="Full name" required className="fluent-input" />
+        <input name="email" type="email" placeholder="Email" required className="fluent-input" />
+        <input name="phone" placeholder="Phone" className="fluent-input" />
+        <button className="fluent-btn fluent-btn-primary">RSVP</button>
       </form>
     </section>
   )

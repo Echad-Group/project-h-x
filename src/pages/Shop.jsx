@@ -21,11 +21,11 @@ export default function Shop(){
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         {PRODUCTS.map(p=> (
-          <article key={p.id} className="bg-white p-4 rounded card-shadow">
+          <article key={p.id} className="fluent-card">
             <div className="h-40 bg-gray-100 rounded mb-3 flex items-center justify-center">Image</div>
             <div className="font-semibold">{p.title}</div>
             <div className="text-sm text-gray-500">KES {p.price}</div>
-            <Link to={`/product/${p.id}`} className="mt-3 inline-block text-[var(--kenya-green)]">View →</Link>
+            <Link to={`/product/${p.id}`} className="mt-3 inline-block fluent-btn fluent-btn-ghost">View →</Link>
           </article>
         ))}
       </div>

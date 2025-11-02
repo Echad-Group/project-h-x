@@ -28,7 +28,7 @@ export default function VolunteerSignup({ onSubmit }) {
 
   if (submitted) {
     return (
-      <div className="p-6 bg-green-50 rounded-lg text-center">
+      <div className="fluent-card text-center bg-green-50">
         <h3 className="text-lg font-semibold text-green-700">Thank you for signing up!</h3>
         <p className="mt-2 text-green-600">We appreciate your support. Our team will contact you soon.</p>
       </div>
@@ -41,21 +41,21 @@ export default function VolunteerSignup({ onSubmit }) {
       {error && <div className="text-red-600 text-sm">{error}</div>}
       <div>
         <label className="block text-sm font-medium">Name*</label>
-        <input name="name" value={form.name} onChange={handleChange} required className="mt-1 w-full border rounded p-2" />
+        <input name="name" value={form.name} onChange={handleChange} required className="fluent-input mt-1" />
       </div>
       <div>
         <label className="block text-sm font-medium">Email*</label>
-        <input name="email" type="email" value={form.email} onChange={handleChange} required className="mt-1 w-full border rounded p-2" />
+        <input name="email" type="email" value={form.email} onChange={handleChange} required className="fluent-input mt-1" />
       </div>
       <div>
         <label className="block text-sm font-medium">Phone</label>
-        <input name="phone" type="tel" value={form.phone} onChange={handleChange} className="mt-1 w-full border rounded p-2" />
+        <input name="phone" type="tel" value={form.phone} onChange={handleChange} className="fluent-input mt-1" />
       </div>
       <div>
         <label className="block text-sm font-medium">Interests</label>
-        <textarea name="interests" value={form.interests} onChange={handleChange} className="mt-1 w-full border rounded p-2" placeholder="How would you like to help?" />
+        <textarea name="interests" value={form.interests} onChange={handleChange} className="fluent-input mt-1" placeholder="How would you like to help?" />
       </div>
-      <button type="submit" className="w-full bg-[var(--kenya-green)] text-white py-2 rounded font-semibold hover:bg-green-700">Sign Up</button>
+      <button type="submit" className="fluent-btn fluent-btn-primary w-full">Sign Up</button>
     </form>
   );
 }

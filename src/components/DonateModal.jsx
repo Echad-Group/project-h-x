@@ -90,11 +90,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                     <button
                       key={option.id}
                       type="button"
-                      className={`px-3 py-1 rounded text-sm ${
-                        recurringInterval === option.id 
-                          ? 'bg-[var(--kenya-green)] text-white' 
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
+                      className={`fluent-btn ${recurringInterval === option.id ? 'fluent-btn-primary' : 'fluent-btn-ghost'}`}
                       onClick={() => setRecurringInterval(option.id)}
                     >
                       {option.name}
@@ -107,13 +103,13 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                   <div className="flex gap-2 mb-2 flex-wrap">
                     {presetAmounts.map(a => (
                       <button
-                        type="button"
-                        key={a}
-                        className={`px-3 py-2 rounded border ${amount === a ? 'bg-[var(--kenya-green)] text-white' : 'bg-gray-50 text-gray-700'}`}
-                        onClick={() => setAmount(a)}
-                      >
-                        {a}
-                      </button>
+                          type="button"
+                          key={a}
+                          className={`fluent-btn ${amount === a ? 'fluent-btn-primary' : 'fluent-btn-ghost'}`}
+                          onClick={() => setAmount(a)}
+                        >
+                          {a}
+                        </button>
                     ))}
                     <input
                       type="number"
@@ -121,7 +117,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                       step="50"
                       value={amount}
                       onChange={e => setAmount(e.target.value)}
-                      className="w-24 px-2 py-1 border rounded ml-2"
+                      className="w-24 fluent-input ml-2"
                       placeholder="Other"
                       required
                     />
@@ -136,7 +132,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="w-full px-3 py-2 border rounded"
+                    className="fluent-input"
                     required
                   />
                 </div>
@@ -146,7 +142,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border rounded"
+                    className="fluent-input"
                     required
                   />
                 </div>
@@ -156,7 +152,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                     type="tel"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 border rounded"
+                    className="fluent-input"
                     placeholder="+254"
                     required
                   />
@@ -170,11 +166,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                       <button
                         key={method.id}
                         type="button"
-                        className={`p-3 rounded border flex flex-col items-center gap-1 ${
-                          paymentMethod === method.id 
-                            ? 'bg-[var(--kenya-green)]/10 border-[var(--kenya-green)]' 
-                            : 'bg-gray-50 border-gray-200'
-                        }`}
+                        className={`fluent-card-small flex flex-col items-center gap-1 ${paymentMethod === method.id ? 'border-[var(--fluent-accent)]' : ''}`}
                         onClick={() => setPaymentMethod(method.id)}
                       >
                         <span className="text-xl">{method.icon}</span>
@@ -185,7 +177,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-[var(--kenya-green)] text-white py-2 rounded font-semibold hover:bg-green-700 disabled:opacity-60"
+                  className="fluent-btn fluent-btn-primary w-full"
                   disabled={processing}
                 >
                   {processing ? 'Processing...' : `Donate KES ${amount}`}
@@ -199,7 +191,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                 <p className="text-gray-700 mb-4">Your (mock) donation of <span className="font-semibold">KES {amount}</span> has been received.</p>
                 <button
                   onClick={closeModal}
-                  className="mt-2 px-5 py-2 bg-[var(--kenya-green)] text-white rounded font-semibold hover:bg-green-700"
+                  className="fluent-btn fluent-btn-primary mt-2"
                 >
                   Close
                 </button>

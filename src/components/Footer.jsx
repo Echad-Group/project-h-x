@@ -26,6 +26,7 @@ export default function Footer(){
               <li><a href="/gallery">Gallery</a></li>
               <li><a href="/faq">FAQ</a></li>
               <li><a href="/shop">Shop</a></li>
+              <li><a href="/team">Team</a></li>
             </ul>
           </div>
         </div>

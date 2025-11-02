@@ -26,7 +26,7 @@ export default function Product(){
       <p className="mt-2 text-gray-600">{product.desc}</p>
       <div className="mt-4 text-lg font-semibold">KES {product.price}</div>
       <div className="mt-4">
-        <button onClick={()=> addToCart(product)} className="px-4 py-2 bg-[var(--kenya-green)] text-white rounded">Add to cart</button>
+        <button onClick={()=> addToCart(product)} className="fluent-btn fluent-btn-primary">Add to cart</button>
       </div>
     </section>
   )

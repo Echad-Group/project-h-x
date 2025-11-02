@@ -31,21 +31,21 @@ export default function Navbar({ onOpenDonate }) {
             </Link>
           </div>
 
-          <nav className="hidden md:flex items-center gap-2" aria-label="Primary Navigation">
+          <nav className="hidden md:flex items-center gap-3" aria-label="Primary Navigation">
             <NavItem to="/">Home</NavItem>
             <NavItem to="/about">About</NavItem>
             <NavItem to="/issues">Issues</NavItem>
             <NavItem to="/events">Events</NavItem>
             <NavItem to="/get-involved">Get Involved</NavItem>
-            {/* <LanguageSwitcher /> */}
+            <LanguageSwitcher />
             <button
-              className="ml-4 px-4 py-2 rounded-md text-sm font-semibold text-white bg-[var(--kenya-red)] hover:opacity-95"
+              className="fluent-btn fluent-btn-action ml-2"
               onClick={() => onOpenDonate()}
               aria-label="Open donation modal"
             >
               Donate
             </button>
-            {/* <RouterLink to="/shop" className="ml-2 px-3 py-2 rounded-md text-sm font-medium bg-gray-100">Shop</RouterLink> */}
+            <RouterLink to="/shop" className="fluent-btn fluent-btn-ghost">Shop</RouterLink>
           </nav>
         </div>
       </div>

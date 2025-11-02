@@ -28,17 +28,17 @@ export default function Contact(){
       <form onSubmit={handleSubmit} className="mt-6 space-y-4 bg-white p-6 rounded-lg card-shadow">
         <div>
           <label className="block text-sm font-medium">Name</label>
-          <input name="name" required className="mt-1 w-full border rounded p-2" />
+          <input name="name" required className="fluent-input mt-1" />
         </div>
         <div>
           <label className="block text-sm font-medium">Email</label>
-          <input name="email" type="email" required className="mt-1 w-full border rounded p-2" />
+          <input name="email" type="email" required className="fluent-input mt-1" />
         </div>
         <div>
           <label className="block text-sm font-medium">Message</label>
-          <textarea name="message" required className="mt-1 w-full border rounded p-2" rows={5} />
+          <textarea name="message" required className="fluent-input mt-1" rows={5} />
         </div>
-        <button type="submit" className="px-4 py-2 bg-[var(--kenya-green)] text-white rounded">Send Message</button>
+        <button type="submit" className="fluent-btn fluent-btn-primary">Send Message</button>
       </form>
     </section>
   )

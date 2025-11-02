@@ -22,6 +22,31 @@ body{
   -webkit-text-fill-color: transparent;
 }
 
+/* Fluent-inspired design tokens using campaign palette */
+:root{
+  --fluent-surface: var(--kenya-white);
+  --fluent-card-bg: #ffffff;
+  --fluent-border: rgba(15,23,42,0.06);
+  --fluent-accent: var(--kenya-green);
+  --fluent-accent-600: #004d25;
+  --fluent-action: var(--kenya-red);
+  --fluent-foreground: #0f172a;
+  --fluent-muted: #6b7280;
+  --fluent-radius: 8px;
+}
+
+/* Fluent utility classes */
+.fluent-card{ background:var(--fluent-card-bg); border:1px solid var(--fluent-border); border-radius:var(--fluent-radius); box-shadow:0 8px 24px rgba(2,6,23,0.06); padding:1rem }
+.fluent-btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 0.9rem; border-radius:6px; font-weight:600; border:1px solid transparent; cursor:pointer }
+.fluent-btn:focus{ outline:2px solid rgba(0,0,0,0.06); outline-offset:2px }
+.fluent-btn-primary{ background:var(--fluent-accent); color:#fff; border-color:var(--fluent-accent-600) }
+.fluent-btn-ghost{ background:transparent; color:var(--fluent-accent); border-color:transparent }
+.fluent-btn-action{ background:var(--fluent-action); color:#fff }
+.fluent-input{ width:100%; padding:.5rem .6rem; border-radius:6px; border:1px solid var(--fluent-border); background:#fff }
+.fluent-input:focus{ box-shadow:0 0 0 3px rgba(0,102,51,0.08); outline:none }
+.fluent-card-small{ padding:.75rem; border-radius:8px; background:var(--fluent-card-bg); border:1px solid var(--fluent-border) }
+
+
 .flag-band-green{ background-color: var(--kenya-green) }
 .flag-band-red{ background-color: var(--kenya-red) }
 .flag-band-black{ background-color: var(--kenya-black) }
