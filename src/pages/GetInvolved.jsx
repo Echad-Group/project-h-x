@@ -1,4 +1,4 @@
-
+import React from 'react';
 import VolunteerSignup from '../components/VolunteerSignup';
 
 export default function GetInvolved() {

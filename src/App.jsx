@@ -7,33 +7,43 @@ import { MetaProvider } from './components/MetaTags'
 import PWADebugPanel from './components/PWADebugPanel'
 import NotificationButton from './components/NotificationButton'
 import InstallPrompt from './components/InstallPrompt'
+import DonateModal from './components/DonateModal';
 import Home from './pages/Home'
 import About from './pages/About'
 import Issues from './pages/Issues'
 import Events from './pages/Events'
 import GetInvolved from './pages/GetInvolved'
 
-export default function App(){
+
+export default function App() {
+  const [donateOpen, setDonateOpen] = useState(false);
+  const appConfig = {
+    siteName: 'Project H',
+    theme: 'light',
+    user: { name: 'Rodern', role: 'member' },
+  };
+
   return (
     <MetaProvider>
       <div className="min-h-screen flex flex-col bg-[var(--kenya-white)] text-gray-900">
-        <Navbar />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Home/>} />
-          <Route path="/about" element={<About/>} />
-          <Route path="/issues" element={<Issues/>} />
-          <Route path="/events" element={<Events/>} />
-          <Route path="/get-involved" element={<GetInvolved/>} />
-        </Routes>
-      </main>
-      <Footer />
-      <PWADebugPanel />
-      <div className="fixed top-20 right-4 z-40">
-        <NotificationButton />
-      </div>
+        <Navbar onOpenDonate={() => { setDonateOpen(true); }} />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home onOpenDonate={() => setDonateOpen(true)} />} />
+            <Route path="/about" element={<About onOpenDonate={() => setDonateOpen(true)} />} />
+            <Route path="/issues" element={<Issues onOpenDonate={() => setDonateOpen(true)} />} />
+            <Route path="/events" element={<Events onOpenDonate={() => setDonateOpen(true)} />} />
+            <Route path="/get-involved" element={<GetInvolved onOpenDonate={() => setDonateOpen(true)} />} />
+          </Routes>
+        </main>
+        <Footer />
+        <PWADebugPanel />
+        <div className="fixed top-20 right-4 z-40">
+          <NotificationButton />
+        </div>
         <InstallPrompt />
-    </div>
+      </div>
+      <DonateModal open={donateOpen} setDonateOpen={setDonateOpen} onClose={() => setDonateOpen(false)} />
     </MetaProvider>
   )
 }

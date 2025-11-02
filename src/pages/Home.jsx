@@ -3,10 +3,10 @@ import Hero from '../sections/Hero'
 import NewsCarousel from '../sections/NewsCarousel'
 import IssuesPreview from '../sections/IssuesPreview'
 
-export default function Home(){
+export default function Home({onOpenDonate}) {
   return (
     <div>
-      <Hero />
+      <Hero onOpenDonate={onOpenDonate} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 py-12">
         <NewsCarousel />
         <IssuesPreview />

@@ -7,7 +7,7 @@ export default function NotificationTester() {
     title: 'Test Notification',
     body: 'This is a test notification',
     category: 'events',
-    image: null,
+    image: '',
     actions: []
   });
 
@@ -25,17 +25,17 @@ export default function NotificationTester() {
     }
 
     if (!notificationPrefs.shouldShowNotification(notification.category)) {
-      alert('This notification category is disabled or in quiet hours');
+      alert('This notification category is disabled or it is quiet hours');
       return;
     }
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      
+
       const options = {
         body: notification.body,
-        icon: '/assets/icons/icon-192.svg',
-        badge: '/assets/icons/icon-96.svg',
+        icon: '/src/assets/icons/icon-192.svg',
+        badge: '/src/assets/icons/icon-96.svg',
         image: notification.image || undefined,
         vibrate: [100, 50, 100],
         tag: 'test-notification',
@@ -45,176 +45,43 @@ export default function NotificationTester() {
           url: '/',
           timestamp: new Date().toISOString()
         }
-      import React, { useState } from 'react';
-      import pwaAnalytics from '../services/pwaAnalytics';
-      import notificationPrefs from '../services/notificationPreferences';
       };
 
-        const [formData, setFormData] = useState({
-          title: '',
-          body: '',
-          category: 'events',
-          icon: '/src/assets/icons/icon-192.svg',
-          image: '',
-          actions: [
-            { action: 'explore', title: 'View Details' }
-          ],
-          url: '/'
+      // In development show the notification directly via service worker registration
+      if (process.env.NODE_ENV === 'development') {
+        await registration.showNotification(notification.title, options);
+      } else {
+        // In production you would POST to your server which would trigger the push
+        await fetch('/api/send-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notification })
         });
+      }
 
-        const handleSubmit = async (e) => {
-          e.preventDefault();
-
-          if (!('serviceWorker' in navigator)) {
-            alert('Service Worker is not supported in this browser');
-            return;
-          }
-
-          try {
-            const registration = await navigator.serviceWorker.ready;
-      
-            if (!registration.pushManager) {
-              alert('Push notifications are not supported');
-              return;
-            }
-
-            const subscription = await registration.pushManager.getSubscription();
-            if (!subscription) {
-              alert('Please enable notifications first');
-              return;
-            }
-
-            // In development, we'll show a notification directly
-            if (process.env.NODE_ENV === 'development') {
-              await registration.showNotification(formData.title, {
-                body: formData.body,
-                icon: formData.icon,
-                image: formData.image || undefined,
-                badge: '/src/assets/icons/icon-96.svg',
-                vibrate: [100, 50, 100],
-                data: {
-                  url: formData.url,
-                  category: formData.category
-                },
-                actions: formData.actions
-              });
-
-              // Track the test notification
-              pwaAnalytics.trackNotification('receive', formData.category);
-            } else {
-              // In production, you would send this to your server
-              await fetch('/api/send-notification', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  subscription,
-                  notification: formData
-                }),
-              });
-            }
-
-          } catch (error) {
-            console.error('Error sending test notification:', error);
-            alert('Error sending notification: ' + error.message);
-          }
-        };
-      await registration.showNotification(notification.title, options);
       pwaAnalytics.trackNotification('test', notification.category);
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Title</label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Body</label>
-              <textarea
-                value={formData.body}
-                onChange={e => setFormData(prev => ({ ...prev, body: e.target.value }))}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                rows="3"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Category</label>
-              <select
-                value={formData.category}
-                onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-              >
-                {Object.entries(notificationPrefs.getPreferences().categories).map(([id, cat]) => (
-                  <option key={id} value={id}>{cat.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Image URL (optional)</label>
-              <input
-                type="url"
-                value={formData.image}
-                onChange={e => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Link URL</label>
-              <input
-                type="url"
-                value={formData.url}
-                onChange={e => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                required
-              />
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              >
-                Send Test Notification
-              </button>
-            </div>
-          </form>
+    } catch (error) {
       console.error('Error showing test notification:', error);
-      alert('Error showing notification: ' + error.message);
+      alert('Error showing notification: ' + (error.message || error));
     }
   };
 
   const addAction = () => {
     const action = {
-      action: 'test-action-' + (notification.actions.length + 1),
+      action: 'action-' + (notification.actions.length + 1),
       title: 'Action ' + (notification.actions.length + 1)
     };
-    setNotification(prev => ({
-      ...prev,
-      actions: [...prev.actions, action]
-    }));
+    setNotification(prev => ({ ...prev, actions: [...prev.actions, action] }));
   };
 
   const removeAction = (index) => {
-    setNotification(prev => ({
-      ...prev,
-      actions: prev.actions.filter((_, i) => i !== index)
-    }));
+    setNotification(prev => ({ ...prev, actions: prev.actions.filter((_, i) => i !== index) }));
   };
 
   return (
     <div className="space-y-4 p-4 bg-white rounded-lg shadow-md">
       <h3 className="font-bold text-lg">Notification Tester</h3>
-      
+
       <div className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-gray-700">Title</label>
@@ -254,7 +121,7 @@ export default function NotificationTester() {
           <input
             type="url"
             value={notification.image || ''}
-            onChange={(e) => setNotification(prev => ({ ...prev, image: e.target.value || null }))}
+            onChange={(e) => setNotification(prev => ({ ...prev, image: e.target.value || '' }))}
             placeholder="https://example.com/image.jpg"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
@@ -278,6 +145,7 @@ export default function NotificationTester() {
                 />
                 <button
                   onClick={() => removeAction(index)}
+                  type="button"
                   className="p-2 text-red-500 hover:text-red-700"
                 >
                   ×
@@ -287,6 +155,7 @@ export default function NotificationTester() {
             {notification.actions.length < 2 && (
               <button
                 onClick={addAction}
+                type="button"
                 className="text-sm text-blue-500 hover:text-blue-700"
               >
                 + Add Action

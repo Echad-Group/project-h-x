@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 
 import HeroCarousel from '../components/HeroCarousel'
 
-export default function Hero(){
+export default function Hero({onOpenDonate}) {
 
   return (
     <section className="relative overflow-hidden" style={{ background: 'url(/src/assets/fluent-style-nk-bg.png) no-repeat center', backgroundSize: 'cover'}}>
@@ -25,7 +25,7 @@ export default function Hero(){
 
             <div className="mt-8 flex gap-3">
               <a href="#get-involved" className="px-6 py-3 bg-[var(--kenya-green)] text-white rounded-md font-semibold shadow-sm hover:opacity-95">Get Involved</a>
-              <a href="#donate" className="px-6 py-3 border border-[var(--kenya-red)] text-[var(--kenya-red)] rounded-md font-semibold">Donate</a>
+              <a href="#donate" className="px-6 py-3 border border-[var(--kenya-red)] text-[var(--kenya-red)] rounded-md font-semibold" onClick={(e) => {e.preventDefault(); onOpenDonate(); }}>Donate</a>
             </div>
           </div>
 

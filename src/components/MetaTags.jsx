@@ -5,7 +5,7 @@ export const MetaContext = createContext();
 
 export const MetaProvider = ({ children }) => {
   const updateMeta = (data) => {
-    const { meta, schema } = generateMetaTags(data);
+  const { meta, schema } = generateMetaTags(data);
     
     // Update meta tags
     Object.entries(meta).forEach(([key, value]) => {
@@ -31,15 +31,15 @@ export const MetaProvider = ({ children }) => {
     });
 
     // Update title if provided
-    if (newMeta.title) {
-      document.title = newMeta.title;
+    if (meta.title) {
+      document.title = meta.title;
     }
 
     // Update JSON-LD if provided
-    if (newMeta.structuredData) {
+    if (meta.structuredData) {
       let script = document.querySelector('script[type="application/ld+json"]');
       if (script) {
-        script.textContent = JSON.stringify(newMeta.structuredData);
+        script.textContent = JSON.stringify(meta.structuredData);
       }
     }
   };
