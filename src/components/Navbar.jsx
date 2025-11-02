@@ -20,15 +20,16 @@ export default function Navbar({ onOpenDonate }) {
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden shadow-sm">
-                <svg viewBox="0 0 3 2" className="w-full h-full">
+                {/* <svg viewBox="0 0 3 2" className="w-full h-full">
                   <rect width="3" height="2" fill="#006633"/>
                   <rect y="0.6" width="3" height="0.4" fill="#CE1126"/>
                   <rect y="0.9" width="3" height="0.2" fill="#000000"/>
-                </svg>
+                </svg> */}
+                <img src="/src/assets/new-kenya.2.0.png" alt="New Kenya Flag" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="text-lg font-bold">New Kenya</div>
-                <div className="text-xs text-gray-500">For a united, prosperous future</div>
+                <div className="text-xs text-gray-500 ">For a united, prosperous future</div>
               </div>
             </Link>
           </div>

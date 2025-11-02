@@ -18,7 +18,7 @@ export default function LanguageSwitcher(){
 
   return (
     <div className="flex items-center gap-2">
-      <label className="text-sm text-gray-600">{t('language.label')}</label>
+      <label className="text-sm text-gray-600">{/* {t('language.label')} */}</label>
       <select value={lang} onChange={e=> setLang(e.target.value)} className="p-1 border rounded">
         {LOCALES.map(l=> <option key={l.code} value={l.code}>{t(l.labelKey)}</option>)}
       </select>
