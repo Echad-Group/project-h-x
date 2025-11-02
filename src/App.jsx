@@ -13,6 +13,13 @@ import About from './pages/About'
 import Issues from './pages/Issues'
 import Events from './pages/Events'
 import GetInvolved from './pages/GetInvolved'
+import Contact from './pages/Contact'
+import FAQ from './pages/FAQ'
+import News from './pages/News'
+import NewsArticle from './pages/NewsArticle'
+import Team from './pages/Team'
+import Gallery from './pages/Gallery'
+import EventDetail from './pages/EventDetail'
 
 
 export default function App() {
@@ -33,7 +40,14 @@ export default function App() {
             <Route path="/about" element={<About onOpenDonate={() => setDonateOpen(true)} />} />
             <Route path="/issues" element={<Issues onOpenDonate={() => setDonateOpen(true)} />} />
             <Route path="/events" element={<Events onOpenDonate={() => setDonateOpen(true)} />} />
+            <Route path="/events/:id" element={<EventDetail/>} />
             <Route path="/get-involved" element={<GetInvolved onOpenDonate={() => setDonateOpen(true)} />} />
+            <Route path="/contact" element={<Contact/>} />
+            <Route path="/faq" element={<FAQ/>} />
+            <Route path="/news" element={<News/>} />
+            <Route path="/news/:id" element={<NewsArticle/>} />
+            <Route path="/team" element={<Team/>} />
+            <Route path="/gallery" element={<Gallery/>} />
           </Routes>
         </main>
         <Footer />

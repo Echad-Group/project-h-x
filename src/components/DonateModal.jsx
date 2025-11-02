@@ -5,16 +5,56 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
   const [amount, setAmount] = useState('500');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [processing, setProcessing] = useState(false);
-  const presetAmounts = ['250', '500', '1000', '2500', '5000'];
+   const [phone, setPhone] = useState('');
+   const [paymentMethod, setPaymentMethod] = useState('mpesa');
+   const [recurringInterval, setRecurringInterval] = useState('once');
+   const [processing, setProcessing] = useState(false);
+   
+   const presetAmounts = ['250', '500', '1000', '2500', '5000'];
+   
+   const paymentMethods = [
+     { id: 'mpesa', name: 'M-Pesa', icon: '📱' },
+     { id: 'card', name: 'Credit/Debit Card', icon: '💳' },
+     { id: 'bank', name: 'Bank Transfer', icon: '🏦' }
+   ];
+   
+   const recurringOptions = [
+     { id: 'once', name: 'One-time' },
+     { id: 'monthly', name: 'Monthly' },
+     { id: 'quarterly', name: 'Quarterly' },
+     { id: 'annually', name: 'Annually' }
+   ];
 
   function handleDonate(e) {
     e.preventDefault();
     setProcessing(true);
+    
+    // Simulate payment processing
+    const paymentData = {
+      amount,
+      name,
+      email,
+      phone,
+      paymentMethod,
+      recurringInterval,
+      currency: 'KES',
+      timestamp: new Date().toISOString()
+    };
+
+    // In production, this would call your payment API
+    console.log('Processing payment:', paymentData);
+    
     setTimeout(() => {
       setProcessing(false);
       setStep('success');
-    }, 1200);
+      // Reset form
+      setAmount('500');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setPaymentMethod('mpesa');
+      setRecurringInterval('once');
+    }, 2000);
   }
 
   function closeModal() {
@@ -43,6 +83,25 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
               <form onSubmit={handleDonate} className="space-y-5">
                 <h3 className="text-2xl font-bold text-center mb-2">Support New Kenya</h3>
                 <p className="text-sm text-gray-600 text-center">Your contribution helps mobilize volunteers and reach voters.</p>
+                
+                {/* Recurring Options */}
+                <div className="flex gap-2 justify-center">
+                  {recurringOptions.map(option => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={`px-3 py-1 rounded text-sm ${
+                        recurringInterval === option.id 
+                          ? 'bg-[var(--kenya-green)] text-white' 
+                          : 'bg-gray-100 text-gray-700'
+                      }`}
+                      onClick={() => setRecurringInterval(option.id)}
+                    >
+                      {option.name}
+                    </button>
+                  ))}
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-1">Donation Amount (KES)</label>
                   <div className="flex gap-2 mb-2 flex-wrap">
@@ -67,6 +126,9 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                       required
                     />
                   </div>
+                   <p className="text-xs text-gray-500 mt-1">
+                     {recurringInterval !== 'once' ? `You will be charged KES ${amount} ${recurringInterval}` : ''}
+                   </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Name</label>
@@ -87,6 +149,39 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                     className="w-full px-3 py-2 border rounded"
                     required
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    className="w-full px-3 py-2 border rounded"
+                    placeholder="+254"
+                    required
+                  />
+                </div>
+                
+                {/* Payment Methods */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Payment Method</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {paymentMethods.map(method => (
+                      <button
+                        key={method.id}
+                        type="button"
+                        className={`p-3 rounded border flex flex-col items-center gap-1 ${
+                          paymentMethod === method.id 
+                            ? 'bg-[var(--kenya-green)]/10 border-[var(--kenya-green)]' 
+                            : 'bg-gray-50 border-gray-200'
+                        }`}
+                        onClick={() => setPaymentMethod(method.id)}
+                      >
+                        <span className="text-xl">{method.icon}</span>
+                        <span className="text-xs font-medium">{method.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <button
                   type="submit"
