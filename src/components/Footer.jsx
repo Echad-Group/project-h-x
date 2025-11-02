@@ -11,15 +11,17 @@ export default function Footer(){
         <div>
           <h5 className="font-semibold">Quick Links</h5>
           <ul className="mt-2 text-sm text-gray-200 space-y-1">
-            <li>About</li>
-            <li>Issues</li>
-            <li>Events</li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/issues">Issues</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/news">News</a></li>
+            <li><a href="/get-involved">Get Involved</a></li>
           </ul>
         </div>
         <div>
           <h5 className="font-semibold">Contact</h5>
-          <p className="text-sm text-gray-200 mt-2">info@newkenya.org</p>
-          <p className="text-sm text-gray-200">+254 700 000 000</p>
+          <p className="text-sm text-gray-200 mt-2"><a href="mailto:info@newkenya.org" tagert="_blank">info@newkenya.org</a></p>
+          <p className="text-sm text-gray-200"><a href="tel:+254700000000" target="_blank">+254 700 000 000</a></p>
         </div>
       </div>
       <div className="mt-8 text-center text-xs text-gray-400">© {new Date().getFullYear()} New Kenya — All rights reserved</div>

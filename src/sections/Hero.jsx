@@ -24,7 +24,7 @@ export default function Hero({onOpenDonate}) {
             <p className="mt-6 text-lg text-gray-700 max-w-xl" style={{color: 'wheat'}}>We are building a New Kenya — one that invests in youth, strengthens communities, and modernizes institutions. Join us to make it happen.</p>
 
             <div className="mt-8 flex gap-3">
-              <a href="#get-involved" className="px-6 py-3 bg-[var(--kenya-green)] text-white rounded-md font-semibold shadow-sm hover:opacity-95">Get Involved</a>
+              <a href="/get-involved" className="px-6 py-3 bg-[var(--kenya-green)] text-white rounded-md font-semibold shadow-sm hover:opacity-95">Get Involved</a>
               <a href="#donate" className="px-6 py-3 border border-[var(--kenya-red)] text-[var(--kenya-red)] rounded-md font-semibold" onClick={(e) => {e.preventDefault(); onOpenDonate(); }}>Donate</a>
             </div>
           </div>
