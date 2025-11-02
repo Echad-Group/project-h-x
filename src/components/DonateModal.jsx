@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next'
 
 export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }) {
   const [step, setStep] = useState('form');
@@ -65,13 +66,83 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
     setAmount('500');
   }
 
+  // Accessibility: focus trapping and restore
+  const modalRef = useRef(null);
+  const previouslyFocused = useRef(null);
+
+  useEffect(() => {
+    if (!donateOpen) return;
+
+    previouslyFocused.current = document.activeElement;
+
+    // focus the first focusable element in the modal
+    const focusableSelector = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const node = modalRef.current;
+    const focusable = node ? Array.from(node.querySelectorAll(focusableSelector)) : [];
+    const first = focusable.length > 0 ? focusable[0] : node;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const focusTimer = setTimeout(() => {
+      if (first && first.focus) first.focus();
+    }, 0);
+
+    function onKeyDown(e) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        // trap focus
+        const focusableElems = focusable.length ? focusable : [node];
+        if (focusableElems.length === 0) return;
+        const idx = focusableElems.indexOf(document.activeElement);
+        if (e.shiftKey) {
+          // backwards
+          if (idx === 0 || document.activeElement === node) {
+            e.preventDefault();
+            focusableElems[focusableElems.length - 1].focus();
+          }
+        } else {
+          // forwards
+          if (idx === focusableElems.length - 1) {
+            e.preventDefault();
+            focusableElems[0].focus();
+          }
+        }
+      }
+    }
+
+  document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      clearTimeout(focusTimer);
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = prevOverflow;
+      // restore focus
+      try {
+        if (previouslyFocused.current && previouslyFocused.current.focus) previouslyFocused.current.focus();
+      } catch (err) {
+        // ignore
+      }
+    };
+  }, [donateOpen]);
+
+  const { t } = useTranslation();
+
   return (
     <div>
       {/*<button onClick={() => setDonateOpen(true)} className="px-4 py-2 bg-[var(--kenya-red)] text-white rounded-md">Donate</button>*/}
 
       {donateOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md relative animate-fade-in">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+        >
+          <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="donate-heading" aria-describedby="donate-desc" className="bg-white rounded-lg p-6 w-full max-w-md relative animate-fade-in">
             <button
               onClick={closeModal}
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold"
@@ -81,8 +152,8 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
             </button>
             {step === 'form' && (
               <form onSubmit={handleDonate} className="space-y-5">
-                <h3 className="text-2xl font-bold text-center mb-2">Support New Kenya</h3>
-                <p className="text-sm text-gray-600 text-center">Your contribution helps mobilize volunteers and reach voters.</p>
+                <h3 id="donate-heading" className="text-2xl font-bold text-center mb-2">{t('donate.heading')}</h3>
+                <p id="donate-desc" className="text-sm text-gray-600 text-center">{t('donate.description')}</p>
                 
                 {/* Recurring Options */}
                 <div className="flex gap-2 justify-center">
@@ -180,7 +251,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
                   className="fluent-btn fluent-btn-primary w-full"
                   disabled={processing}
                 >
-                  {processing ? 'Processing...' : `Donate KES ${amount}`}
+                  {processing ? (t('donate.processing') || 'Processing...') : (t('donate.give') ? `${t('donate.give')} KES ${amount}` : `Donate KES ${amount}`)}
                 </button>
               </form>
             )}

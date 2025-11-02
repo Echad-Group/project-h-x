@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "issues": "Issues",
+    "events": "Events",
+    "getInvolved": "Get Involved",
+    "news": "News",
+    "shop": "Shop"
+  },
+  "donate": {
+    "heading": "Support New Kenya",
+    "description": "Your contribution helps mobilize volunteers and reach voters.",
+    "give": "Give",
+    "processing": "Processing..."
+  },
+  "language": {
+    "label": "Language",
+    "english": "English",
+    "swahili": "Kiswahili"
+  }
+}

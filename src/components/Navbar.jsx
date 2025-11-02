@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { Link as RouterLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 
 const NavItem = ({to, children}) => (
@@ -11,6 +12,7 @@ const NavItem = ({to, children}) => (
 )
 
 export default function Navbar({ onOpenDonate }) {
+  const { t } = useTranslation()
   return (
     <header className="sticky top-0 z-40 backdrop-blur bg-white/60 border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,11 +34,11 @@ export default function Navbar({ onOpenDonate }) {
           </div>
 
           <nav className="hidden md:flex items-center gap-3" aria-label="Primary Navigation">
-            <NavItem to="/">Home</NavItem>
-            <NavItem to="/about">About</NavItem>
-            <NavItem to="/issues">Issues</NavItem>
+            <NavItem to="/">{t('nav.home')}</NavItem>
+            <NavItem to="/about">{t('nav.about')}</NavItem>
+            <NavItem to="/issues">{t('nav.issues')}</NavItem>
             <NavItem to="/events">Events</NavItem>
-            <NavItem to="/get-involved">Get Involved</NavItem>
+            <NavItem to="/get-involved">{t('nav.getInvolved')}</NavItem>
             <LanguageSwitcher />
             <button
               className="fluent-btn fluent-btn-action ml-2"

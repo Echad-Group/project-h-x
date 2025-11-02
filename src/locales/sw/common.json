@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "Nyumbani",
+    "about": "Kuhusu",
+    "issues": "Masuala",
+    "events": "Matukio",
+    "getInvolved": "Jishughulishe",
+    "news": "Habari",
+    "shop": "Duka"
+  },
+  "donate": {
+    "heading": "Tusaidie Kenya Mpya",
+    "description": "Michango yako inasaidia kuhamasisha wajitolea na kuwafikia wapiga kura.",
+    "give": "Toa",
+    "processing": "Inashughulikia..."
+  },
+  "language": {
+    "label": "Lugha",
+    "english": "English",
+    "swahili": "Kiswahili"
+  }
+}
