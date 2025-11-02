@@ -55,6 +55,61 @@ class NotificationPreferences {
       lastUpdated: new Date().toISOString()
     };
   }
+      exportPreferences() {
+        try {
+          const exportData = {
+            preferences: this.prefs,
+            exportDate: new Date().toISOString(),
+            version: '1.0'
+          };
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `notification-preferences-${new Date().toISOString().split('T')[0]}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          return true;
+        } catch (error) {
+          console.error('Error exporting preferences:', error);
+          return false;
+        }
+      }
+
+      async importPreferences(file) {
+        try {
+          const text = await file.text();
+          const importData = JSON.parse(text);
+      
+          // Validate the imported data
+          if (!importData.preferences || !importData.version || !importData.exportDate) {
+            throw new Error('Invalid preference file format');
+          }
+      
+          // Merge imported preferences with defaults to ensure no missing fields
+          const defaultPrefs = this.getDefaultPreferences();
+          this.prefs = {
+            categories: {
+              ...defaultPrefs.categories,
+              ...importData.preferences.categories
+            },
+            schedule: {
+              ...defaultPrefs.schedule,
+              ...importData.preferences.schedule
+            },
+            frequency: importData.preferences.frequency || defaultPrefs.frequency,
+            lastUpdated: new Date().toISOString()
+          };
+      
+          this.savePreferences();
+          return true;
+        } catch (error) {
+          console.error('Error importing preferences:', error);
+          return false;
+        }
+      }
 
   savePreferences() {
     try {

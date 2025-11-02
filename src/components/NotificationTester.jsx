@@ -45,11 +45,149 @@ export default function NotificationTester() {
           url: '/',
           timestamp: new Date().toISOString()
         }
+      import React, { useState } from 'react';
+      import pwaAnalytics from '../services/pwaAnalytics';
+      import notificationPrefs from '../services/notificationPreferences';
       };
 
+        const [formData, setFormData] = useState({
+          title: '',
+          body: '',
+          category: 'events',
+          icon: '/src/assets/icons/icon-192.svg',
+          image: '',
+          actions: [
+            { action: 'explore', title: 'View Details' }
+          ],
+          url: '/'
+        });
+
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+
+          if (!('serviceWorker' in navigator)) {
+            alert('Service Worker is not supported in this browser');
+            return;
+          }
+
+          try {
+            const registration = await navigator.serviceWorker.ready;
+      
+            if (!registration.pushManager) {
+              alert('Push notifications are not supported');
+              return;
+            }
+
+            const subscription = await registration.pushManager.getSubscription();
+            if (!subscription) {
+              alert('Please enable notifications first');
+              return;
+            }
+
+            // In development, we'll show a notification directly
+            if (process.env.NODE_ENV === 'development') {
+              await registration.showNotification(formData.title, {
+                body: formData.body,
+                icon: formData.icon,
+                image: formData.image || undefined,
+                badge: '/src/assets/icons/icon-96.svg',
+                vibrate: [100, 50, 100],
+                data: {
+                  url: formData.url,
+                  category: formData.category
+                },
+                actions: formData.actions
+              });
+
+              // Track the test notification
+              pwaAnalytics.trackNotification('receive', formData.category);
+            } else {
+              // In production, you would send this to your server
+              await fetch('/api/send-notification', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  subscription,
+                  notification: formData
+                }),
+              });
+            }
+
+          } catch (error) {
+            console.error('Error sending test notification:', error);
+            alert('Error sending notification: ' + error.message);
+          }
+        };
       await registration.showNotification(notification.title, options);
       pwaAnalytics.trackNotification('test', notification.category);
-    } catch (error) {
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Title</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Body</label>
+              <textarea
+                value={formData.body}
+                onChange={e => setFormData(prev => ({ ...prev, body: e.target.value }))}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                rows="3"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Category</label>
+              <select
+                value={formData.category}
+                onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              >
+                {Object.entries(notificationPrefs.getPreferences().categories).map(([id, cat]) => (
+                  <option key={id} value={id}>{cat.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Image URL (optional)</label>
+              <input
+                type="url"
+                value={formData.image}
+                onChange={e => setFormData(prev => ({ ...prev, image: e.target.value }))}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Link URL</label>
+              <input
+                type="url"
+                value={formData.url}
+                onChange={e => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                required
+              />
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Send Test Notification
+              </button>
+            </div>
+          </form>
       console.error('Error showing test notification:', error);
       alert('Error showing notification: ' + error.message);
     }

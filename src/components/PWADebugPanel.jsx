@@ -10,6 +10,7 @@ export default function PWADebugPanel() {
   const [debug, setDebug] = useState({
     isInstallable: false,
     serviceWorker: null,
+     importError: null,
     pushSupport: false,
     subscription: null,
     cacheSize: 0,
@@ -247,6 +248,38 @@ export default function PWADebugPanel() {
 
               <div className="space-y-2">
                 <h4 className="font-semibold">Categories</h4>
+                  <div className="flex gap-2 mb-4">
+                    <button
+                      onClick={() => notificationPrefs.exportPreferences()}
+                      className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Export Preferences
+                    </button>
+                    <label className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer">
+                      Import Preferences
+                      <input
+                        type="file"
+                        accept=".json"
+                        className="hidden"
+                        onChange={async (e) => {
+                          if (e.target.files?.length) {
+                            const success = await notificationPrefs.importPreferences(e.target.files[0]);
+                            if (success) {
+                              loadNotificationPrefs();
+                              setDebug(prev => ({ ...prev, importError: null }));
+                            } else {
+                              setDebug(prev => ({ ...prev, importError: 'Failed to import preferences' }));
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  {debug.importError && (
+                    <div className="text-sm text-red-500 mb-4">
+                      {debug.importError}
+                    </div>
+                  )}
                 {notificationCategories.map(category => (
                   <div key={category.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                     <div>

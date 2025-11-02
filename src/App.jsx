@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import { MetaProvider } from './components/MetaTags'
 import PWADebugPanel from './components/PWADebugPanel'
 import NotificationButton from './components/NotificationButton'
+import InstallPrompt from './components/InstallPrompt'
 import Home from './pages/Home'
 import About from './pages/About'
 import Issues from './pages/Issues'
@@ -31,6 +32,7 @@ export default function App(){
       <div className="fixed top-20 right-4 z-40">
         <NotificationButton />
       </div>
+        <InstallPrompt />
     </div>
     </MetaProvider>
   )
