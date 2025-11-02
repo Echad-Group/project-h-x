@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset="1" stop-color="#ef4444"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#g1)" />
+  <g fill="#ffffff" font-family="Inter, Arial, sans-serif" font-weight="700">
+    <text x="60" y="140" font-size="48">Join the Movement</text>
+    <text x="60" y="210" font-size="28" font-weight="400">Youth-led initiatives, jobs, and opportunity</text>
+  </g>
+</svg>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <rect width="16" height="5.33" fill="#EF4444"/>
+  <rect y="5.33" width="16" height="5.33" fill="#16A34A"/>
+  <rect y="10.66" width="16" height="5.33" fill="#1C1917"/>
+  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">N</text>
+</svg>
