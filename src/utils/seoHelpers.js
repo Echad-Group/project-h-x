@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const FAQSchemaGenerator = (faqs) => ({
   '@context': 'https://schema.org',
   '@type': 'FAQPage',

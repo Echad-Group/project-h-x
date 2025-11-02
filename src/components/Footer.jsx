@@ -8,15 +8,26 @@ export default function Footer(){
           <h4 className="text-lg font-semibold">New Kenya</h4>
           <p className="text-sm text-gray-200 mt-2">A campaign for every Kenyan — unity, growth, and opportunity.</p>
         </div>
-        <div>
-          <h5 className="font-semibold">Quick Links</h5>
-          <ul className="mt-2 text-sm text-gray-200 space-y-1">
-            <li><a href="/about">About</a></li>
-            <li><a href="/issues">Issues</a></li>
-            <li><a href="/events">Events</a></li>
-            <li><a href="/news">News</a></li>
-            <li><a href="/get-involved">Get Involved</a></li>
-          </ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+          <div>
+            <h5 className="font-semibold">Quick Links</h5>
+            <ul className="mt-2 text-sm text-gray-200 space-y-1">
+              <li><a href="/about">About</a></li>
+              <li><a href="/issues">Issues</a></li>
+              <li><a href="/events">Events</a></li>
+              <li><a href="/news">News</a></li>
+              <li><a href="/get-involved">Get Involved</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-semibold h-0 sm:h-auto">&nbsp;</h5>
+            <ul className="mt-0 sm:mt-2 text-sm text-gray-200 space-y-1">
+              <li><a href="/contact">Contact</a></li>
+              <li><a href="/gallery">Gallery</a></li>
+              <li><a href="/faq">FAQ</a></li>
+              <li><a href="/shop">Shop</a></li>
+            </ul>
+          </div>
         </div>
         <div>
           <h5 className="font-semibold">Contact</h5>

@@ -33,8 +33,11 @@ export default function App() {
   return (
     <MetaProvider>
       <div className="min-h-screen flex flex-col bg-[var(--kenya-white)] text-gray-900">
+        {/* Skip link for accessibility */}
+        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white p-2 rounded">Skip to main content</a>
         <Navbar onOpenDonate={() => { setDonateOpen(true); }} />
         <main className="flex-1">
+          <div id="main">
           <Routes>
             <Route path="/" element={<Home onOpenDonate={() => setDonateOpen(true)} />} />
             <Route path="/about" element={<About onOpenDonate={() => setDonateOpen(true)} />} />
@@ -49,6 +52,7 @@ export default function App() {
             <Route path="/team" element={<Team/>} />
             <Route path="/gallery" element={<Gallery/>} />
           </Routes>
+          </div>
         </main>
         <Footer />
         <PWADebugPanel />

@@ -5,7 +5,7 @@
 // similar tunnel, add the tunnel host here (the host shown in the error
 // screenshot).
 
-module.exports = {
+export default {
   server: {
     // List allowed hosts. Include the exact host from the error screenshot
     // and the parent domain so subdomains are allowed as well.
