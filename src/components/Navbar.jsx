@@ -25,7 +25,7 @@ export default function Navbar({ onOpenDonate }) {
                   <rect y="0.6" width="3" height="0.4" fill="#CE1126"/>
                   <rect y="0.9" width="3" height="0.2" fill="#000000"/>
                 </svg> */}
-                <img src="/src/assets/new-kenya.2.0.png" alt="New Kenya Flag" className="w-full h-full object-cover" />
+                <img src="/assets/new-kenya.2.0.png" alt="New Kenya Flag" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="text-lg font-bold">New Kenya</div>

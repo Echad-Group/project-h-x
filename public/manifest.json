@@ -8,12 +8,12 @@
   "theme_color": "#16A34A",
   "icons": [
     {
-      "src": "/src/assets/icons/icon-16.svg",
+      "src": "/assets/icons/icon-16.svg",
       "sizes": "16x16",
       "type": "image/svg+xml"
     },
     {
-      "src": "/src/assets/icons/icon-512.svg",
+      "src": "/assets/icons/icon-512.svg",
       "sizes": "48x48 72x72 96x96 128x128 144x144 152x152 192x192 384x384 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
@@ -33,7 +33,7 @@
   ],
   "screenshots": [
     {
-      "src": "/src/assets/og-image.svg",
+      "src": "/assets/og-image.svg",
       "sizes": "1200x630",
       "type": "image/svg+xml",
       "form_factor": "wide",

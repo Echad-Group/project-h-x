@@ -59,7 +59,7 @@ export default function InstallPrompt() {
     <div className="fixed bottom-4 left-4 z-50 flex items-center bg-white rounded-lg shadow-lg p-4 gap-4 max-w-sm animate-slide-up">
       <div className="flex-shrink-0">
         <img 
-          src="/src/assets/icons/icon-512.svg"
+          src="/assets/icons/icon-512.svg"
           alt="App Icon" 
           className="w-12 h-12"
         />
