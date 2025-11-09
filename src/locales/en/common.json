@@ -248,7 +248,7 @@
   },
   "team": {
     "title": "Team",
-    "description": "Meet the campaign team and leadership.",
+    "description": "Meet the campaign's team and leadership.",
     "members": {
       "leader": {
         "name": "Campaign Leader",
