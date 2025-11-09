@@ -15,6 +15,10 @@ body{
   color: #0f172a;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 .brand-gradient{
   background: linear-gradient(90deg, var(--kenya-green) 0%, var(--kenya-red) 100%);
   -webkit-background-clip: text;
