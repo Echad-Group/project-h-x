@@ -35,6 +35,42 @@
     "shop": "Shop",
     "contact": "Contact"
   },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "signingIn": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "register": {
+      "title": "Sign Up",
+      "subtitle": "Create your account",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "passwordHint": "Must be at least 6 characters",
+      "submit": "Create Account",
+      "creating": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "errors": {
+        "passwordMismatch": "Passwords do not match",
+        "passwordLength": "Password must be at least 6 characters"
+      }
+    },
+    "logout": "Logout",
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "network": "Network error. Please check if the backend is running.",
+      "general": "An error occurred. Please try again."
+    }
+  },
   "donate": {
     "heading": "Support New Kenya",
     "description": "Your contribution helps mobilize volunteers and reach voters.",
@@ -284,13 +320,18 @@
     "heading": "Volunteer with Us",
     "errors": {
       "required": "Name and email are required.",
-      "duplicate": "This email is already registered.",
+      "duplicate": "You are already registered as a volunteer.",
       "network": "Network error. Please check if the backend is running.",
       "general": "Failed to submit. Please try again."
     },
     "success": {
       "title": "Thank you for signing up!",
       "desc": "We appreciate your support. Our team will contact you soon."
+    },
+    "alreadyRegistered": {
+      "title": "You're Already a Volunteer!",
+      "message": "Thank you for being part of the New Kenya movement!",
+      "stay_tuned": "Stay tuned for volunteer opportunities and updates!"
     },
     "form": {
       "name": "Name*",

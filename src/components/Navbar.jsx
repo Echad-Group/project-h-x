@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../contexts/AuthContext'
 
 
 const NavItem = ({to, children}) => (
@@ -13,6 +14,13 @@ const NavItem = ({to, children}) => (
 
 export default function Navbar({ onOpenDonate }) {
   const { t } = useTranslation()
+  const { user, isAuthenticated, logout } = useAuth()
+  
+  const handleLogout = async () => {
+    await logout()
+    window.location.href = '/'
+  }
+  
   return (
     <header className="sticky top-0 z-40 backdrop-blur bg-white/60 border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,6 +49,30 @@ export default function Navbar({ onOpenDonate }) {
             <NavItem to="/events">Events</NavItem>
             <NavItem to="/get-involved">{t('nav.getInvolved')}</NavItem>
             <LanguageSwitcher />
+            
+            {isAuthenticated ? (
+              <>
+                <div className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700">
+                  <span>Hi, {user?.firstName || user?.email}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="fluent-btn fluent-btn-ghost"
+                >
+                  {t('auth.logout') || 'Logout'}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="fluent-btn fluent-btn-ghost">
+                  {t('auth.login.title') || 'Login'}
+                </Link>
+                <Link to="/register" className="fluent-btn fluent-btn-ghost">
+                  {t('auth.register.title') || 'Sign Up'}
+                </Link>
+              </>
+            )}
+            
             <button
               className="fluent-btn fluent-btn-action ml-2"
               onClick={() => onOpenDonate()}

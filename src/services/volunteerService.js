@@ -13,6 +13,12 @@ export const volunteerService = {
     return response.data;
   },
 
+  // Check if current user is already a volunteer
+  checkStatus: async () => {
+    const response = await api.get('/volunteers/check-status');
+    return response.data;
+  },
+
   // Create new volunteer signup
   create: async (volunteerData) => {
     const response = await api.post('/volunteers', volunteerData);

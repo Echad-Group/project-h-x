@@ -35,6 +35,42 @@
     "shop": "Duka",
     "contact": "Wasiliana"
   },
+  "auth": {
+    "login": {
+      "title": "Ingia",
+      "subtitle": "Ingia kwenye akaunti yako",
+      "email": "Barua Pepe",
+      "password": "Nywila",
+      "submit": "Ingia",
+      "signingIn": "Inaingia...",
+      "noAccount": "Huna akaunti?",
+      "signUp": "Jisajili"
+    },
+    "register": {
+      "title": "Jisajili",
+      "subtitle": "Unda akaunti yako",
+      "firstName": "Jina la Kwanza",
+      "lastName": "Jina la Mwisho",
+      "email": "Barua Pepe",
+      "password": "Nywila",
+      "confirmPassword": "Thibitisha Nywila",
+      "passwordHint": "Lazima iwe angalau herufi 6",
+      "submit": "Unda Akaunti",
+      "creating": "Inaunda akaunti...",
+      "haveAccount": "Tayari una akaunti?",
+      "signIn": "Ingia",
+      "errors": {
+        "passwordMismatch": "Nywila hazilingani",
+        "passwordLength": "Nywila lazima iwe angalau herufi 6"
+      }
+    },
+    "logout": "Toka",
+    "errors": {
+      "invalidCredentials": "Barua pepe au nywila si sahihi",
+      "network": "Hitilafu ya mtandao. Tafadhali angalia kama backend inafanya kazi.",
+      "general": "Hitilafu imetokea. Tafadhali jaribu tena."
+    }
+  },
   "donate": {
     "heading": "Tusaidie Kenya Mpya",
     "description": "Michango yako inasaidia kuhamasisha wajitolea na kuwafikia wapiga kura.",
@@ -284,13 +320,18 @@
     "heading": "Jitolee pamoja nasi",
     "errors": {
       "required": "Jina na barua pepe ni muhimu.",
-      "duplicate": "Barua pepe hii tayari imesajiliwa.",
+      "duplicate": "Tayari umesajiliwa kama mjitolea.",
       "network": "Hitilafu ya mtandao. Tafadhali angalia kama backend inaendesha.",
       "general": "Imeshindwa kuwasilisha. Tafadhali jaribu tena."
     },
     "success": {
       "title": "Asante kwa kujisajili!",
       "desc": "Tunathamini msaada wako. Timu yetu itakuuliza hivi karibuni."
+    },
+    "alreadyRegistered": {
+      "title": "Tayari Uko Mjitolea!",
+      "message": "Asante kwa kuwa sehemu ya harakati za Kenya Mpya!",
+      "stay_tuned": "Endelea kusikiliza fursa za ujitolee na masasisho!"
     },
     "form": {
       "name": "Jina*",

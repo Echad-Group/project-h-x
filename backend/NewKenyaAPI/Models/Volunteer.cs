@@ -22,6 +22,10 @@ namespace NewKenyaAPI.Models
         [MaxLength(500)]
         public string? Interests { get; set; }
         
+        // Link to the authenticated user (optional - for logged-in users)
+        public string? UserId { get; set; }
+        public ApplicationUser? User { get; set; }
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }
