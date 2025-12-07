@@ -65,3 +65,16 @@ debug.log
 
 # Optional REPL history
 .node_repl_history
+
+# .NET / C# Backend
+backend/**/bin/
+backend/**/obj/
+backend/**/*.db
+backend/**/*.db-shm
+backend/**/*.db-wal
+backend/**/*.user
+backend/**/*.suo
+backend/**/Properties/launchSettings.json
+backend/**/appsettings.Development.json
+backend/.vs/
+backend/**/Migrations/

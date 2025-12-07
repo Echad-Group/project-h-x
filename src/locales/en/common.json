@@ -39,7 +39,11 @@
     "heading": "Support New Kenya",
     "description": "Your contribution helps mobilize volunteers and reach voters.",
     "give": "Give",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "errors": {
+      "network": "Network error. Please check if the backend is running.",
+      "general": "Failed to process donation. Please try again."
+    }
   },
   "language": {
     "label": "Language",
@@ -88,8 +92,15 @@
     "form": {
       "name": "Name",
       "email": "Email",
+      "subject": "Subject",
       "message": "Message",
-      "send": "Send Message"
+      "send": "Send Message",
+      "sending": "Sending..."
+    },
+    "success": "Thank you! We will get back to you soon.",
+    "errors": {
+      "network": "Network error. Please check if the backend is running.",
+      "general": "Failed to send message. Please try again."
     }
   },
   "events": {
@@ -98,7 +109,14 @@
     "form": {
       "name": "Full name",
       "email": "Email",
-      "phone": "Phone"
+      "phone": "Phone",
+      "submitting": "Submitting..."
+    },
+    "success": "Thank you! Your RSVP has been confirmed.",
+    "errors": {
+      "duplicate": "You have already RSVPed for this event.",
+      "network": "Network error. Please check if the backend is running.",
+      "general": "Failed to submit RSVP. Please try again."
     }
   },
   "faq": {
@@ -265,7 +283,10 @@
   "volunteer": {
     "heading": "Volunteer with Us",
     "errors": {
-      "required": "Name and email are required."
+      "required": "Name and email are required.",
+      "duplicate": "This email is already registered.",
+      "network": "Network error. Please check if the backend is running.",
+      "general": "Failed to submit. Please try again."
     },
     "success": {
       "title": "Thank you for signing up!",
@@ -277,7 +298,8 @@
       "phone": "Phone",
       "interests": "Interests",
       "interestsPlaceholder": "How would you like to help?",
-      "submit": "Sign Up"
+      "submit": "Sign Up",
+      "submitting": "Submitting..."
     }
   },
   "share": {

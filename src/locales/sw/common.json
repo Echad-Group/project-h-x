@@ -39,7 +39,11 @@
     "heading": "Tusaidie Kenya Mpya",
     "description": "Michango yako inasaidia kuhamasisha wajitolea na kuwafikia wapiga kura.",
     "give": "Toa",
-    "processing": "Inashughulikia..."
+    "processing": "Inashughulikia...",
+    "errors": {
+      "network": "Hitilafu ya mtandao. Tafadhali angalia kama backend inaendesha.",
+      "general": "Imeshindwa kushughulikia mchango. Tafadhali jaribu tena."
+    }
   },
   "language": {
     "label": "Lugha",
@@ -88,8 +92,15 @@
     "form": {
       "name": "Jina",
       "email": "Barua pepe",
+      "subject": "Mada",
       "message": "Ujumbe",
-      "send": "Tuma Ujumbe"
+      "send": "Tuma Ujumbe",
+      "sending": "Inatuma..."
+    },
+    "success": "Asante! Tutakujibu hivi karibuni.",
+    "errors": {
+      "network": "Hitilafu ya mtandao. Tafadhali angalia kama backend inaendesha.",
+      "general": "Imeshindwa kutuma ujumbe. Tafadhali jaribu tena."
     }
   },
   "events": {
@@ -98,7 +109,14 @@
     "form": {
       "name": "Jina kamili",
       "email": "Barua pepe",
-      "phone": "Simu"
+      "phone": "Simu",
+      "submitting": "Inawasilisha..."
+    },
+    "success": "Asante! Usajili wako umethibitishwa.",
+    "errors": {
+      "duplicate": "Tayari umejiandikisha kwa tukio hili.",
+      "network": "Hitilafu ya mtandao. Tafadhali angalia kama backend inaendesha.",
+      "general": "Imeshindwa kuwasilisha usajili. Tafadhali jaribu tena."
     }
   },
   "faq": {
@@ -265,7 +283,10 @@
   "volunteer": {
     "heading": "Jitolee pamoja nasi",
     "errors": {
-      "required": "Jina na barua pepe ni muhimu."
+      "required": "Jina na barua pepe ni muhimu.",
+      "duplicate": "Barua pepe hii tayari imesajiliwa.",
+      "network": "Hitilafu ya mtandao. Tafadhali angalia kama backend inaendesha.",
+      "general": "Imeshindwa kuwasilisha. Tafadhali jaribu tena."
     },
     "success": {
       "title": "Asante kwa kujisajili!",
@@ -277,7 +298,8 @@
       "phone": "Simu",
       "interests": "Maslahi",
       "interestsPlaceholder": "Ungependa kusaidia vipi?",
-      "submit": "Jisajili"
+      "submit": "Jisajili",
+      "submitting": "Inawasilisha..."
     }
   },
   "share": {

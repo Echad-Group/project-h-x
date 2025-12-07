@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useMeta } from '../components/MetaTags'
 import { useTranslation } from 'react-i18next'
+import { eventService } from '../services/eventService'
 
 // Event Detail Image Carousel
 function EventDetailCarousel({ images }) {
@@ -175,10 +176,29 @@ export default function EventDetail(){
   const event = EVENTS[id];
   const { updateMeta } = useMeta();
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [rsvpCount, setRsvpCount] = useState(event?.attendees || 0);
 
   useEffect(() => {
-    if(event) updateMeta({ title: `${event.title} - Events`, description: event.description, url: `/events/${id}` });
+    if(event) {
+      updateMeta({ title: `${event.title} - Events`, description: event.description, url: `/events/${id}` });
+      
+      // Fetch current RSVP count
+      fetchRsvpCount();
+    }
   }, [id]);
+
+  async function fetchRsvpCount() {
+    try {
+      const data = await eventService.getCount(id);
+      setRsvpCount(data.totalAttendees || event?.attendees || 0);
+    } catch (err) {
+      console.error('Error fetching RSVP count:', err);
+      // Keep the default count if fetch fails
+    }
+  }
 
   if(!event) {
     return (
@@ -193,12 +213,47 @@ export default function EventDetail(){
     );
   }
 
-  function handleRSVP(e){
+  async function handleRSVP(e){
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target).entries());
+    setError(null);
+    setSuccess(false);
+    setLoading(true);
+
+    const formData = new FormData(e.target);
+    const data = {
+      eventId: id,
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone') || null,
+      numberOfGuests: parseInt(formData.get('guests') || '1'),
+      specialRequirements: formData.get('requirements') || null
+    };
+
     console.log('RSVP submitted for', id, data);
-    alert('Thanks — your RSVP has been recorded (demo).');
-    e.target.reset();
+
+    try {
+      await eventService.create(data);
+      setSuccess(true);
+      e.target.reset();
+      
+      // Refresh RSVP count
+      await fetchRsvpCount();
+    } catch (err) {
+      console.error('RSVP error:', err);
+      
+      if (err.response?.status === 409) {
+        setError(t('events.errors.duplicate') || 'You have already RSVPed for this event.');
+      } else if (err.response?.data?.errors) {
+        const validationErrors = Object.values(err.response.data.errors).flat();
+        setError(validationErrors.join(', '));
+      } else if (err.code === 'ERR_NETWORK') {
+        setError(t('events.errors.network') || 'Network error. Please check if the backend is running.');
+      } else {
+        setError(t('events.errors.general') || 'Failed to submit RSVP. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -235,12 +290,12 @@ export default function EventDetail(){
               
               <h1 className="text-4xl font-bold text-gray-900 mb-3">{event.title}</h1>
               
-              {event.attendees && (
+              {rsvpCount > 0 && (
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  <span><strong>{event.attendees}</strong> people attending</span>
+                  <span><strong>{rsvpCount}</strong> people attending</span>
                 </div>
               )}
             </div>
@@ -263,6 +318,19 @@ export default function EventDetail(){
             {/* RSVP Form */}
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Register to Attend</h3>
+              
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                  {error}
+                </div>
+              )}
+              
+              {success && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+                  {t('events.success') || 'Thank you! Your RSVP has been confirmed.'}
+                </div>
+              )}
+              
               <form onSubmit={handleRSVP} className="grid grid-cols-1 gap-4">
                 <input 
                   name="name" 
@@ -279,11 +347,36 @@ export default function EventDetail(){
                 />
                 <input 
                   name="phone" 
+                  type="tel"
                   placeholder={t('events.form.phone')} 
                   className="fluent-input" 
                 />
-                <button className="fluent-btn fluent-btn-primary">
-                  {t('events.rsvp')}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Number of Guests</label>
+                  <input 
+                    name="guests" 
+                    type="number"
+                    min="1"
+                    max="10"
+                    defaultValue="1"
+                    className="fluent-input" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Special Requirements (Optional)</label>
+                  <textarea 
+                    name="requirements"
+                    rows="2"
+                    placeholder="e.g., Wheelchair access, dietary requirements"
+                    className="fluent-input"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="fluent-btn fluent-btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? t('events.form.submitting') || 'Submitting...' : t('events.rsvp')}
                 </button>
               </form>
             </div>

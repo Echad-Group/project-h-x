@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next';
+import { donationService } from '../services/donationService';
 
 export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }) {
   const [step, setStep] = useState('form');
@@ -10,6 +11,7 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
    const [paymentMethod, setPaymentMethod] = useState('mpesa');
    const [recurringInterval, setRecurringInterval] = useState('once');
    const [processing, setProcessing] = useState(false);
+   const [error, setError] = useState(null);
    
    const presetAmounts = ['250', '500', '1000', '2500', '5000'];
    
@@ -26,27 +28,26 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
      { id: 'annually', name: 'Annually' }
    ];
 
-  function handleDonate(e) {
+  async function handleDonate(e) {
     e.preventDefault();
     setProcessing(true);
+    setError(null);
     
-    // Simulate payment processing
     const paymentData = {
-      amount,
-      name,
-      email,
-      phone,
-      paymentMethod,
-      recurringInterval,
-      currency: 'KES',
-      timestamp: new Date().toISOString()
+      amount: parseFloat(amount),
+      donorName: name,
+      donorEmail: email,
+      paymentMethod: paymentMethod,
+      transactionId: `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Mock transaction ID
+      message: recurringInterval !== 'once' ? `${recurringInterval} donation` : null,
+      isAnonymous: false
     };
 
-    // In production, this would call your payment API
     console.log('Processing payment:', paymentData);
     
-    setTimeout(() => {
-      setProcessing(false);
+    try {
+      await donationService.create(paymentData);
+      
       setStep('success');
       // Reset form
       setAmount('500');
@@ -55,7 +56,20 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
       setPhone('');
       setPaymentMethod('mpesa');
       setRecurringInterval('once');
-    }, 2000);
+    } catch (err) {
+      console.error('Donation error:', err);
+      
+      if (err.response?.data?.errors) {
+        const validationErrors = Object.values(err.response.data.errors).flat();
+        setError(validationErrors.join(', '));
+      } else if (err.code === 'ERR_NETWORK') {
+        setError(t('donate.errors.network') || 'Network error. Please check if the backend is running.');
+      } else {
+        setError(t('donate.errors.general') || 'Failed to process donation. Please try again.');
+      }
+    } finally {
+      setProcessing(false);
+    }
   }
 
   function closeModal() {
@@ -154,6 +168,12 @@ export default function DonateModal({ open: donateOpen, setDonateOpen, onClose }
               <form onSubmit={handleDonate} className="space-y-5">
                 <h3 id="donate-heading" className="text-2xl font-bold text-center mb-2">{t('donate.heading')}</h3>
                 <p id="donate-desc" className="text-sm text-gray-600 text-center">{t('donate.description')}</p>
+                
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded text-sm">
+                    {error}
+                  </div>
+                )}
                 
                 {/* Recurring Options */}
                 <div className="flex gap-2 justify-center">
