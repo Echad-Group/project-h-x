@@ -25,7 +25,7 @@ export default function Footer(){
           <div>
             <h5 className="font-semibold h-0 sm:h-auto">&nbsp;</h5>
             <ul className="mt-0 sm:mt-2 text-sm text-gray-200 space-y-1">
-              <li><a href="/contact">{t('nav.contact') || t('contact.title')}</a></li>
+              <li><a href="/contact">{t('nav.contact')}</a></li>
               <li><a href="/gallery">{t('gallery.title')}</a></li>
               <li><a href="/faq">{t('faq.title')}</a></li>
               <li><a href="/shop">{t('shop.title')}</a></li>

@@ -32,7 +32,8 @@
     "events": "Matukio",
     "getInvolved": "Jishughulishe",
     "news": "Habari",
-    "shop": "Duka"
+    "shop": "Duka",
+    "contact": "Wasiliana"
   },
   "donate": {
     "heading": "Tusaidie Kenya Mpya",
@@ -132,20 +133,106 @@
   },
   "news": {
     "title": "Habari na Visasisho",
+    "subtitle": "Pata taarifa kuhusu maendeleo ya kampeni, matangazo ya sera, na matukio ya jamii",
     "readMore": "Soma zaidi →",
     "notFound": "Makala haijapatikana",
+    "featured": "Habari Kuu",
+    "latest": "Habari za Hivi Karibuni",
+    "search": {
+      "placeholder": "Tafuta makala...",
+      "noResults": "Hakuna makala zilizopatikana",
+      "results": "Makala {{count}} imepatikana",
+      "results_other": "Makala {{count}} zimepatikana"
+    },
+    "categories": {
+      "all": "Zote",
+      "policy": "Sera",
+      "events": "Matukio",
+      "press": "Taarifa kwa Vyombo",
+      "community": "Jamii"
+    },
+    "sort": {
+      "label": "Panga kwa",
+      "newest": "Mpya Kwanza",
+      "oldest": "Za Zamani Kwanza",
+      "popular": "Maarufu Zaidi"
+    },
+    "pagination": {
+      "previous": "Iliyotangulia",
+      "next": "Inayofuata",
+      "page": "Ukurasa {{current}} wa {{total}}"
+    },
+    "article": {
+      "author": "Na {{name}}",
+      "readTime": "Dakika {{min}} kusoma",
+      "share": "Sambaza makala hii",
+      "tags": "Lebo",
+      "relatedTitle": "Makala Zinazohusiana",
+      "backToNews": "← Rudi kwa Habari"
+    },
     "articles": {
       "youthAgenda": {
         "title": "Kampeni yazindua ajenda ya vijana kitaifa",
-        "content": "Leo tumekuza ajenda ya vijana kitaifa ili kuunda fursa za mafunzo na ujasiriamali..."
+        "excerpt": "Mpango mkubwa wa kusaidia mitaala ya ujasiriamali, mafunzo, na uanafunzi.",
+        "content": "Leo tumezindua ajenda ya vijana kitaifa kuunda fursa za mafunzo na ujasiriamali kwa vijana wa Kenya. Programu hii jumuishi inajumuisha ufadhili wa biashara za teknolojia, ushirikiano wa mafunzo ya ujuzi na biashara za ndani, na mtandao wa ushauri unaowaoanisha vijana na wataalamu wenye uzoefu. Lengo letu ni kuunda fursa 100,000 kwa vijana katika kaunti zote 47 ndani ya miaka miwili ya kwanza.",
+        "category": "policy",
+        "tags": ["vijana", "ajira", "ubunifu"]
       },
       "nakuruTownhall": {
         "title": "Mkutano Nakuru wavutia maelfu",
-        "content": "Mkutano wa Nakuru uliwaleta pamoja viongozi wa jamii kujadili utawala wa mitaa na ajira."
+        "excerpt": "Mazungumzo ya jamii kuhusu ajira na utawala wa mitaa.",
+        "content": "Mkutano wa Nakuru uliwaleta pamoja viongozi wa jamii kujadili utawala wa mitaa na ajira. Zaidi ya wakaazi 3,000 walihudhuria tukio hilo, wakishiriki vipaumbele vyao vya maendeleo ya kiuchumi na uboreshaji wa miundombinu. Mada muhimu zilihusisha ufikiaji wa maji, upanuzi wa masoko kwa wakulima wa ndani, na programu za ajira kwa vijana. Tulisikiliza kwa makini na tunajumuisha maarifa haya katika mpango wetu wa maendeleo ya kikanda.",
+        "category": "events",
+        "tags": ["mkutano", "Nakuru", "jamii"]
       },
       "ruralConnectivity": {
         "title": "Waraka wa sera: Uunganisho wa kidijitali vijijini",
-        "content": "Waraka wetu wa sera unaelezea mkakati wa kuleta intaneti ya kasi katika kaunti za mashambani."
+        "excerpt": "Kuleta intaneti ya kasi kwa kila kaunti.",
+        "content": "Waraka wetu wa sera unaelezea mkakati wa kuleta intaneti ya kasi katika kaunti za vijijini. Muunganisho wa ulimwengu ni muhimu kwa elimu ya kisasa, afya, na biashara. Mpango huu unajumuisha ushirikiano na watoa huduma za simu, uwekezaji katika miundombinu ya nyuzi za mtandao, na ruzuku za muunganisho wa vijijini. Tumejitolea kuhakikisha kila Mkenya anaweza kushiriki katika uchumi wa kidijitali.",
+        "category": "policy",
+        "tags": ["teknolojia", "miundombinu", "maendeleo ya vijijini"]
+      },
+      "healthcareReform": {
+        "title": "Pendekezo la mageuzi ya afya lafunuliwa",
+        "excerpt": "Kupanua ufikiaji wa huduma za afya kwa Wakenya wote.",
+        "content": "Pendekezo letu la mageuzi ya afya linazingatia nguzo tatu: bima ya afya ya ulimwengu, uboreshaji wa miundombinu ya afya vijijini, na programu za kuzuia magonjwa. Tunapanga kujenga vituo 200 vya afya katika maeneo yasiyofikiwa, kufunza wafanyakazi 5,000 wa afya ya jamii, na kuhakikisha dawa muhimu zinapatikana nchini kote. Kila Mkenya anastahili kupata huduma za afya bora bila kujali mahali anapoishi.",
+        "category": "policy",
+        "tags": ["afya", "mageuzi", "bima ya ulimwengu"]
+      },
+      "kisiiRally": {
+        "title": "Mkutano mkubwa Kisii unaonyesha msaada unaoongezeka",
+        "excerpt": "Maelfu yanakusanyika kusherehekea umoja na maendeleo.",
+        "content": "Zaidi ya wafuasi 5,000 walikusanyika Kisii kwa mkutano wetu mkubwa katika eneo hilo. Tukio hilo lilionyesha kasi ya kukua ya kampeni na shauku ya jamii kwa mabadiliko. Viongozi wa ndani walizungumza kuhusu ubunifu wa kilimo, programu za msaada kwa wakulima wa chai na kahawa, na uboreshaji wa mitandao ya barabara. Nguvu ilikuwa ya ajabu, na ujumbe ulikuwa wazi: Kenya iko tayari kwa uongozi wa mabadiliko.",
+        "category": "events",
+        "tags": ["mkutano", "Kisii", "kilimo"]
+      },
+      "educationPlan": {
+        "title": "Marekebisho ya elimu: Kompyuta za bure na mkazo wa STEM",
+        "excerpt": "Kuendesha elimu ya kisasa kwa karne ya 21.",
+        "content": "Mpango wetu wa elimu unaweka kipaumbele elimu ya STEM, mafunzo ya walimu, na ujumuishaji wa teknolojia. Tutawapa wanafunzi wote wa shule za sekondari kompyuta za hodi, kupanua programu za mafunzo ya ufundi na ujuzi, na kuongeza mishahara ya walimu ili kuvutia wataalam bora. Elimu ni msingi wa ustawi, na tumejitolea kuwapa watoto wote zana za kufanikiwa katika uchumi wa kisasa.",
+        "category": "policy",
+        "tags": ["elimu", "STEM", "teknolojia"]
+      },
+      "mombasaPort": {
+        "title": "Taarifa kwa Vyombo: Mipango ya upanuzi wa Bandari ya Mombasa yatangazwa",
+        "excerpt": "Kuimarisha biashara na kuunda ajira pwani.",
+        "content": "Tumetangaza mipango ya kupanua miundombinu ya Bandari ya Mombasa ili kuongeza uwezo wa mizigo na kupunguza ucheleweshaji wa usafirishaji. Mradi huu utaunda ajira 10,000 za moja kwa moja na kuweka Kenya kuwa kitovu kikuu cha biashara cha Afrika Mashariki. Ufanisi ulioboreshwa wa bandari utapunguza gharama kwa biashara na watumiaji huku ukiimarisha msimamo wa Kenya katika masoko ya kikanda na kimataifa.",
+        "category": "press",
+        "tags": ["biashara", "miundombinu", "Mombasa"]
+      },
+      "farmerSubsidies": {
+        "title": "Programu mpya ya ruzuku inasaidia wakulima wadogo",
+        "excerpt": "Kufanya kilimo kuwa cha faida na endelevu.",
+        "content": "Programu yetu mpya ya ruzuku za kilimo itatoa mbegu, mbolea, na vifaa kwa wakulima wadogo kote Kenya. Jitihada hii inajumuisha mafunzo ya mbinu za kisasa za kilimo, ufikiaji wa mikopo midogo, na bei za chini zinazohakikishiwa kwa mazao muhimu. Kilimo ni uti wa mgongo wa uchumi wetu, na kusaidia wakulima kunamaanisha usalama wa chakula na ustawi kwa wote.",
+        "category": "policy",
+        "tags": ["kilimo", "wakulima", "ruzuku"]
+      },
+      "womensEmpowerment": {
+        "title": "Mfuko wa uwezeshaji wa wanawake uzinduliwa na $50M",
+        "excerpt": "Kusaidia wajasiriamali na viongozi wa kike.",
+        "content": "Leo tumezindua Mfuko wa Uwezeshaji wa Wanawake wa dola milioni 50 kutoa mikopo na misaada kwa biashara zinazongozwa na wanawake. Mfuko huu unajumuisha programu za ushauri, mafunzo ya biashara, na msaada wa kufikia masoko. Kuwezeesha wanawake kiuchumi kuimarisha familia, jamii, na taifa zima. Hii ni mwanzo tu wa kujitolea kwetu kwa usawa wa kijinsia.",
+        "category": "community",
+        "tags": ["wanawake", "ujasiriamali", "uwezeshaji"]
       }
     }
   },

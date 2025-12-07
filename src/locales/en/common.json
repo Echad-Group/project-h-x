@@ -32,7 +32,8 @@
     "events": "Events",
     "getInvolved": "Get Involved",
     "news": "News",
-    "shop": "Shop"
+    "shop": "Shop",
+    "contact": "Contact"
   },
   "donate": {
     "heading": "Support New Kenya",
@@ -132,20 +133,106 @@
   },
   "news": {
     "title": "News & Updates",
+    "subtitle": "Stay informed about our campaign progress, policy announcements, and community events",
     "readMore": "Read more →",
     "notFound": "Article not found",
+    "featured": "Featured Story",
+    "latest": "Latest News",
+    "search": {
+      "placeholder": "Search articles...",
+      "noResults": "No articles found matching your search",
+      "results": "{{count}} article found",
+      "results_other": "{{count}} articles found"
+    },
+    "categories": {
+      "all": "All",
+      "policy": "Policy",
+      "events": "Events",
+      "press": "Press Release",
+      "community": "Community"
+    },
+    "sort": {
+      "label": "Sort by",
+      "newest": "Newest First",
+      "oldest": "Oldest First",
+      "popular": "Most Popular"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{current}} of {{total}}"
+    },
+    "article": {
+      "author": "By {{name}}",
+      "readTime": "{{min}} min read",
+      "share": "Share this article",
+      "tags": "Tags",
+      "relatedTitle": "Related Articles",
+      "backToNews": "← Back to News"
+    },
     "articles": {
       "youthAgenda": {
         "title": "Campaign launches nationwide youth agenda",
-        "content": "Today we launched a nationwide youth agenda to create apprenticeship and startup opportunities..."
+        "excerpt": "A bold plan to support startups, apprenticeships, and internships.",
+        "content": "Today we launched a nationwide youth agenda to create apprenticeship and startup opportunities for young Kenyans. The comprehensive program includes funding for tech startups, skills training partnerships with local businesses, and a mentorship network connecting youth with experienced professionals. Our goal is to create 100,000 opportunities for young people across all 47 counties within the first two years.",
+        "category": "policy",
+        "tags": ["youth", "employment", "innovation"]
       },
       "nakuruTownhall": {
         "title": "Townhall in Nakuru draws thousands",
-        "content": "The Nakuru townhall brought community leaders together to discuss local governance and jobs."
+        "excerpt": "Community dialogue on jobs and local governance.",
+        "content": "The Nakuru townhall brought community leaders together to discuss local governance and jobs. Over 3,000 residents attended the event, sharing their priorities for economic development and infrastructure improvements. Key themes included water access, market expansion for local farmers, and youth employment programs. We listened carefully and are incorporating these insights into our regional development plan.",
+        "category": "events",
+        "tags": ["townhall", "Nakuru", "community"]
       },
       "ruralConnectivity": {
         "title": "Policy paper: Rural digital connectivity",
-        "content": "Our policy paper outlines a roadmap to bring high-speed internet to rural counties."
+        "excerpt": "Bringing high-speed internet to every county.",
+        "content": "Our policy paper outlines a roadmap to bring high-speed internet to rural counties. Universal connectivity is essential for modern education, healthcare, and commerce. The plan includes partnerships with telecom providers, investment in fiber-optic infrastructure, and subsidies for rural connectivity. We're committed to ensuring every Kenyan can participate in the digital economy.",
+        "category": "policy",
+        "tags": ["technology", "infrastructure", "rural development"]
+      },
+      "healthcareReform": {
+        "title": "Comprehensive healthcare reform proposal unveiled",
+        "excerpt": "Expanding access to quality healthcare for all Kenyans.",
+        "content": "Our healthcare reform proposal focuses on three pillars: universal health coverage, improved rural healthcare infrastructure, and preventative care programs. We plan to build 200 new health centers in underserved areas, train 5,000 community health workers, and ensure essential medicines are available nationwide. Every Kenyan deserves access to quality healthcare regardless of where they live.",
+        "category": "policy",
+        "tags": ["healthcare", "reform", "universal coverage"]
+      },
+      "kisiiRally": {
+        "title": "Massive rally in Kisii shows growing support",
+        "excerpt": "Thousands gather to celebrate unity and progress.",
+        "content": "Over 5,000 supporters gathered in Kisii for our largest rally in the region. The event showcased the campaign's growing momentum and the community's enthusiasm for change. Local leaders spoke about agricultural innovation, tea and coffee farmer support programs, and improved road networks. The energy was incredible, and the message was clear: Kenya is ready for transformative leadership.",
+        "category": "events",
+        "tags": ["rally", "Kisii", "agriculture"]
+      },
+      "educationPlan": {
+        "title": "Education overhaul: Free laptops and STEM focus",
+        "excerpt": "Modernizing education for the 21st century.",
+        "content": "Our education plan prioritizes STEM education, teacher training, and technology integration. We will provide laptops to all secondary school students, expand technical and vocational training programs, and increase teacher salaries to attract top talent. Education is the foundation of prosperity, and we're committed to giving every child the tools to succeed in the modern economy.",
+        "category": "policy",
+        "tags": ["education", "STEM", "technology"]
+      },
+      "mombasaPort": {
+        "title": "Press Release: Mombasa Port expansion plans announced",
+        "excerpt": "Boosting trade and creating jobs at the coast.",
+        "content": "We announced plans to expand Mombasa Port infrastructure to increase cargo capacity and reduce shipping delays. The project will create 10,000 direct jobs and position Kenya as East Africa's premier trade hub. Improved port efficiency will lower costs for businesses and consumers while strengthening Kenya's position in regional and global markets.",
+        "category": "press",
+        "tags": ["trade", "infrastructure", "Mombasa"]
+      },
+      "farmerSubsidies": {
+        "title": "New subsidies program supports smallholder farmers",
+        "excerpt": "Making farming profitable and sustainable.",
+        "content": "Our new agricultural subsidies program will provide seeds, fertilizer, and equipment to smallholder farmers across Kenya. The initiative includes training on modern farming techniques, access to microfinance, and guaranteed minimum prices for key crops. Agriculture is the backbone of our economy, and supporting farmers means food security and prosperity for all.",
+        "category": "policy",
+        "tags": ["agriculture", "farmers", "subsidies"]
+      },
+      "womensEmpowerment": {
+        "title": "Women's empowerment fund launches with $50M",
+        "excerpt": "Supporting women entrepreneurs and leaders.",
+        "content": "Today we launched a $50 million Women's Empowerment Fund to provide loans and grants to women-led businesses. The fund includes mentorship programs, business training, and market access support. Empowering women economically strengthens families, communities, and the entire nation. This is just the beginning of our commitment to gender equity.",
+        "category": "community",
+        "tags": ["women", "entrepreneurship", "empowerment"]
       }
     }
   },
