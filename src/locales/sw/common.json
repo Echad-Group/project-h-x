@@ -318,6 +318,12 @@
   },
   "volunteer": {
     "heading": "Jitolee pamoja nasi",
+    "sections": {
+      "contact": "Maelezo ya Mawasiliano",
+      "location": "Mahali",
+      "skills": "Ujuzi Unaopatikana",
+      "availability": "Upatikanaji"
+    },
     "errors": {
       "required": "Jina na barua pepe ni muhimu.",
       "duplicate": "Tayari umesajiliwa kama mjitolea.",
@@ -337,10 +343,28 @@
       "name": "Jina*",
       "email": "Barua pepe*",
       "phone": "Simu",
-      "interests": "Maslahi",
-      "interestsPlaceholder": "Ungependa kusaidia vipi?",
+      "phoneHint": "(SMS/Simu/Telegram/WhatsApp)",
+      "city": "Jiji",
+      "region": "Mkoa",
+      "selectRegion": "Chagua Mkoa",
+      "availabilityZones": "Unaweza kusaidia wapi?",
+      "hoursPerWeek": "Masaa kwa wiki",
+      "availableWeekends": "Inapatikana wikendi",
+      "availableEvenings": "Inapatikana jioni",
+      "interests": "Maslahi Mengine",
+      "interestsPlaceholder": "Njia nyingine yoyote ungependa kusaidia?",
       "submit": "Jisajili",
       "submitting": "Inawasilisha..."
+    },
+    "skills": {
+      "design": "Ubunifu",
+      "social_media": "Mitandao ya Kijamii",
+      "logistics": "Usafirishaji",
+      "public_speaking": "Kusema Hadharani",
+      "fundraising": "Ukusanyaji Fedha",
+      "tech_support": "Msaada wa Teknolojia",
+      "event_planning": "Upangaji wa Matukio",
+      "community_outreach": "Kufikia Jamii"
     }
   },
   "share": {

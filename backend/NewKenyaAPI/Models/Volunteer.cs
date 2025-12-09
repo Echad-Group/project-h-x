@@ -19,6 +19,25 @@ namespace NewKenyaAPI.Models
         [MaxLength(20)]
         public string? Phone { get; set; }
         
+        // Location Information
+        [MaxLength(100)]
+        public string? City { get; set; }
+        
+        [MaxLength(100)]
+        public string? Region { get; set; }
+        
+        [MaxLength(500)]
+        public string? AvailabilityZones { get; set; } // Comma-separated zones
+        
+        // Skills Offered (comma-separated)
+        [MaxLength(500)]
+        public string? Skills { get; set; }
+        
+        // Availability
+        public int? HoursPerWeek { get; set; }
+        public bool AvailableWeekends { get; set; } = false;
+        public bool AvailableEvenings { get; set; } = false;
+        
         [MaxLength(500)]
         public string? Interests { get; set; }
         

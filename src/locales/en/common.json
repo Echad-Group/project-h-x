@@ -318,6 +318,12 @@
   },
   "volunteer": {
     "heading": "Volunteer with Us",
+    "sections": {
+      "contact": "Contact Information",
+      "location": "Location",
+      "skills": "Skills Offered",
+      "availability": "Availability"
+    },
     "errors": {
       "required": "Name and email are required.",
       "duplicate": "You are already registered as a volunteer.",
@@ -337,10 +343,28 @@
       "name": "Name*",
       "email": "Email*",
       "phone": "Phone",
-      "interests": "Interests",
-      "interestsPlaceholder": "How would you like to help?",
+      "phoneHint": "(SMS/Call/Telegram/WhatsApp)",
+      "city": "City",
+      "region": "Region",
+      "selectRegion": "Select Region",
+      "availabilityZones": "Where can you help?",
+      "hoursPerWeek": "Hours per week",
+      "availableWeekends": "Available on weekends",
+      "availableEvenings": "Available in evenings",
+      "interests": "Additional Interests",
+      "interestsPlaceholder": "Any other ways you'd like to help?",
       "submit": "Sign Up",
       "submitting": "Submitting..."
+    },
+    "skills": {
+      "design": "Design",
+      "social_media": "Social Media",
+      "logistics": "Logistics",
+      "public_speaking": "Public Speaking",
+      "fundraising": "Fundraising",
+      "tech_support": "Tech Support",
+      "event_planning": "Event Planning",
+      "community_outreach": "Community Outreach"
     }
   },
   "share": {
