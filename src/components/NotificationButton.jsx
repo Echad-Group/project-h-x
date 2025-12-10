@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-//import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '../services/pushNotification';
+import { subscribeToPushNotifications, unsubscribeFromPushNotifications, checkSubscriptionStatus } from '../services/pushNotification';
 import pwaAnalytics from '../services/pwaAnalytics';
 
 export default function NotificationButton() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSupported, setIsSupported] = useState(true);
 
   useEffect(() => {
     checkSubscription();
@@ -12,15 +13,9 @@ export default function NotificationButton() {
 
   async function checkSubscription() {
     try {
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        setIsLoading(false);
-        return;
-      }
-
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-      
-      setIsSubscribed(!!subscription);
+      const status = await checkSubscriptionStatus();
+      setIsSubscribed(status.isSubscribed);
+      setIsSupported(status.supported);
       setIsLoading(false);
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -43,12 +38,13 @@ export default function NotificationButton() {
     } catch (error) {
       console.error('Error toggling subscription:', error);
       pwaAnalytics.trackEvent('notification', 'error', error.message);
+      alert(error.message || 'Failed to update notification settings');
     } finally {
       setIsLoading(false);
     }
   }
 
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+  if (!isSupported) {
     return null;
   }
 
@@ -56,16 +52,23 @@ export default function NotificationButton() {
     <button
       onClick={toggleSubscription}
       disabled={isLoading}
-      className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 ${
+      className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all ${
         isSubscribed 
           ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
           : 'bg-[var(--kenya-green)] text-white hover:opacity-90'
-      }`}
+      } disabled:opacity-50 disabled:cursor-not-allowed`}
+      aria-label={isSubscribed ? 'Disable notifications' : 'Enable notifications'}
     >
       {isLoading ? (
-        <span className="animate-spin">↻</span>
+        <>
+          <span className="animate-spin">↻</span>
+          <span>Loading...</span>
+        </>
       ) : (
-        <span>{isSubscribed ? '🔔 Notifications On' : '🔕 Get Notifications'}</span>
+        <>
+          <span>{isSubscribed ? '🔔' : '🔕'}</span>
+          <span>{isSubscribed ? 'Notifications On' : 'Get Notifications'}</span>
+        </>
       )}
     </button>
   );

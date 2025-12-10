@@ -1,4 +1,6 @@
 // Push notification utility functions
+import api from './api';
+
 const convertVapidKey = (base64UrlKey) => {
   const padding = '='.repeat((4 - base64UrlKey.length % 4) % 4);
   const base64 = (base64UrlKey + padding)
@@ -14,14 +16,16 @@ const convertVapidKey = (base64UrlKey) => {
   return outputArray;
 };
 
-// Sample VAPID key - Replace with your actual VAPID public key
-const VAPID_PUBLIC_KEY = 'BJ5IxJBWdeqFDJTvrZ4wNRu7UY2XigDXjgiUBYEYVXDudxhEs0ReOJRBcBHsPYgZ5dyV8VjyqzbQKS8V7bUAglk';
-
-// Development mode flag
-const isDevelopment = process.env.NODE_ENV === 'development';
+// Production VAPID key - Generated via npx web-push generate-vapid-keys
+const VAPID_PUBLIC_KEY = 'BDt1RwD549VmPgqxiUnTqSS3v8ARon-crLUZJ33QjHDaERZOW-ZJ5kV0OT4A1wwzoJP_OYyO6PlF6AbGkzPm8qE';
 
 export async function subscribeToPushNotifications() {
   try {
+    // Check if service workers and push notifications are supported
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      throw new Error('Push notifications are not supported in this browser');
+    }
+
     const registration = await navigator.serviceWorker.ready;
     
     // Check permission
@@ -30,7 +34,7 @@ export async function subscribeToPushNotifications() {
       throw new Error('Notification permission denied');
     }
 
-    // Get subscription
+    // Get existing subscription or create new one
     let subscription = await registration.pushManager.getSubscription();
     
     // If no subscription exists, create one
@@ -52,64 +56,104 @@ export async function subscribeToPushNotifications() {
 }
 
 async function sendSubscriptionToServer(subscription) {
-  if (isDevelopment) {
-    // In development, just log the subscription and return mock data
-    console.log('Development mode: Subscription would be sent to server', subscription);
-    return { success: true, message: 'Subscription stored (development mode)' };
-  }
-
   try {
-    // Replace with your actual API endpoint in production
-    const response = await fetch('/api/push/subscribe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(subscription)
+    const subscriptionData = subscription.toJSON();
+    
+    const response = await api.post('/push/subscribe', {
+      endpoint: subscriptionData.endpoint,
+      keys: {
+        p256dh: subscriptionData.keys?.p256dh,
+        auth: subscriptionData.keys?.auth
+      }
     });
     
-    if (!response.ok) {
-      throw new Error('Failed to store subscription on server');
-    }
-    
-    return response.json();
+    return response.data;
   } catch (error) {
     console.error('Error sending subscription to server:', error);
-    if (isDevelopment) {
-      // In development, continue despite the error
-      return { success: true, message: 'Development mode - ignoring API error' };
-    }
-    throw error;
+    // Don't throw error to prevent blocking the subscription
+    return { success: false, error: error.message };
   }
 }
 
 export async function unsubscribeFromPushNotifications() {
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  
-  if (subscription) {
-    await subscription.unsubscribe();
-
-    if (isDevelopment) {
-      // In development, just log the unsubscription
-      console.log('Development mode: Unsubscription would be sent to server', subscription);
-      return;
-    }
-
-    try {
-      // Notify server about unsubscription in production
-      await fetch('/api/push/unsubscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(subscription)
-      });
-    } catch (error) {
-      console.error('Error notifying server about unsubscription:', error);
-      if (!isDevelopment) {
-        throw error;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    
+    if (subscription) {
+      const subscriptionData = subscription.toJSON();
+      
+      // Notify server about unsubscription
+      try {
+        await api.post('/push/unsubscribe', {
+          endpoint: subscriptionData.endpoint
+        });
+      } catch (error) {
+        console.error('Error notifying server about unsubscription:', error);
       }
+      
+      // Unsubscribe locally
+      await subscription.unsubscribe();
     }
+    
+    return true;
+  } catch (error) {
+    console.error('Error unsubscribing from push notifications:', error);
+    throw error;
+  }
+}
+
+export async function checkSubscriptionStatus() {
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return { isSubscribed: false, supported: false };
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    
+    return { 
+      isSubscribed: !!subscription, 
+      supported: true,
+      subscription: subscription ? subscription.toJSON() : null
+    };
+  } catch (error) {
+    console.error('Error checking subscription status:', error);
+    return { isSubscribed: false, supported: true, error: error.message };
+  }
+}
+
+// Send a test notification (for development/testing)
+export async function sendTestNotification(title = 'Test Notification', body = 'This is a test notification') {
+  try {
+    // Check if we have permission
+    if (Notification.permission !== 'granted') {
+      throw new Error('Notification permission not granted');
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    
+    // Show notification
+    await registration.showNotification(title, {
+      body,
+      icon: '/assets/icons/icon-192.svg',
+      badge: '/assets/icons/icon-96.svg',
+      vibrate: [100, 50, 100],
+      data: {
+        dateOfArrival: Date.now(),
+        url: '/'
+      },
+      actions: [
+        {
+          action: 'explore',
+          title: 'View Details'
+        }
+      ]
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error sending test notification:', error);
+    throw error;
   }
 }

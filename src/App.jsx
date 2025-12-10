@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import { MetaProvider } from './components/MetaTags'
@@ -23,9 +24,11 @@ import Gallery from './pages/Gallery'
 import EventDetail from './pages/EventDetail'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import NotificationSettings from './components/NotificationSettings'
 
 
 export default function App() {
+  const { t } = useTranslation()
   const [donateOpen, setDonateOpen] = useState(false);
   const appConfig = {
     siteName: 'Project H',
@@ -56,12 +59,20 @@ export default function App() {
               <Route path="/gallery" element={<Gallery/>} />
               <Route path="/login" element={<Login/>} />
               <Route path="/register" element={<Register/>} />
+              <Route path="/notification-settings" element={<NotificationSettings/>} />
             </Routes>
           </main>
           <Footer />
           <PWADebugPanel />
-          <div className="fixed top-20 right-4 z-40">
+          <div className="fixed top-20 right-4 z-40 flex flex-col gap-2">
             <NotificationButton />
+            <Link 
+              to="/notification-settings" 
+              className="w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center text-2xl border border-gray-200 hover:border-[var(--kenya-green)]"
+              title={t('pwa.notifications.title')}
+            >
+              ⚙️
+            </Link>
           </div>
           <InstallPrompt />
           <DonateModal open={donateOpen} setDonateOpen={setDonateOpen} onClose={() => setDonateOpen(false)} />

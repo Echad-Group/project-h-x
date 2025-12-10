@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import notificationPrefs from '../services/notificationPreferences';
 import pwaAnalytics from '../services/pwaAnalytics';
+import { sendTestNotification } from '../services/pushNotification';
 import { useTranslation } from 'react-i18next';
 
 export default function NotificationTester() {
   const { t } = useTranslation();
   const [notification, setNotification] = useState({
-    title: t('notificationTester.defaults.title'),
-    body: t('notificationTester.defaults.body'),
+    title: t('notificationTester.defaults.title') || 'Test Notification',
+    body: t('notificationTester.defaults.body') || 'This is a test notification',
     category: 'events',
     image: '',
     actions: []
@@ -17,54 +18,26 @@ export default function NotificationTester() {
 
   const testNotification = async () => {
     if (!('Notification' in window)) {
-      alert(t('notificationTester.errors.notSupported'));
+      alert(t('notificationTester.errors.notSupported') || 'Notifications not supported');
       return;
     }
 
     if (Notification.permission !== 'granted') {
-      alert(t('notificationTester.errors.notEnabled'));
+      alert(t('notificationTester.errors.notEnabled') || 'Please enable notifications first');
       return;
     }
 
     if (!notificationPrefs.shouldShowNotification(notification.category)) {
-      alert(t('notificationTester.errors.categoryDisabled'));
+      alert(t('notificationTester.errors.categoryDisabled') || 'This category is disabled');
       return;
     }
 
     try {
-      const registration = await navigator.serviceWorker.ready;
-
-      const options = {
-        body: notification.body,
-        icon: '/src/assets/icons/icon-192.svg',
-        badge: '/src/assets/icons/icon-96.svg',
-        image: notification.image || undefined,
-        vibrate: [100, 50, 100],
-        tag: 'test-notification',
-        actions: notification.actions.length > 0 ? notification.actions : undefined,
-        data: {
-          category: notification.category,
-          url: '/',
-          timestamp: new Date().toISOString()
-        }
-      };
-
-      // In development show the notification directly via service worker registration
-      if (process.env.NODE_ENV === 'development') {
-        await registration.showNotification(notification.title, options);
-      } else {
-        // In production you would POST to your server which would trigger the push
-        await fetch('/api/send-notification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notification })
-        });
-      }
-
-      pwaAnalytics.trackNotification('test', notification.category);
+      await sendTestNotification(notification.title, notification.body);
+      pwaAnalytics.trackNotification('test', { category: notification.category });
     } catch (error) {
-      console.error('Error showing test notification:', error);
-      alert('Error showing notification: ' + (error.message || error));
+      console.error('Error sending test notification:', error);
+      alert('Failed to send test notification: ' + error.message);
     }
   };
 

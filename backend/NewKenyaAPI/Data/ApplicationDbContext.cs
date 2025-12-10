@@ -15,6 +15,7 @@ namespace NewKenyaAPI.Data
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Donation> Donations { get; set; }
         public DbSet<EventRSVP> EventRSVPs { get; set; }
+        public DbSet<PushSubscription> PushSubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +26,7 @@ namespace NewKenyaAPI.Data
             modelBuilder.Entity<Contact>().ToTable("Contacts");
             modelBuilder.Entity<Donation>().ToTable("Donations");
             modelBuilder.Entity<EventRSVP>().ToTable("EventRSVPs");
+            modelBuilder.Entity<PushSubscription>().ToTable("PushSubscriptions");
 
             // Configure indexes for better query performance
             modelBuilder.Entity<Volunteer>()
@@ -36,6 +38,10 @@ namespace NewKenyaAPI.Data
 
             modelBuilder.Entity<Donation>()
                 .HasIndex(d => d.TransactionId);
+            
+            modelBuilder.Entity<PushSubscription>()
+                .HasIndex(p => p.Endpoint)
+                .IsUnique();
         }
     }
 }

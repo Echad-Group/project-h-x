@@ -5,11 +5,18 @@ using Microsoft.IdentityModel.Tokens;
 using NewKenyaAPI.Data;
 using NewKenyaAPI.Models;
 using System.Text;
+using AspNetCoreRateLimit;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
+
+// Configure rate limiting
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -81,6 +88,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
+
+// Add rate limiting middleware
+app.UseIpRateLimiting();
 
 app.UseAuthentication();
 app.UseAuthorization();

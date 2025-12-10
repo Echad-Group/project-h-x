@@ -4,47 +4,86 @@ const OFFLINE_URL = '/offline.html';
 
 // Handle push notifications
 self.addEventListener('push', (event) => {
-  if (!event.data) return;
+  console.log('Push notification received:', event);
+  
+  if (!event.data) {
+    console.log('Push event but no data');
+    return;
+  }
 
   try {
     const data = event.data.json();
+    console.log('Push data:', data);
+    
+    const title = data.title || 'New Kenya';
     const options = {
-      body: data.body,
-      icon: '/assets/icons/icon-192.svg',
+      body: data.body || 'You have a new notification',
+      icon: data.icon || '/assets/icons/icon-192.svg',
       badge: '/assets/icons/icon-96.svg',
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
-        primaryKey: 1,
-        url: data.url || '/'
+        url: data.url || '/',
+        ...data.data
       },
-      actions: [
+      actions: data.actions || [
         {
-          action: 'explore',
-          title: 'View Details',
+          action: 'view',
+          title: 'View',
           icon: '/assets/icons/icon-48.svg'
+        },
+        {
+          action: 'close',
+          title: 'Close'
         }
-      ]
+      ],
+      tag: data.tag || 'notification-' + Date.now(),
+      requireInteraction: data.requireInteraction || false
     };
 
     event.waitUntil(
-      self.registration.showNotification(data.title, options)
+      self.registration.showNotification(title, options)
     );
   } catch (error) {
-    console.error('Error showing notification:', error);
+    console.error('Error processing push notification:', error);
+    // Show a generic notification on error
+    event.waitUntil(
+      self.registration.showNotification('New Kenya', {
+        body: 'You have a new notification',
+        icon: '/assets/icons/icon-192.svg'
+      })
+    );
   }
 });
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked:', event);
+  
   event.notification.close();
 
-  if (event.action === 'explore') {
-    const urlToOpen = event.notification.data.url;
-    event.waitUntil(
-      clients.openWindow(urlToOpen)
-    );
+  // Handle different actions
+  if (event.action === 'close') {
+    return;
   }
+
+  const urlToOpen = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // If a window is already open, focus it
+        for (const client of clientList) {
+          if (client.url.includes(urlToOpen) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Otherwise open a new window
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+  );
 });
 
 const STATIC_ASSETS = [
