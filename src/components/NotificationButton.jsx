@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { subscribeToPushNotifications, unsubscribeFromPushNotifications, checkSubscriptionStatus } from '../services/pushNotification';
 import pwaAnalytics from '../services/pwaAnalytics';
 
@@ -6,6 +7,7 @@ export default function NotificationButton() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSupported, setIsSupported] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     checkSubscription();
@@ -23,20 +25,21 @@ export default function NotificationButton() {
     }
   }
 
-  async function toggleSubscription() {
+  async function handleClick() {
     try {
-      setIsLoading(true);
       if (isSubscribed) {
-        await unsubscribeFromPushNotifications();
-        setIsSubscribed(false);
-        pwaAnalytics.trackNotification('unsubscribe');
+        // Navigate to settings page when notifications are already on
+        navigate('/notification-settings');
+        pwaAnalytics.trackEvent('notification', 'open_settings');
       } else {
+        // Subscribe when notifications are off
+        setIsLoading(true);
         await subscribeToPushNotifications();
         setIsSubscribed(true);
         pwaAnalytics.trackNotification('subscribe');
       }
     } catch (error) {
-      console.error('Error toggling subscription:', error);
+      console.error('Error handling notification action:', error);
       pwaAnalytics.trackEvent('notification', 'error', error.message);
       alert(error.message || 'Failed to update notification settings');
     } finally {
@@ -50,14 +53,15 @@ export default function NotificationButton() {
 
   return (
     <button
-      onClick={toggleSubscription}
+      onClick={handleClick}
       disabled={isLoading}
-      className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all ${
+      className={`px-4 py-2 rounded-full font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-xl ${
         isSubscribed 
-          ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
+          ? 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-[var(--kenya-green)]' 
           : 'bg-[var(--kenya-green)] text-white hover:opacity-90'
       } disabled:opacity-50 disabled:cursor-not-allowed`}
-      aria-label={isSubscribed ? 'Disable notifications' : 'Enable notifications'}
+      aria-label={isSubscribed ? 'Open notification settings' : 'Enable notifications'}
+      title={isSubscribed ? 'Click to manage notification settings' : 'Click to enable notifications'}
     >
       {isLoading ? (
         <>
@@ -67,7 +71,7 @@ export default function NotificationButton() {
       ) : (
         <>
           <span>{isSubscribed ? '🔔' : '🔕'}</span>
-          <span>{isSubscribed ? 'Notifications On' : 'Get Notifications'}</span>
+          <span className="hidden sm:inline">{isSubscribed ? 'Settings' : 'Get Notifications'}</span>
         </>
       )}
     </button>

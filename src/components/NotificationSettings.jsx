@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { 
   subscribeToPushNotifications, 
   unsubscribeFromPushNotifications, 
@@ -10,6 +11,7 @@ import notificationPrefs from '../services/notificationPreferences';
 
 export default function NotificationSettings() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,12 @@ export default function NotificationSettings() {
       const status = await checkSubscriptionStatus();
       setIsSubscribed(status.isSubscribed);
       setIsSupported(status.supported);
+      
+      // Redirect if not subscribed
+      if (!status.isSubscribed) {
+        navigate('/', { replace: true });
+        return;
+      }
       
       const prefs = notificationPrefs.getCategories();
       setCategories(prefs);
@@ -40,6 +48,8 @@ export default function NotificationSettings() {
       if (isSubscribed) {
         await unsubscribeFromPushNotifications();
         setIsSubscribed(false);
+        // Redirect to home page after turning off notifications
+        navigate('/', { replace: true });
       } else {
         await subscribeToPushNotifications();
         setIsSubscribed(true);
@@ -148,8 +158,8 @@ export default function NotificationSettings() {
         </div>
       )}
 
-      {/* Test Notification */}
-      {isSubscribed && (
+      {/* Test Notification - Development Only */}
+      {isSubscribed && import.meta.env.DEV && (
         <div className="bg-white rounded-lg card-shadow p-6">
           <h3 className="text-lg font-bold mb-2">Test Notifications</h3>
           <p className="text-gray-600 text-sm mb-4">

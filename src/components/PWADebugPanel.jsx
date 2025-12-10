@@ -248,6 +248,24 @@ export default function PWADebugPanel() {
                 <NotificationButton />
               </div>
 
+              <div>
+                <h4 className="font-semibold mb-2">Test Notification</h4>
+                <button
+                  onClick={async () => {
+                    try {
+                      const { sendTestNotification } = await import('../services/pushNotification');
+                      await sendTestNotification('Test Notification', 'This is a test from the debug panel');
+                      alert('Test notification sent!');
+                    } catch (error) {
+                      alert('Failed to send test notification: ' + error.message);
+                    }
+                  }}
+                  className="px-3 py-1 text-sm bg-purple-500 text-white rounded hover:bg-purple-600"
+                >
+                  Send Test
+                </button>
+              </div>
+
               <div className="space-y-2">
                 <h4 className="font-semibold">Categories</h4>
                   <div className="flex gap-2 mb-4">

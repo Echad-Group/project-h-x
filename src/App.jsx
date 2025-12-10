@@ -64,15 +64,8 @@ export default function App() {
           </main>
           <Footer />
           <PWADebugPanel />
-          <div className="fixed top-20 right-4 z-40 flex flex-col gap-2">
+          <div className="fixed top-20 right-4 z-40">
             <NotificationButton />
-            <Link 
-              to="/notification-settings" 
-              className="w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center text-2xl border border-gray-200 hover:border-[var(--kenya-green)]"
-              title={t('pwa.notifications.title')}
-            >
-              ⚙️
-            </Link>
           </div>
           <InstallPrompt />
           <DonateModal open={donateOpen} setDonateOpen={setDonateOpen} onClose={() => setDonateOpen(false)} />
