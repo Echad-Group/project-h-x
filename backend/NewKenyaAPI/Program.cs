@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NewKenyaAPI.Data;
 using NewKenyaAPI.Models;
+using NewKenyaAPI.Services;
 using System.Text;
 using AspNetCoreRateLimit;
 
@@ -11,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
+
+// Add Email Service
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Configure rate limiting
 builder.Services.AddMemoryCache();

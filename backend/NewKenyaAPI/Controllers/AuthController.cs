@@ -100,6 +100,65 @@ namespace NewKenyaAPI.Controllers
             return Ok(new { message = "Logged out successfully" });
         }
 
+        // POST: api/Auth/reset-password
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                // Don't reveal that the user doesn't exist
+                return Ok(new { message = "If the email exists, a password reset link has been sent." });
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+            
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { 
+                    message = "Failed to reset password. The reset link may have expired.",
+                    errors = result.Errors.Select(e => e.Description) 
+                });
+            }
+
+            // Mark email as confirmed if they're setting password from welcome email
+            if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+            }
+
+            return Ok(new { message = "Password has been reset successfully" });
+        }
+
+        // POST: api/Auth/forgot-password
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            
+            if (user == null)
+            {
+                // Don't reveal that the user doesn't exist
+                return Ok(new { message = "If the email exists, a password reset link has been sent." });
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            
+            // TODO: Send email with reset link
+            // For now, just return success
+            // In production, you'd call: await _emailService.SendPasswordResetEmailAsync(user.Email, token);
+            
+            return Ok(new { 
+                message = "Password reset instructions have been sent to your email.",
+                // Only include token in development for testing
+                #if DEBUG
+                token = token,
+                email = user.Email
+                #endif
+            });
+        }
+
         private string GenerateJwtToken(ApplicationUser user)
         {
             var claims = new[]

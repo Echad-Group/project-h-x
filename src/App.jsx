@@ -24,7 +24,10 @@ import Gallery from './pages/Gallery'
 import EventDetail from './pages/EventDetail'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ResetPassword from './pages/ResetPassword'
 import NotificationSettings from './components/NotificationSettings'
+import VolunteerDashboard from './components/VolunteerDashboard'
+import UnitsTeamsVisualization from './components/UnitsTeamsVisualization'
 
 
 export default function App() {
@@ -59,6 +62,9 @@ export default function App() {
               <Route path="/gallery" element={<Gallery/>} />
               <Route path="/login" element={<Login/>} />
               <Route path="/register" element={<Register/>} />
+              <Route path="/reset-password" element={<ResetPassword/>} />
+              <Route path="/volunteer/dashboard" element={<VolunteerDashboard/>} />
+              <Route path="/organization" element={<UnitsTeamsVisualization/>} />
               <Route path="/notification-settings" element={<NotificationSettings/>} />
             </Routes>
           </main>

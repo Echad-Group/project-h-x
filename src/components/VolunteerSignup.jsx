@@ -194,16 +194,96 @@ export default function VolunteerSignup({ onSubmit }) {
 
   if (submitted) {
     return (
-      <div className="fluent-card text-center bg-green-50">
-        <h3 className="text-lg font-semibold text-green-700">{t('volunteer.success.title')}</h3>
-        <p className="mt-2 text-green-600">{t('volunteer.success.desc')}</p>
+      <div className="fluent-card bg-green-50 p-8 text-center max-w-2xl mx-auto">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+          <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 className="text-2xl font-bold text-green-800 mb-2">
+          {t('volunteer.success.title') || 'Registration Successful!'}
+        </h3>
+        <p className="text-lg text-green-700 mb-4">
+          {t('volunteer.success.desc') || 'Thank you for joining the New Kenya movement!'}
+        </p>
+        
+        {!isAuthenticated && (
+          <div className="bg-white rounded-lg p-6 text-left space-y-3 mb-4">
+            <div className="flex items-start gap-3">
+              <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Check Your Email</h4>
+                <p className="text-sm text-gray-700">
+                  We've created an account for you and sent instructions to <strong>{form.email}</strong> to set your password.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <svg className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Next Steps</h4>
+                <ol className="text-sm text-gray-700 list-decimal list-inside space-y-1">
+                  <li>Click the link in your email to set your password</li>
+                  <li>Log in to your volunteer dashboard</li>
+                  <li>View your assignments and connect with your team</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {!isAuthenticated ? (
+            <>
+              <a href="/login" className="fluent-btn fluent-btn-primary">
+                Log In
+              </a>
+              <button 
+                onClick={() => {setSubmitted(false); setForm({
+                  name: '', email: '', phone: '', city: '', region: '', availabilityZones: [],
+                  skills: [], hoursPerWeek: 5, availableWeekends: false, availableEvenings: false, interests: ''
+                })}} 
+                className="fluent-btn fluent-btn-secondary"
+              >
+                Register Another Volunteer
+              </button>
+            </>
+          ) : (
+            <a href="/volunteer/dashboard" className="fluent-btn fluent-btn-primary">
+              Go to Dashboard
+            </a>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-white rounded-lg card-shadow max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">{t('volunteer.heading')}</h2>
+      <div className="text-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('volunteer.heading') || 'Join as a Volunteer'}</h2>
+        <p className="text-gray-600">
+          {t('volunteer.subheading') || 'Be part of the movement to build a better Kenya'}
+        </p>
+        {!isAuthenticated && (
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-left">
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-blue-800">
+                <strong>Account Creation:</strong> We'll automatically create an account for you so you can access your volunteer dashboard, view assignments, and connect with your team. You'll receive an email to set your password.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+      
       {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">{error}</div>}
       
       {/* Contact Information */}
