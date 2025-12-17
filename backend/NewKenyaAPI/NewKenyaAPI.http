@@ -4,3 +4,7 @@ GET {{NewKenyaAPI_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+### Seed Issues (Admin only)
+POST {{host}}/api/issues/seed
+Authorization: Bearer {{adminToken}}

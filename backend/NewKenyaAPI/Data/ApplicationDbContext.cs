@@ -21,6 +21,9 @@ namespace NewKenyaAPI.Data
         public DbSet<Team> Teams { get; set; }
         public DbSet<VolunteerAssignment> VolunteerAssignments { get; set; }
         public DbSet<Models.Task> Tasks { get; set; }
+        public DbSet<Issue> Issues { get; set; }
+        public DbSet<IssueInitiative> IssueInitiatives { get; set; }
+        public DbSet<IssueQuestion> IssueQuestions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,6 +40,9 @@ namespace NewKenyaAPI.Data
             modelBuilder.Entity<Team>().ToTable("Teams");
             modelBuilder.Entity<VolunteerAssignment>().ToTable("VolunteerAssignments");
             modelBuilder.Entity<Models.Task>().ToTable("Tasks");
+            modelBuilder.Entity<Issue>().ToTable("Issues");
+            modelBuilder.Entity<IssueInitiative>().ToTable("IssueInitiatives");
+            modelBuilder.Entity<IssueQuestion>().ToTable("IssueQuestions");
 
             // Configure indexes for better query performance
             modelBuilder.Entity<Volunteer>()
@@ -69,6 +75,14 @@ namespace NewKenyaAPI.Data
             modelBuilder.Entity<Models.Task>()
                 .HasIndex(t => t.Region);
             
+            // Configure indexes for Issues
+            modelBuilder.Entity<Issue>()
+                .HasIndex(i => i.Slug)
+                .IsUnique();
+            
+            modelBuilder.Entity<Issue>()
+                .HasIndex(i => i.DisplayOrder);
+            
             // Configure relationships
             modelBuilder.Entity<Team>()
                 .HasOne(t => t.Unit)
@@ -93,6 +107,19 @@ namespace NewKenyaAPI.Data
                 .WithMany(t => t.VolunteerAssignments)
                 .HasForeignKey(va => va.TeamId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            // Configure relationships for Issues
+            modelBuilder.Entity<IssueInitiative>()
+                .HasOne(ii => ii.Issue)
+                .WithMany(i => i.Initiatives)
+                .HasForeignKey(ii => ii.IssueId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<IssueQuestion>()
+                .HasOne(iq => iq.Issue)
+                .WithMany(i => i.Questions)
+                .HasForeignKey(iq => iq.IssueId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
