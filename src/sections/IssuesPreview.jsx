@@ -34,14 +34,17 @@ export default function IssuesPreview(){
       <h2 className="text-2xl font-bold">Key Issues</h2>
       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
         {issues.map(issue => (
-          <div key={issue.title} className="p-5 bg-white rounded-lg card-shadow hover:shadow-lg transition-shadow">
+          <a 
+            key={issue.title} 
+            href="/issues"
+            className="p-5 bg-white rounded-lg card-shadow hover:shadow-lg transition-shadow cursor-pointer block"
+          >
             <div className="flex items-center gap-2 mb-2">
               {issue.icon && <span className="text-2xl">{issue.icon}</span>}
-              <h3 className="text-lg font-semibold text-[var(--kenya-red)]">{issue.title}</h3>
+              <h3 className="text-lg font-semibold text-[var(--kenya-green)]">{issue.title}</h3>
             </div>
             <p className="mt-2 text-sm text-gray-600">{issue.summary || issue.desc}</p>
-            <a className="mt-3 inline-block text-[var(--kenya-green)] font-medium hover:underline" href="/issues">Learn more →</a>
-          </div>
+          </a>
         ))}
       </div>
     </section>
