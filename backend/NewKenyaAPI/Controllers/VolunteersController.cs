@@ -204,6 +204,9 @@ namespace NewKenyaAPI.Controllers
                     
                     if (result.Succeeded)
                     {
+                        // Assign Volunteer role
+                        await _userManager.AddToRoleAsync(newUser, UserRoles.Volunteer);
+                        
                         // Generate password reset token for welcome email
                         var resetToken = await _userManager.GeneratePasswordResetTokenAsync(newUser);
                         

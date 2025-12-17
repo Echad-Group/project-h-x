@@ -9,6 +9,7 @@ namespace NewKenyaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = UserRoles.Admin)]
     public class AssignmentsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

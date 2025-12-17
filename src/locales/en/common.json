@@ -441,5 +441,196 @@
     "desc": "Get quick access to updates and stay connected with the movement",
     "now": "Install App",
     "later": "Maybe Later"
+  },
+  "unauthorized": {
+    "title": "Access Denied",
+    "message": "You don't have permission to access this page. If you believe this is an error, please contact an administrator.",
+    "goHome": "Go to Home",
+    "contactSupport": "Contact Support"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "user": "User",
+    "tabs": {
+      "overview": "Overview",
+      "projects": "Campaign Projects",
+      "teams": "Teams and Units",
+      "volunteers": "Volunteer Management",
+      "campaignTeam": "Campaign Team Profile",
+      "emails": "Email Updates",
+      "engagement": "Engagement Analytics"
+    },
+    "overview": {
+      "stats": {
+        "volunteers": "Total Volunteers",
+        "units": "Active Units",
+        "events": "Upcoming Events",
+        "donations": "Total Donations"
+      },
+      "recentActivity": "Recent Activity",
+      "quickActions": "Quick Actions",
+      "actions": {
+        "addVolunteer": "Add Volunteer",
+        "createEvent": "Create Event",
+        "sendEmail": "Send Email",
+        "viewReports": "View Reports"
+      }
+    },
+    "projects": {
+      "title": "Campaign Projects",
+      "add": "Add Project",
+      "edit": "Edit Project",
+      "delete": "Delete Project",
+      "search": "Search projects...",
+      "filters": {
+        "all": "All Projects",
+        "active": "Active",
+        "planning": "Planning",
+        "completed": "Completed"
+      },
+      "form": {
+        "name": "Project Name",
+        "description": "Description",
+        "status": "Status",
+        "priority": "Priority",
+        "budget": "Budget",
+        "progress": "Progress",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "save": "Save Project",
+        "cancel": "Cancel"
+      },
+      "status": {
+        "planning": "Planning",
+        "active": "Active",
+        "paused": "Paused",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "priority": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
+    },
+    "teams": {
+      "title": "Teams and Units",
+      "units": "Units",
+      "teams": "Teams",
+      "addUnit": "Add Unit",
+      "addTeam": "Add Team",
+      "edit": "Edit",
+      "delete": "Delete",
+      "volunteers": "volunteers",
+      "tasks": "tasks"
+    },
+    "volunteers": {
+      "title": "Volunteer Management",
+      "total": "Total Volunteers",
+      "search": "Search volunteers...",
+      "filters": {
+        "all": "All Volunteers",
+        "unit": "By Unit",
+        "team": "By Team",
+        "region": "By Region",
+        "skills": "By Skills"
+      },
+      "bulkActions": "Bulk Actions",
+      "assignToUnit": "Assign to Unit",
+      "assignToTeam": "Assign to Team",
+      "export": "Export CSV",
+      "selected": "{{count}} selected",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "unit": "Unit",
+        "team": "Team",
+        "region": "Region",
+        "skills": "Skills",
+        "joined": "Joined"
+      }
+    },
+    "campaignTeam": {
+      "title": "Campaign Team",
+      "addMember": "Add Team Member",
+      "edit": "Edit Member",
+      "delete": "Delete Member",
+      "form": {
+        "name": "Name",
+        "title": "Title",
+        "bio": "Bio",
+        "photo": "Photo URL",
+        "email": "Email",
+        "phone": "Phone",
+        "save": "Save Member",
+        "cancel": "Cancel"
+      }
+    },
+    "emails": {
+      "title": "Email Updates",
+      "compose": "Compose Email",
+      "send": "Send Email",
+      "sending": "Sending...",
+      "recipients": {
+        "title": "Recipients",
+        "all": "All Subscribers",
+        "volunteers": "All Volunteers",
+        "unit": "Specific Unit",
+        "team": "Specific Team",
+        "region": "Specific Region"
+      },
+      "form": {
+        "subject": "Subject",
+        "message": "Message",
+        "template": "Use Template",
+        "preview": "Preview"
+      },
+      "templates": {
+        "eventReminder": "Event Reminder",
+        "weeklyUpdate": "Weekly Update",
+        "volunteerCall": "Volunteer Call"
+      },
+      "history": {
+        "title": "Email History",
+        "sent": "Sent",
+        "opens": "Opens",
+        "clicks": "Clicks"
+      },
+      "stats": {
+        "totalSent": "Total Sent",
+        "openRate": "Open Rate",
+        "clickRate": "Click Rate"
+      }
+    },
+    "engagement": {
+      "title": "Engagement Analytics",
+      "period": {
+        "7days": "Last 7 Days",
+        "30days": "Last 30 Days",
+        "90days": "Last 90 Days",
+        "all": "All Time"
+      },
+      "metrics": {
+        "likes": "Likes",
+        "comments": "Comments",
+        "shares": "Shares",
+        "upvotes": "Upvotes",
+        "downvotes": "Downvotes"
+      },
+      "chart": {
+        "title": "Engagement Trend",
+        "total": "Total"
+      },
+      "breakdown": {
+        "title": "Engagement Breakdown",
+        "avgRate": "Average Engagement Rate"
+      },
+      "topContent": {
+        "title": "Top Performing Content",
+        "engagement": "Engagement",
+        "date": "Date"
+      }
+    }
   }
 }

@@ -10,17 +10,29 @@ export default function NotificationButton() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check subscription status without blocking UI
     checkSubscription();
   }, []);
 
   async function checkSubscription() {
     try {
+      // Don't check if we're clearly offline or backend is unreachable
+      if (!navigator.onLine) {
+        setIsSubscribed(false);
+        setIsSupported(true);
+        setIsLoading(false);
+        return;
+      }
+      
       const status = await checkSubscriptionStatus();
       setIsSubscribed(status.isSubscribed);
       setIsSupported(status.supported);
-      setIsLoading(false);
     } catch (error) {
       console.error('Error checking subscription:', error);
+      // Fail silently - assume not subscribed
+      setIsSubscribed(false);
+      setIsSupported(true);
+    } finally {
       setIsLoading(false);
     }
   }

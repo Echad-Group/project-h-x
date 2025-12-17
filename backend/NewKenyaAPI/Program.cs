@@ -16,6 +16,9 @@ builder.Services.AddControllers();
 // Add Email Service
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// Add Role Initialization Service
+builder.Services.AddScoped<RoleInitializationService>();
+
 // Configure rate limiting
 builder.Services.AddMemoryCache();
 builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
@@ -81,6 +84,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Initialize roles
+using (var scope = app.Services.CreateScope())
+{
+    var roleService = scope.ServiceProvider.GetRequiredService<RoleInitializationService>();
+    await roleService.InitializeRolesAsync();
+    
+    // Create default admin (optional - comment out in production)
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    var adminEmail = config["DefaultAdmin:Email"] ?? "admin@newkenya.org";
+    var adminPassword = config["DefaultAdmin:Password"] ?? "Admin@123456";
+    await roleService.CreateDefaultAdminAsync(adminEmail, adminPassword);
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

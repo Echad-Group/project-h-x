@@ -46,8 +46,12 @@ namespace NewKenyaAPI.Controllers
                 return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
             }
 
-            var token = GenerateJwtToken(user);
+            // Add default User role
+            await _userManager.AddToRoleAsync(user, UserRoles.User);
+
+            var token = await GenerateJwtTokenAsync(user);
             var expiresAt = DateTime.UtcNow.AddDays(7);
+            var roles = await _userManager.GetRolesAsync(user);
 
             return Ok(new AuthResponse
             {
@@ -55,6 +59,7 @@ namespace NewKenyaAPI.Controllers
                 Email = user.Email!,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                Roles = roles.ToList(),
                 ExpiresAt = expiresAt
             });
         }
@@ -79,8 +84,9 @@ namespace NewKenyaAPI.Controllers
             user.LastLoginAt = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
 
-            var token = GenerateJwtToken(user);
+            var token = await GenerateJwtTokenAsync(user);
             var expiresAt = DateTime.UtcNow.AddDays(7);
+            var roles = await _userManager.GetRolesAsync(user);
 
             return Ok(new AuthResponse
             {
@@ -88,6 +94,7 @@ namespace NewKenyaAPI.Controllers
                 Email = user.Email!,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                Roles = roles.ToList(),
                 ExpiresAt = expiresAt
             });
         }
@@ -159,9 +166,11 @@ namespace NewKenyaAPI.Controllers
             });
         }
 
-        private string GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtTokenAsync(ApplicationUser user)
         {
-            var claims = new[]
+            var roles = await _userManager.GetRolesAsync(user);
+            
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
@@ -169,6 +178,12 @@ namespace NewKenyaAPI.Controllers
                 new Claim("firstName", user.FirstName ?? ""),
                 new Claim("lastName", user.LastName ?? "")
             };
+
+            // Add role claims
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration["Jwt:SecretKey"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLong!"));

@@ -9,6 +9,7 @@ namespace NewKenyaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = UserRoles.Admin)]
     public class TeamsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

@@ -38,7 +38,19 @@ export const authService = {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
-        return JSON.parse(userStr);
+        const user = JSON.parse(userStr);
+        // Parse roles from JWT token if not already present
+        if (!user.roles && user.token) {
+          try {
+            const payload = JSON.parse(atob(user.token.split('.')[1]));
+            // Extract roles from JWT claims
+            const roleClaim = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+            user.roles = Array.isArray(roleClaim) ? roleClaim : (roleClaim ? [roleClaim] : []);
+          } catch (e) {
+            user.roles = [];
+          }
+        }
+        return user;
       } catch {
         return null;
       }

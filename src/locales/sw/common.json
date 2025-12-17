@@ -441,5 +441,196 @@
     "desc": "Pata upatikanaji wa haraka kwa visasisho na kuungana na harakati.",
     "now": "Sakinisha App",
     "later": "Labda baadaye"
+  },
+  "unauthorized": {
+    "title": "Ufikiaji Umekataliwa",
+    "message": "Huna ruhusa ya kufikia ukurasa huu. Ikiwa unaamini huu ni kosa, tafadhali wasiliana na msimamizi.",
+    "goHome": "Rudi Mwanzo",
+    "contactSupport": "Wasiliana na Msaada"
+  },
+  "admin": {
+    "title": "Paneli ya Msimamizi",
+    "user": "Mtumiaji",
+    "tabs": {
+      "overview": "Muhtasari",
+      "projects": "Miradi ya Kampeni",
+      "teams": "Timu na Vitengo",
+      "volunteers": "Usimamizi wa Wajitoleaji",
+      "campaignTeam": "Wasifu wa Timu ya Kampeni",
+      "emails": "Visasisho vya Barua Pepe",
+      "engagement": "Takwimu za Ushiriki"
+    },
+    "overview": {
+      "stats": {
+        "volunteers": "Jumla ya Wajitoleaji",
+        "units": "Vitengo Hai",
+        "events": "Matukio Yajayo",
+        "donations": "Jumla ya Michango"
+      },
+      "recentActivity": "Shughuli za Hivi Karibuni",
+      "quickActions": "Vitendo vya Haraka",
+      "actions": {
+        "addVolunteer": "Ongeza Mjitoleaji",
+        "createEvent": "Unda Tukio",
+        "sendEmail": "Tuma Barua Pepe",
+        "viewReports": "Tazama Ripoti"
+      }
+    },
+    "projects": {
+      "title": "Miradi ya Kampeni",
+      "add": "Ongeza Mradi",
+      "edit": "Hariri Mradi",
+      "delete": "Futa Mradi",
+      "search": "Tafuta miradi...",
+      "filters": {
+        "all": "Miradi Yote",
+        "active": "Hai",
+        "planning": "Inapangwa",
+        "completed": "Imekamilika"
+      },
+      "form": {
+        "name": "Jina la Mradi",
+        "description": "Maelezo",
+        "status": "Hali",
+        "priority": "Kipaumbele",
+        "budget": "Bajeti",
+        "progress": "Maendeleo",
+        "startDate": "Tarehe ya Kuanza",
+        "endDate": "Tarehe ya Mwisho",
+        "save": "Hifadhi Mradi",
+        "cancel": "Ghairi"
+      },
+      "status": {
+        "planning": "Inapangwa",
+        "active": "Hai",
+        "paused": "Imesimamishwa",
+        "completed": "Imekamilika",
+        "cancelled": "Imeghairiwa"
+      },
+      "priority": {
+        "low": "Chini",
+        "medium": "Wastani",
+        "high": "Juu"
+      }
+    },
+    "teams": {
+      "title": "Timu na Vitengo",
+      "units": "Vitengo",
+      "teams": "Timu",
+      "addUnit": "Ongeza Kitengo",
+      "addTeam": "Ongeza Timu",
+      "edit": "Hariri",
+      "delete": "Futa",
+      "volunteers": "wajitoleaji",
+      "tasks": "kazi"
+    },
+    "volunteers": {
+      "title": "Usimamizi wa Wajitoleaji",
+      "total": "Jumla ya Wajitoleaji",
+      "search": "Tafuta wajitoleaji...",
+      "filters": {
+        "all": "Wajitoleaji Wote",
+        "unit": "Kwa Kitengo",
+        "team": "Kwa Timu",
+        "region": "Kwa Mkoa",
+        "skills": "Kwa Ujuzi"
+      },
+      "bulkActions": "Vitendo vya Wingi",
+      "assignToUnit": "Weka kwenye Kitengo",
+      "assignToTeam": "Weka kwenye Timu",
+      "export": "Hamisha CSV",
+      "selected": "{{count}} umechagua",
+      "table": {
+        "name": "Jina",
+        "email": "Barua Pepe",
+        "phone": "Simu",
+        "unit": "Kitengo",
+        "team": "Timu",
+        "region": "Mkoa",
+        "skills": "Ujuzi",
+        "joined": "Umejiunga"
+      }
+    },
+    "campaignTeam": {
+      "title": "Timu ya Kampeni",
+      "addMember": "Ongeza Mwanachama",
+      "edit": "Hariri Mwanachama",
+      "delete": "Futa Mwanachama",
+      "form": {
+        "name": "Jina",
+        "title": "Cheo",
+        "bio": "Wasifu",
+        "photo": "URL ya Picha",
+        "email": "Barua Pepe",
+        "phone": "Simu",
+        "save": "Hifadhi Mwanachama",
+        "cancel": "Ghairi"
+      }
+    },
+    "emails": {
+      "title": "Visasisho vya Barua Pepe",
+      "compose": "Tunga Barua Pepe",
+      "send": "Tuma Barua Pepe",
+      "sending": "Inatuma...",
+      "recipients": {
+        "title": "Wapokeaji",
+        "all": "Wajisajili Wote",
+        "volunteers": "Wajitoleaji Wote",
+        "unit": "Kitengo Maalum",
+        "team": "Timu Maalum",
+        "region": "Mkoa Maalum"
+      },
+      "form": {
+        "subject": "Mada",
+        "message": "Ujumbe",
+        "template": "Tumia Kiolezo",
+        "preview": "Onyesho la Awali"
+      },
+      "templates": {
+        "eventReminder": "Ukumbusho wa Tukio",
+        "weeklyUpdate": "Sasisho la Wiki",
+        "volunteerCall": "Wito wa Wajitoleaji"
+      },
+      "history": {
+        "title": "Historia ya Barua Pepe",
+        "sent": "Zimetumwa",
+        "opens": "Funguo",
+        "clicks": "Mibofyo"
+      },
+      "stats": {
+        "totalSent": "Jumla Zilizotumwa",
+        "openRate": "Kiwango cha Kufungua",
+        "clickRate": "Kiwango cha Kubonyeza"
+      }
+    },
+    "engagement": {
+      "title": "Takwimu za Ushiriki",
+      "period": {
+        "7days": "Siku 7 Zilizopita",
+        "30days": "Siku 30 Zilizopita",
+        "90days": "Siku 90 Zilizopita",
+        "all": "Wakati Wote"
+      },
+      "metrics": {
+        "likes": "Vipendwa",
+        "comments": "Maoni",
+        "shares": "Ugawaji",
+        "upvotes": "Kura za Juu",
+        "downvotes": "Kura za Chini"
+      },
+      "chart": {
+        "title": "Mwelekeo wa Ushiriki",
+        "total": "Jumla"
+      },
+      "breakdown": {
+        "title": "Mgawanyiko wa Ushiriki",
+        "avgRate": "Wastani wa Kiwango cha Ushiriki"
+      },
+      "topContent": {
+        "title": "Maudhui Yenye Ufanisi Zaidi",
+        "engagement": "Ushiriki",
+        "date": "Tarehe"
+      }
+    }
   }
 }

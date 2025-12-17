@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewKenyaAPI.Data;
@@ -8,6 +9,7 @@ namespace NewKenyaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = UserRoles.Admin)]
     public class UnitsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -56,7 +58,7 @@ namespace NewKenyaAPI.Controllers
                         t.TelegramLink,
                         t.WhatsAppLink,
                         VolunteerCount = t.VolunteerAssignments.Count(va => va.IsActive)
-                    }).OrderBy(t => t.DisplayOrder)
+                    }).OrderBy(t => t.DisplayOrder).ToList()
                 })
                 .ToListAsync();
 

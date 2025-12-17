@@ -8,7 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds
+  timeout: 5000, // 5 seconds - fail faster
 });
 
 // Request interceptor for logging (optional)
@@ -28,12 +28,15 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response) {
+    // Silently handle timeout and network errors to avoid blocking UI
+    if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
+      console.warn('API connection issue:', error.message);
+    } else if (error.response) {
       // Server responded with error status
       console.error('API Error:', error.response.status, error.response.data);
     } else if (error.request) {
       // Request made but no response received
-      console.error('Network Error: No response received');
+      console.warn('Network Error: No response received');
     } else {
       // Error setting up the request
       console.error('Request Error:', error.message);

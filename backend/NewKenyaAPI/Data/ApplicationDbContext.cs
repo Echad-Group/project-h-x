@@ -14,6 +14,7 @@ namespace NewKenyaAPI.Data
         public DbSet<Volunteer> Volunteers { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Donation> Donations { get; set; }
+        public DbSet<Event> Events { get; set; }
         public DbSet<EventRSVP> EventRSVPs { get; set; }
         public DbSet<PushSubscription> PushSubscriptions { get; set; }
         public DbSet<Unit> Units { get; set; }
@@ -29,6 +30,7 @@ namespace NewKenyaAPI.Data
             modelBuilder.Entity<Volunteer>().ToTable("Volunteers");
             modelBuilder.Entity<Contact>().ToTable("Contacts");
             modelBuilder.Entity<Donation>().ToTable("Donations");
+            modelBuilder.Entity<Event>().ToTable("Events");
             modelBuilder.Entity<EventRSVP>().ToTable("EventRSVPs");
             modelBuilder.Entity<PushSubscription>().ToTable("PushSubscriptions");
             modelBuilder.Entity<Unit>().ToTable("Units");

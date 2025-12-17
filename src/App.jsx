@@ -6,6 +6,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import { MetaProvider } from './components/MetaTags'
 import { AuthProvider } from './contexts/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 import PWADebugPanel from './components/PWADebugPanel'
 import NotificationButton from './components/NotificationButton'
 import InstallPrompt from './components/InstallPrompt'
@@ -25,9 +26,11 @@ import EventDetail from './pages/EventDetail'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ResetPassword from './pages/ResetPassword'
+import Unauthorized from './pages/Unauthorized'
 import NotificationSettings from './components/NotificationSettings'
 import VolunteerDashboard from './components/VolunteerDashboard'
 import UnitsTeamsVisualization from './components/UnitsTeamsVisualization'
+import AdminPanel from './pages/AdminPanel'
 
 
 export default function App() {
@@ -65,6 +68,12 @@ export default function App() {
               <Route path="/reset-password" element={<ResetPassword/>} />
               <Route path="/volunteer/dashboard" element={<VolunteerDashboard/>} />
               <Route path="/organization" element={<UnitsTeamsVisualization/>} />
+              <Route path="/admin" element={
+                <ProtectedRoute roles={['Admin']}>
+                  <AdminPanel/>
+                </ProtectedRoute>
+              } />
+              <Route path="/unauthorized" element={<Unauthorized/>} />
               <Route path="/notification-settings" element={<NotificationSettings/>} />
             </Routes>
           </main>

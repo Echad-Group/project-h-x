@@ -1,5 +1,5 @@
 // Service Worker
-const CACHE_NAME = 'new-kenya-v1';
+const CACHE_NAME = 'new-kenya-v3'; // Updated version to force refresh
 const OFFLINE_URL = '/offline.html';
 
 // Handle push notifications
@@ -122,13 +122,19 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) return;
-
+  const url = new URL(event.request.url);
+  
+  // Skip ALL requests except navigation (HTML pages)
+  // This prevents service worker from interfering with API calls and asset loading
+  if (event.request.mode !== 'navigate') {
+    return;
+  }
+  
+  // Only handle navigation requests
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache successful responses
+        // Cache successful navigation responses
         if (response.ok) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -138,15 +144,12 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(async () => {
-        // Fallback to cache
+        // Fallback to cache for navigation
         const cachedResponse = await caches.match(event.request);
         if (cachedResponse) return cachedResponse;
 
-        // Show offline page if HTML is requested
-        if (event.request.mode === 'navigate') {
-          return caches.match(OFFLINE_URL);
-        }
-        return new Response('Network error', { status: 408 });
+        // Show offline page
+        return caches.match(OFFLINE_URL);
       })
   );
 });
