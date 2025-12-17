@@ -11,6 +11,10 @@ namespace NewKenyaAPI.Models
         public string Title { get; set; } = string.Empty;
         
         [Required]
+        [MaxLength(100)]
+        public string Slug { get; set; } = string.Empty;
+        
+        [Required]
         public string Description { get; set; } = string.Empty;
         
         [Required]
@@ -37,5 +41,8 @@ namespace NewKenyaAPI.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         
         public DateTime? UpdatedAt { get; set; }
+        
+        // Navigation property
+        public ICollection<EventRSVP> RSVPs { get; set; } = new List<EventRSVP>();
     }
 }

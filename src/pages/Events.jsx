@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMeta } from '../components/MetaTags'
 import { useTranslation } from 'react-i18next'
+import { eventsService } from '../services/eventService'
 
 // Image Carousel Component for Event Cards
 function EventImageCarousel({ images }) {
@@ -159,8 +160,11 @@ const EventCard = ({id, title, date, location, time, description, images, attend
 export default function Events(){
   const { updateMeta } = useMeta();
   const { t } = useTranslation();
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [backendAvailable, setBackendAvailable] = useState(true);
   
-  const events = [
+  const fallbackEvents = [
     {
       id: 'kisumu-townhall',
       title: 'Townhall - Kisumu',
@@ -248,6 +252,47 @@ export default function Events(){
   ];
 
   useEffect(() => {
+    loadEvents();
+  }, []);
+
+  async function loadEvents() {
+    try {
+      const data = await eventsService.getAll();
+      if (data && data.length > 0) {
+        // Transform API data to match component format
+        const transformedEvents = data.map(event => ({
+          id: event.slug || event.id, // Use slug for routing
+          slug: event.slug,
+          eventId: event.id, // Keep numeric ID for API calls
+          title: event.title,
+          date: new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          time: new Date(event.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+          location: event.location,
+          city: event.city,
+          region: event.region,
+          startDate: event.date,
+          description: event.description,
+          images: event.imageUrl ? [event.imageUrl] : [],
+          type: event.type,
+          capacity: event.capacity
+        }));
+        setEvents(transformedEvents);
+        setBackendAvailable(true);
+      } else {
+        setEvents(fallbackEvents);
+      }
+    } catch (error) {
+      console.log('Backend unavailable, using fallback events');
+      setBackendAvailable(false);
+      setEvents(fallbackEvents);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (events.length === 0) return;
+
     updateMeta({
       title: 'Events - New Kenya Campaign',
       description: 'Join us at our upcoming events across Kenya. Town halls, youth summits, and community meetings.',
@@ -267,7 +312,7 @@ export default function Events(){
               name: event.location,
               address: {
                 '@type': 'PostalAddress',
-                addressLocality: event.location.split(' ')[0],
+                addressLocality: event.city || event.location.split(' ')[0],
                 addressCountry: 'KE'
               }
             },
@@ -279,7 +324,18 @@ export default function Events(){
         }))
       }
     });
-  }, []);
+  }, [events, updateMeta]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin text-4xl mb-4">↻</div>
+          <p className="text-gray-600">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">

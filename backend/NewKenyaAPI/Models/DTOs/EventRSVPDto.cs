@@ -1,17 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
-namespace NewKenyaAPI.Models
+namespace NewKenyaAPI.Models.DTOs
 {
-    public class EventRSVP
+    public class CreateEventRSVPDto
     {
-        public int Id { get; set; }
-        
         [Required]
         public int EventId { get; set; }
-        
-        [JsonIgnore]
-        public Event Event { get; set; } = null!;
         
         [Required]
         [MaxLength(100)]
@@ -31,7 +25,5 @@ namespace NewKenyaAPI.Models
         
         [MaxLength(500)]
         public string? SpecialRequirements { get; set; }
-        
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -51,6 +51,11 @@ namespace NewKenyaAPI.Data
 
             modelBuilder.Entity<EventRSVP>()
                 .HasIndex(e => e.EventId);
+            
+            // Configure indexes for Events
+            modelBuilder.Entity<Event>()
+                .HasIndex(e => e.Slug)
+                .IsUnique();
 
             modelBuilder.Entity<Donation>()
                 .HasIndex(d => d.TransactionId);
@@ -119,6 +124,13 @@ namespace NewKenyaAPI.Data
                 .HasOne(iq => iq.Issue)
                 .WithMany(i => i.Questions)
                 .HasForeignKey(iq => iq.IssueId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            // Configure relationships for Events
+            modelBuilder.Entity<EventRSVP>()
+                .HasOne(r => r.Event)
+                .WithMany(e => e.RSVPs)
+                .HasForeignKey(r => r.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

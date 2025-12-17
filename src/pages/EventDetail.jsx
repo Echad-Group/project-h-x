@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useMeta } from '../components/MetaTags'
 import { useTranslation } from 'react-i18next'
-import { eventService } from '../services/eventService'
+import { eventsService, eventRSVPService } from '../services/eventService'
 
 // Event Detail Image Carousel
 function EventDetailCarousel({ images }) {
@@ -172,32 +172,93 @@ const EVENTS = {
 }
 
 export default function EventDetail(){
-  const { id } = useParams();
-  const event = EVENTS[id];
+  const { id } = useParams(); // This is the slug from the URL
+  const [event, setEvent] = useState(null);
   const { updateMeta } = useMeta();
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [rsvpCount, setRsvpCount] = useState(event?.attendees || 0);
+  const [rsvpCount, setRsvpCount] = useState(0);
+  const [backendAvailable, setBackendAvailable] = useState(true);
 
   useEffect(() => {
-    if(event) {
-      updateMeta({ title: `${event.title} - Events`, description: event.description, url: `/events/${id}` });
-      
-      // Fetch current RSVP count
-      fetchRsvpCount();
-    }
+    loadEvent();
   }, [id]);
 
-  async function fetchRsvpCount() {
+  async function loadEvent() {
     try {
-      const data = await eventService.getCount(id);
-      setRsvpCount(data.totalAttendees || event?.attendees || 0);
+      // Try to fetch from API using slug
+      const data = await eventsService.getBySlug(id);
+      
+      // Transform the data
+      const transformedEvent = {
+        id: data.slug || data.id,
+        eventId: data.id, // Numeric ID for RSVP
+        title: data.title,
+        slug: data.slug,
+        date: new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: new Date(data.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        location: data.location,
+        city: data.city,
+        region: data.region,
+        startDate: data.date,
+        description: data.description,
+        images: data.imageUrl ? [data.imageUrl] : [],
+        type: data.type,
+        capacity: data.capacity,
+        attendees: 0
+      };
+      
+      setEvent(transformedEvent);
+      setBackendAvailable(true);
+      
+      // Update meta tags
+      updateMeta({ 
+        title: `${transformedEvent.title} - Events`, 
+        description: transformedEvent.description, 
+        url: `/events/${id}` 
+      });
+      
+      // Fetch RSVP count
+      await fetchRsvpCount(transformedEvent.eventId);
+    } catch (err) {
+      console.error('Error loading event:', err);
+      setBackendAvailable(false);
+      // Try to load from fallback EVENTS
+      const fallbackEvent = EVENTS[id];
+      if (fallbackEvent) {
+        setEvent(fallbackEvent);
+        updateMeta({ 
+          title: `${fallbackEvent.title} - Events`, 
+          description: fallbackEvent.description, 
+          url: `/events/${id}` 
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchRsvpCount(eventId) {
+    if (!eventId) return;
+    try {
+      const data = await eventRSVPService.getCount(eventId);
+      setRsvpCount(data.totalAttendees || 0);
     } catch (err) {
       console.error('Error fetching RSVP count:', err);
-      // Keep the default count if fetch fails
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin text-4xl mb-4">↻</div>
+          <p className="text-gray-600">Loading event...</p>
+        </div>
+      </div>
+    );
   }
 
   if(!event) {
@@ -221,7 +282,7 @@ export default function EventDetail(){
 
     const formData = new FormData(e.target);
     const data = {
-      eventId: id,
+      eventId: event.eventId || event.id, // Use numeric ID
       name: formData.get('name'),
       email: formData.get('email'),
       phone: formData.get('phone') || null,
@@ -229,15 +290,15 @@ export default function EventDetail(){
       specialRequirements: formData.get('requirements') || null
     };
 
-    console.log('RSVP submitted for', id, data);
+    console.log('RSVP submitted for', event.eventId, data);
 
     try {
-      await eventService.create(data);
+      await eventRSVPService.create(data);
       setSuccess(true);
       e.target.reset();
       
       // Refresh RSVP count
-      await fetchRsvpCount();
+      await fetchRsvpCount(event.eventId);
     } catch (err) {
       console.error('RSVP error:', err);
       

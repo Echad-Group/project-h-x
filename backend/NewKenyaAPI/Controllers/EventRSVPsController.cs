@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewKenyaAPI.Data;
 using NewKenyaAPI.Models;
+using NewKenyaAPI.Models.DTOs;
 
 namespace NewKenyaAPI.Controllers
 {
@@ -18,13 +19,13 @@ namespace NewKenyaAPI.Controllers
 
         // GET: api/EventRSVPs
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EventRSVP>>> GetEventRSVPs([FromQuery] string? eventId)
+        public async Task<ActionResult<IEnumerable<EventRSVP>>> GetEventRSVPs([FromQuery] int? eventId)
         {
             var query = _context.EventRSVPs.AsQueryable();
 
-            if (!string.IsNullOrEmpty(eventId))
+            if (eventId.HasValue)
             {
-                query = query.Where(e => e.EventId == eventId);
+                query = query.Where(e => e.EventId == eventId.Value);
             }
 
             return await query
@@ -48,7 +49,7 @@ namespace NewKenyaAPI.Controllers
 
         // GET: api/EventRSVPs/count/{eventId}
         [HttpGet("count/{eventId}")]
-        public async Task<ActionResult<object>> GetEventRSVPCount(string eventId)
+        public async Task<ActionResult<object>> GetEventRSVPCount(int eventId)
         {
             var count = await _context.EventRSVPs
                 .Where(e => e.EventId == eventId)
@@ -67,16 +68,34 @@ namespace NewKenyaAPI.Controllers
 
         // POST: api/EventRSVPs
         [HttpPost]
-        public async Task<ActionResult<EventRSVP>> PostEventRSVP(EventRSVP eventRSVP)
+        public async Task<ActionResult<EventRSVP>> PostEventRSVP(CreateEventRSVPDto dto)
         {
+            // Check if the event exists
+            var eventExists = await _context.Events.AnyAsync(e => e.Id == dto.EventId);
+            if (!eventExists)
+            {
+                return BadRequest(new { message = "Event not found." });
+            }
+
             // Check if user already RSVPd for this event
             var existingRSVP = await _context.EventRSVPs
-                .FirstOrDefaultAsync(e => e.EventId == eventRSVP.EventId && e.Email == eventRSVP.Email);
+                .FirstOrDefaultAsync(e => e.EventId == dto.EventId && e.Email == dto.Email);
 
             if (existingRSVP != null)
             {
                 return Conflict(new { message = "You have already RSVPed for this event." });
             }
+
+            var eventRSVP = new EventRSVP
+            {
+                EventId = dto.EventId,
+                Name = dto.Name,
+                Email = dto.Email,
+                Phone = dto.Phone,
+                NumberOfGuests = dto.NumberOfGuests,
+                SpecialRequirements = dto.SpecialRequirements,
+                CreatedAt = DateTime.UtcNow
+            };
 
             _context.EventRSVPs.Add(eventRSVP);
             await _context.SaveChangesAsync();
