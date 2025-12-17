@@ -147,7 +147,23 @@ namespace NewKenyaAPI.Controllers
             _context.Teams.Add(team);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, team);
+            // Return projected result to avoid circular references
+            var result = new
+            {
+                team.Id,
+                team.Name,
+                team.Description,
+                team.Icon,
+                team.UnitId,
+                team.DisplayOrder,
+                team.RequiredSkills,
+                team.PreferredLocations,
+                team.TelegramLink,
+                team.WhatsAppLink,
+                team.IsActive
+            };
+
+            return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, result);
         }
 
         // PUT: api/Teams/5

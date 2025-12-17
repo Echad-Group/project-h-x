@@ -110,7 +110,20 @@ namespace NewKenyaAPI.Controllers
             _context.VolunteerAssignments.Add(assignment);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetVolunteerAssignments), new { volunteerId = request.VolunteerId }, assignment);
+            // Return projected result to avoid circular references
+            var result = new
+            {
+                assignment.Id,
+                assignment.VolunteerId,
+                assignment.UnitId,
+                assignment.TeamId,
+                assignment.Notes,
+                assignment.AssignedByUserId,
+                assignment.AssignedAt,
+                assignment.IsActive
+            };
+
+            return CreatedAtAction(nameof(GetVolunteerAssignments), new { volunteerId = request.VolunteerId }, result);
         }
 
         // PUT: api/Assignments/5

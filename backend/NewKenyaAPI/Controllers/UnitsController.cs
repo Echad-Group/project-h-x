@@ -141,7 +141,21 @@ namespace NewKenyaAPI.Controllers
             _context.Units.Add(unit);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUnit), new { id = unit.Id }, unit);
+            // Return projected result to avoid circular references
+            var result = new
+            {
+                unit.Id,
+                unit.Name,
+                unit.Description,
+                unit.Icon,
+                unit.Color,
+                unit.DisplayOrder,
+                unit.TelegramLink,
+                unit.WhatsAppLink,
+                unit.IsActive
+            };
+
+            return CreatedAtAction(nameof(GetUnit), new { id = unit.Id }, result);
         }
 
         // PUT: api/Units/5
