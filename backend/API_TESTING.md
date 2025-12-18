@@ -101,6 +101,93 @@ GET /api/donations/1
 DELETE /api/donations/1
 ```
 
+## Events
+
+### Get All Events
+```http
+GET /api/events
+GET /api/events?includeUnpublished=true
+```
+
+### Get Event by ID
+```http
+GET /api/events/1
+```
+
+### Get Event by Slug
+```http
+GET /api/events/slug/town-hall-nairobi
+```
+
+### Get Upcoming Events
+```http
+GET /api/events/upcoming?limit=10
+```
+
+### Get Past Events
+```http
+GET /api/events/past?limit=10
+```
+
+### Create Event (Admin Only)
+```http
+POST /api/events
+Authorization: Bearer {jwt-token}
+Content-Type: application/json
+
+{
+  "title": "Nairobi Town Hall",
+  "description": "Join us for a community discussion",
+  "date": "2024-12-25T14:00:00Z",
+  "location": "Nairobi Community Center",
+  "city": "Nairobi",
+  "region": "Nairobi County",
+  "imageUrl": "https://example.com/image.jpg",
+  "type": "Town Hall",
+  "capacity": 200,
+  "isPublished": true
+}
+```
+
+### Update Event (Admin Only)
+```http
+PUT /api/events/1
+Authorization: Bearer {jwt-token}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "Nairobi Town Hall - Updated",
+  "description": "Updated description",
+  "date": "2024-12-25T14:00:00Z",
+  "location": "New Location",
+  "city": "Nairobi",
+  "region": "Nairobi County",
+  "imageUrl": "https://example.com/image.jpg",
+  "type": "Town Hall",
+  "capacity": 250,
+  "isPublished": true
+}
+```
+
+### Delete Event (Admin Only)
+```http
+DELETE /api/events/1
+Authorization: Bearer {jwt-token}
+```
+
+### Get RSVPs for Event (Admin Only)
+```http
+GET /api/events/1/rsvps
+Authorization: Bearer {jwt-token}
+```
+
+### Seed Sample Events (Admin Only)
+```http
+POST /api/events/seed
+Authorization: Bearer {jwt-token}
+```
+
 ## Event RSVPs
 
 ### Create RSVP
@@ -109,7 +196,7 @@ POST /api/eventrsvps
 Content-Type: application/json
 
 {
-  "eventId": "town-hall-nairobi",
+  "eventId": 1,
   "name": "Bob Wilson",
   "email": "bob@example.com",
   "phone": "+254723456789",
@@ -121,12 +208,12 @@ Content-Type: application/json
 ### Get All RSVPs (Optional: Filter by Event)
 ```http
 GET /api/eventrsvps
-GET /api/eventrsvps?eventId=town-hall-nairobi
+GET /api/eventrsvps?eventId=1
 ```
 
 ### Get RSVP Count for Event
 ```http
-GET /api/eventrsvps/count/town-hall-nairobi
+GET /api/eventrsvps/count/1
 ```
 
 Response:
@@ -149,7 +236,7 @@ Content-Type: application/json
 
 {
   "id": 1,
-  "eventId": "town-hall-nairobi",
+  "eventId": 1,
   "name": "Bob Wilson",
   "email": "bob@example.com",
   "phone": "+254723456789",
@@ -203,5 +290,8 @@ http://localhost:5065/swagger
 - All endpoints accept and return JSON
 - Timestamps (CreatedAt) are automatically set to UTC
 - Email uniqueness is enforced for Volunteers
-- Event ID + Email uniqueness is enforced for RSVPs
+- Event ID (integer) + Email uniqueness is enforced for RSVPs
+- Events use slug-based URLs for SEO-friendly routing (e.g., `/events/slug/town-hall-nairobi`)
+- Event slugs are auto-generated from titles on create/update
+- Admin-only endpoints require a valid JWT token with Admin role
 - CORS is enabled for http://localhost:5173 (Vite dev server)
