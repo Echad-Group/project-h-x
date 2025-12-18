@@ -99,6 +99,7 @@ The API will be available at https://localhost:7000 (or http://localhost:5000)
 - ✅ Seed scripts for sample data
 - ✅ Main entities:
   - **Authentication**: Users with roles (Admin, Volunteer, User, Moderator, TeamLead)
+  - **User Profiles**: Extended user profiles with bio, location, social media links
   - **Issues**: Policy platform with initiatives and questions
   - **Events**: Campaign events with slug-based routing
   - **EventRSVPs**: Event registrations with attendee info
@@ -106,6 +107,7 @@ The API will be available at https://localhost:7000 (or http://localhost:5000)
   - **Contacts**: Contact form submissions
   - **Donations**: Donation records
   - **Organizations**: Volunteer units and teams with assignments
+  - **Campaign Team**: Core campaign team member profiles
 
 ## API Endpoints
 
@@ -170,6 +172,21 @@ The API will be available at https://localhost:7000 (or http://localhost:5000)
 - `GET /api/assignments` — Get volunteer assignments
 - `POST /api/assignments` — Create assignment
 
+### Campaign Team
+- `GET /api/campaignteam` — Get all active campaign team members
+- `GET /api/campaignteam/{id}` — Get team member by ID
+- `POST /api/campaignteam` — Create team member (Admin only)
+- `PUT /api/campaignteam/{id}` — Update team member (Admin only)
+- `DELETE /api/campaignteam/{id}` — Delete team member (Admin only)
+- `PUT /api/campaignteam/{id}/reorder` — Reorder team member (Admin only)
+
+### User Profile
+- `GET /api/userprofile` — Get current user's profile
+- `PUT /api/userprofile` — Update current user's profile
+- `PUT /api/userprofile/password` — Change password
+- `PUT /api/userprofile/email` — Update email address
+- `DELETE /api/userprofile` — Delete user account
+
 ## Database Seeding
 
 The project includes PowerShell scripts to seed sample data:
@@ -180,6 +197,9 @@ The project includes PowerShell scripts to seed sample data:
 
 # Seed Events (requires admin JWT token)
 .\backend\seed-events.ps1 -Token "your-jwt-token"
+
+# Seed Campaign Team Members (requires admin JWT token)
+.\backend\seed-campaign-team.ps1 -Token "your-jwt-token"
 
 # Clear Events before re-seeding
 .\backend\clear-events.ps1 -Token "your-jwt-token"

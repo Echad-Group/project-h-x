@@ -24,6 +24,7 @@ namespace NewKenyaAPI.Data
         public DbSet<Issue> Issues { get; set; }
         public DbSet<IssueInitiative> IssueInitiatives { get; set; }
         public DbSet<IssueQuestion> IssueQuestions { get; set; }
+        public DbSet<CampaignTeamMember> CampaignTeamMembers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,6 +44,7 @@ namespace NewKenyaAPI.Data
             modelBuilder.Entity<Issue>().ToTable("Issues");
             modelBuilder.Entity<IssueInitiative>().ToTable("IssueInitiatives");
             modelBuilder.Entity<IssueQuestion>().ToTable("IssueQuestions");
+            modelBuilder.Entity<CampaignTeamMember>().ToTable("CampaignTeamMembers");
 
             // Configure indexes for better query performance
             modelBuilder.Entity<Volunteer>()

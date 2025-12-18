@@ -26,6 +26,9 @@
 - [x] Admin panel at `/admin` route
 - [x] Volunteer organization system (Units, Teams, Assignments)
 - [x] PowerShell seed scripts for Issues and Events
+- [x] User profile management system with password/email change
+- [x] Campaign team profile system with admin management
+- [x] Public team page with dynamic member display
 
 ## 🔒 Security Checklist
 
@@ -109,6 +112,27 @@
 - [ ] Test admin-only endpoints reject non-admin users
 - [ ] Test protected routes redirect to login
 - [ ] Verify token refresh works before expiration
+
+### User Profile System
+- [ ] Test user profile page loads correctly
+- [ ] Test profile information update (name, bio, location, etc.)
+- [ ] Test password change with correct current password
+- [ ] Test password change with incorrect current password
+- [ ] Test email update triggers re-login
+- [ ] Test social media links save correctly
+- [ ] Test account deletion with confirmation
+- [ ] Verify profile dropdown menu in navbar
+
+### Campaign Team Profile
+- [ ] Test public team page displays all active members
+- [ ] Test member cards show all information correctly
+- [ ] Test admin can add new team members
+- [ ] Test admin can edit existing members
+- [ ] Test admin can delete members
+- [ ] Test display order affects member positioning
+- [ ] Test photo URLs display correctly or fallback to initials
+- [ ] Test social media links open correctly
+- [ ] Verify non-admin users can't access management functions
 
 ## 🚀 Deployment Steps
 
