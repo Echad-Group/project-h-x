@@ -50,6 +50,7 @@ namespace NewKenyaAPI.Controllers
                 Twitter = user.Twitter,
                 Facebook = user.Facebook,
                 LinkedIn = user.LinkedIn,
+                ProfilePhotoUrl = user.ProfilePhotoUrl,
                 CreatedAt = user.CreatedAt,
                 LastLoginAt = user.LastLoginAt,
                 EmailConfirmed = user.EmailConfirmed,
@@ -91,6 +92,7 @@ namespace NewKenyaAPI.Controllers
             user.Twitter = dto.Twitter;
             user.Facebook = dto.Facebook;
             user.LinkedIn = dto.LinkedIn;
+            user.ProfilePhotoUrl = dto.ProfilePhotoUrl;
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -200,6 +202,142 @@ namespace NewKenyaAPI.Controllers
             }
 
             return Ok(new { message = "Account deleted successfully" });
+        }
+
+        // POST: api/UserProfile/upload-photo
+        [HttpPost("upload-photo")]
+        public async Task<IActionResult> UploadProfilePhoto(IFormFile file)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Validate file
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "No file uploaded" });
+            }
+
+            // Validate file size (max 5MB)
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "File size must be less than 5MB" });
+            }
+
+            // Validate file type
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest(new { message = "Invalid file type. Allowed: JPG, PNG, GIF, WEBP" });
+            }
+
+            try
+            {
+                // Delete old photo if exists
+                if (!string.IsNullOrEmpty(user.ProfilePhotoUrl))
+                {
+                    var oldPhotoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePhotoUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldPhotoPath))
+                    {
+                        System.IO.File.Delete(oldPhotoPath);
+                    }
+                }
+
+                // Generate unique filename
+                var fileName = $"{userId}_{Guid.NewGuid()}{extension}";
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profile-photos");
+                
+                // Ensure directory exists
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                // Save file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Update user profile
+                var photoUrl = $"/uploads/profile-photos/{fileName}";
+                user.ProfilePhotoUrl = photoUrl;
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    // Clean up file if database update fails
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                    return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+                }
+
+                return Ok(new { photoUrl = photoUrl, message = "Profile photo uploaded successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error uploading file", error = ex.Message });
+            }
+        }
+
+        // DELETE: api/UserProfile/photo
+        [HttpDelete("photo")]
+        public async Task<IActionResult> DeleteProfilePhoto()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (string.IsNullOrEmpty(user.ProfilePhotoUrl))
+            {
+                return BadRequest(new { message = "No profile photo to delete" });
+            }
+
+            try
+            {
+                // Delete file from disk
+                var photoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePhotoUrl.TrimStart('/'));
+                if (System.IO.File.Exists(photoPath))
+                {
+                    System.IO.File.Delete(photoPath);
+                }
+
+                // Update user profile
+                user.ProfilePhotoUrl = null;
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+                }
+
+                return Ok(new { message = "Profile photo deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error deleting file", error = ex.Message });
+            }
         }
     }
 }

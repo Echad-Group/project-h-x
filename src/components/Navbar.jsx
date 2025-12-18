@@ -69,9 +69,17 @@ export default function Navbar({ onOpenDonate }) {
                 )}
                 <div className="relative group">
                   <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:text-[var(--kenya-green)] rounded-md">
-                    <div className="w-8 h-8 bg-[var(--kenya-green)] rounded-full flex items-center justify-center text-white text-xs font-bold">
-                      {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-                    </div>
+                    {user?.profilePhotoUrl ? (
+                      <img 
+                        src={`http://localhost:5065${user.profilePhotoUrl}`}
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-[var(--kenya-green)]"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-[var(--kenya-green)] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                      </div>
+                    )}
                     <span>{user?.firstName || user?.email}</span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

@@ -31,11 +31,16 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (userData) => {
+    setUser(prevUser => ({ ...prevUser, ...userData }));
+  };
+
   const value = {
     user,
     login,
     register,
     logout,
+    updateUser,
     isAuthenticated: authService.isAuthenticated(),
     loading
   };

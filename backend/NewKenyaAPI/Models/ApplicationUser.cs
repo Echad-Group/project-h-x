@@ -12,6 +12,7 @@ namespace NewKenyaAPI.Models
         public string? Twitter { get; set; }
         public string? Facebook { get; set; }
         public string? LinkedIn { get; set; }
+        public string? ProfilePhotoUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
     }

@@ -33,6 +33,9 @@ namespace NewKenyaAPI.Models.DTOs
         
         [MaxLength(50)]
         public string? LinkedIn { get; set; }
+        
+        [MaxLength(500)]
+        public string? ProfilePhotoUrl { get; set; }
     }
     
     public class ChangePasswordDto
@@ -72,6 +75,7 @@ namespace NewKenyaAPI.Models.DTOs
         public string? Twitter { get; set; }
         public string? Facebook { get; set; }
         public string? LinkedIn { get; set; }
+        public string? ProfilePhotoUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
         public bool EmailConfirmed { get; set; }

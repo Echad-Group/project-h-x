@@ -32,5 +32,24 @@ export const userProfileService = {
       headers: { 'Content-Type': 'application/json' }
     });
     return response.data;
+  },
+
+  // Upload profile photo
+  uploadProfilePhoto: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await api.post('/userprofile/upload-photo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  },
+
+  // Delete profile photo
+  deleteProfilePhoto: async () => {
+    const response = await api.delete('/userprofile/photo');
+    return response.data;
   }
 };

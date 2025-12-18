@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('profile');
@@ -46,6 +46,10 @@ export default function Profile() {
   const [deletePassword, setDeletePassword] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // Photo upload state
+  const [uploading, setUploading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
+
   useEffect(() => {
     loadProfile();
   }, []);
@@ -65,10 +69,67 @@ export default function Profile() {
         facebook: data.facebook || '',
         linkedIn: data.linkedIn || ''
       });
+      // Set photo preview from existing profile photo
+      if (data.profilePhotoUrl) {
+        setPhotoPreview(`http://localhost:5065${data.profilePhotoUrl}`);
+      }
     } catch (err) {
       setError('Failed to load profile');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handlePhotoUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size must be less than 5MB');
+      return;
+    }
+
+    setError(null);
+    setSuccess(null);
+    setUploading(true);
+
+    try {
+      const result = await userProfileService.uploadProfilePhoto(file);
+      setPhotoPreview(`http://localhost:5065${result.photoUrl}`);
+      setSuccess('Profile photo updated successfully');
+      updateUser({ profilePhotoUrl: result.photoUrl }); // Update context
+      await loadProfile();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to upload photo');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handlePhotoDelete() {
+    if (!confirm('Are you sure you want to delete your profile photo?')) return;
+
+    setError(null);
+    setSuccess(null);
+    setUploading(true);
+
+    try {
+      await userProfileService.deleteProfilePhoto();
+      setPhotoPreview(null);
+      setSuccess('Profile photo deleted successfully');
+      updateUser({ profilePhotoUrl: null }); // Update context
+      await loadProfile();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete photo');
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -189,9 +250,50 @@ export default function Profile() {
         {/* Header */}
         <div className="bg-white rounded-lg card-shadow p-6 mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 bg-[var(--kenya-green)] rounded-full flex items-center justify-center text-white text-3xl font-bold">
-              {profile.firstName?.charAt(0)}{profile.lastName?.charAt(0)}
+            {/* Profile Photo with Upload */}
+            <div className="relative group">
+              {photoPreview ? (
+                <img 
+                  src={photoPreview} 
+                  alt="Profile" 
+                  className="w-20 h-20 rounded-full object-cover border-4 border-[var(--kenya-green)]"
+                />
+              ) : (
+                <div className="w-20 h-20 bg-[var(--kenya-green)] rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                  {profile.firstName?.charAt(0)}{profile.lastName?.charAt(0)}
+                </div>
+              )}
+              
+              {/* Photo Upload Overlay */}
+              <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                <label className="cursor-pointer text-center">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handlePhotoUpload}
+                    disabled={uploading}
+                  />
+                  <span className="text-white text-xs font-medium">
+                    {uploading ? '...' : '📷'}
+                  </span>
+                </label>
+              </div>
+
+              {/* Delete Photo Button */}
+              {photoPreview && !uploading && (
+                <button
+                  onClick={handlePhotoDelete}
+                  className="absolute -bottom-1 -right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-lg transition-colors"
+                  title="Delete photo"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
+
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {profile.firstName} {profile.lastName}
