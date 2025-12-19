@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using NewKenyaAPI.Data;
 using NewKenyaAPI.Models;
 using NewKenyaAPI.Models.DTOs;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace NewKenyaAPI.Controllers
 {
@@ -16,11 +18,13 @@ namespace NewKenyaAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<NewsController> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public NewsController(ApplicationDbContext context, ILogger<NewsController> logger)
+        public NewsController(ApplicationDbContext context, ILogger<NewsController> logger, IMemoryCache memoryCache)
         {
             _context = context;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
 
         // GET: api/news
@@ -206,10 +210,35 @@ namespace NewKenyaAPI.Controllers
                     return NotFound();
                 }
 
+                // Get client IP address for rate limiting
+                var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+                var cacheKey = $"article_view_{id}_{clientIp}";
+
+                // Bot detection - basic check for common bot user agents
+                var botKeywords = new[] { "bot", "crawler", "spider", "scraper" };
+                if (botKeywords.Any(keyword => userAgent.ToLower().Contains(keyword)))
+                {
+                    _logger.LogInformation("Bot detected, skipping view increment for article {Id}", id);
+                    return Ok(new { views = article.Views, incremented = false, reason = "bot_detected" });
+                }
+
+                // Check if this IP has viewed this article recently (1 hour cooldown)
+                if (_memoryCache.TryGetValue(cacheKey, out _))
+                {
+                    _logger.LogInformation("Duplicate view blocked for article {Id} from IP {Ip}", id, clientIp);
+                    return Ok(new { views = article.Views, incremented = false, reason = "rate_limited" });
+                }
+
+                // Increment view count
                 article.Views++;
                 await _context.SaveChangesAsync();
 
-                return Ok(new { views = article.Views });
+                // Cache this view for 1 hour to prevent rapid duplicates from same IP
+                _memoryCache.Set(cacheKey, true, TimeSpan.FromHours(1));
+
+                _logger.LogInformation("View count incremented for article {Id} from IP {Ip}", id, clientIp);
+                return Ok(new { views = article.Views, incremented = true });
             }
             catch (Exception ex)
             {
@@ -452,5 +481,4 @@ namespace NewKenyaAPI.Controllers
             return slug;
         }
     }
-}
 }

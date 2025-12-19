@@ -91,7 +91,22 @@ export const getArticleBySlug = async (slug) => {
  */
 export const incrementArticleViews = async (id) => {
   try {
+    // Check localStorage to prevent duplicate views within 24 hours
+    const viewKey = `article_view_${id}`;
+    const lastViewed = localStorage.getItem(viewKey);
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+    if (lastViewed && (now - parseInt(lastViewed)) < oneDayMs) {
+      console.log(`Article ${id} already viewed within last 24 hours, skipping increment`);
+      return { views: 0 };
+    }
+
     const response = await api.post(NEWS_ENDPOINTS.incrementView(id));
+    
+    // Store the current timestamp in localStorage
+    localStorage.setItem(viewKey, now.toString());
+    
     return response.data;
   } catch (error) {
     console.error(`Error incrementing views for article ${id}:`, error);
