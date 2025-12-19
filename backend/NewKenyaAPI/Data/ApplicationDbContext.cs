@@ -25,6 +25,7 @@ namespace NewKenyaAPI.Data
         public DbSet<IssueInitiative> IssueInitiatives { get; set; }
         public DbSet<IssueQuestion> IssueQuestions { get; set; }
         public DbSet<CampaignTeamMember> CampaignTeamMembers { get; set; }
+        public DbSet<Article> Articles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,6 +46,7 @@ namespace NewKenyaAPI.Data
             modelBuilder.Entity<IssueInitiative>().ToTable("IssueInitiatives");
             modelBuilder.Entity<IssueQuestion>().ToTable("IssueQuestions");
             modelBuilder.Entity<CampaignTeamMember>().ToTable("CampaignTeamMembers");
+            modelBuilder.Entity<Article>().ToTable("Articles");
 
             // Configure indexes for better query performance
             modelBuilder.Entity<Volunteer>()
@@ -134,6 +136,23 @@ namespace NewKenyaAPI.Data
                 .WithMany(e => e.RSVPs)
                 .HasForeignKey(r => r.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            // Configure indexes for Articles
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.Slug)
+                .IsUnique();
+            
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.Status);
+            
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.Category);
+            
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.PublishedDate);
+            
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.IsFeatured);
         }
     }
 }

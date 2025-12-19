@@ -8,6 +8,7 @@ import AdminEmails from '../components/admin/AdminEmails';
 import AdminEngagement from '../components/admin/AdminEngagement';
 import AdminCampaignTeam from '../components/admin/AdminCampaignTeam';
 import AdminOverview from '../components/admin/AdminOverview';
+import AdminNewsManagement from '../components/admin/AdminNewsManagement';
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ export default function AdminPanel() {
     { id: 'teams', name: 'Teams and Units', icon: '👥' },
     { id: 'volunteers', name: 'Volunteer Management', icon: '🤝' },
     { id: 'campaign-team', name: 'Campaign Team Profile', icon: '👔' },
+    { id: 'news', name: 'News Management', icon: '📰' },
     { id: 'emails', name: 'Email Updates', icon: '✉️' },
     { id: 'engagement', name: 'Engagement Analytics', icon: '📈' },
   ];
@@ -104,6 +106,7 @@ export default function AdminPanel() {
               {activeTab === 'teams' && <AdminTeams />}
               {activeTab === 'volunteers' && <AdminVolunteers />}
               {activeTab === 'campaign-team' && <AdminCampaignTeam />}
+              {activeTab === 'news' && <AdminNewsManagement />}
               {activeTab === 'emails' && <AdminEmails />}
               {activeTab === 'engagement' && <AdminEngagement />}
             </div>
