@@ -98,24 +98,34 @@ export default function NewsArticle(){
   const [error, setError] = useState(null);
   const { updateMeta } = useMeta();
 
+  console.log('NewsArticle component rendered, slug:', slug);
+
   useEffect(() => {
     const fetchArticle = async () => {
+      console.log('Fetching article with slug:', slug);
       setLoading(true);
       setError(null);
       
       try {
         // Fetch the article
+        console.log('Calling getArticleBySlug...');
         const articleData = await getArticleBySlug(slug);
+        console.log('Article data received:', articleData);
         setArticle(articleData);
 
-        // Increment view count (fire and forget)
-        incrementArticleViews(articleData.id);
+        // Increment view count (fire and forget - don't await)
+        incrementArticleViews(articleData.id).catch(err => 
+          console.log('Failed to increment views:', err)
+        );
 
         // Fetch related articles from the same category
+        console.log('Fetching related articles...');
         const relatedResponse = await getArticles({
           category: articleData.category,
+          status: 'published',
           pageSize: 4,
         });
+        console.log('Related articles received:', relatedResponse);
 
         // Filter out current article and take first 3
         const related = relatedResponse.articles
@@ -123,6 +133,7 @@ export default function NewsArticle(){
           .slice(0, 3);
         
         setRelatedArticles(related);
+        console.log('Article loading complete');
       } catch (err) {
         console.error('Error fetching article:', err);
         setError('Failed to load article. Please try again later.');

@@ -61,7 +61,7 @@ export default function App() {
               <Route path="/contact" element={<Contact/>} />
               <Route path="/faq" element={<FAQ/>} />
               <Route path="/news" element={<News/>} />
-              <Route path="/news/:id" element={<NewsArticle/>} />
+              <Route path="/news/:slug" element={<NewsArticle/>} />
               <Route path="/team" element={<Team/>} />
               <Route path="/gallery" element={<Gallery/>} />
               <Route path="/login" element={<Login/>} />
