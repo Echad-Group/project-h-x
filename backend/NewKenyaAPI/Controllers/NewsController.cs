@@ -439,7 +439,18 @@ namespace NewKenyaAPI.Controllers
             // Trim hyphens from start and end
             slug = slug.Trim('-');
 
+            // Ensure uniqueness by appending a number if slug already exists
+            var originalSlug = slug;
+            var counter = 1;
+            
+            while (_context.Articles.Any(a => a.Slug == slug))
+            {
+                slug = $"{originalSlug}-{counter}";
+                counter++;
+            }
+
             return slug;
         }
     }
+}
 }
