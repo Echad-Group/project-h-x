@@ -24,7 +24,7 @@ namespace NewKenyaAPI.Services
             try
             {
                 // Create roles if they don't exist
-                string[] roles = { UserRoles.Admin, UserRoles.Volunteer, UserRoles.User, UserRoles.Moderator, UserRoles.TeamLead };
+                string[] roles = UserRoles.AllRoles;
 
                 foreach (var role in roles)
                 {
@@ -64,6 +64,11 @@ namespace NewKenyaAPI.Services
                         Email = email,
                         FirstName = "System",
                         LastName = "Administrator",
+                        CampaignRole = UserRoles.SuperAdmin,
+                        VerificationStatus = CampaignVerificationStatuses.Verified,
+                        VoterCardStatus = CampaignVoterCardStatuses.Verified,
+                        IsOtpVerified = true,
+                        OtpVerifiedAt = DateTime.UtcNow,
                         EmailConfirmed = true,
                         CreatedAt = DateTime.UtcNow
                     };
@@ -73,6 +78,7 @@ namespace NewKenyaAPI.Services
                     if (result.Succeeded)
                     {
                         await _userManager.AddToRoleAsync(adminUser, UserRoles.Admin);
+                        await _userManager.AddToRoleAsync(adminUser, UserRoles.SuperAdmin);
                         _logger.LogInformation($"Default admin user created: {email}");
                         return true;
                     }
@@ -84,12 +90,25 @@ namespace NewKenyaAPI.Services
                 }
                 else
                 {
+                    adminUser.CampaignRole = UserRoles.SuperAdmin;
+                    adminUser.VerificationStatus = CampaignVerificationStatuses.Verified;
+                    adminUser.VoterCardStatus = CampaignVoterCardStatuses.Verified;
+                    adminUser.IsOtpVerified = true;
+                    adminUser.OtpVerifiedAt ??= DateTime.UtcNow;
+                    await _userManager.UpdateAsync(adminUser);
+
                     // Ensure existing admin has the Admin role
                     if (!await _userManager.IsInRoleAsync(adminUser, UserRoles.Admin))
                     {
                         await _userManager.AddToRoleAsync(adminUser, UserRoles.Admin);
                         _logger.LogInformation($"Admin role added to existing user: {email}");
                     }
+
+                    if (!await _userManager.IsInRoleAsync(adminUser, UserRoles.SuperAdmin))
+                    {
+                        await _userManager.AddToRoleAsync(adminUser, UserRoles.SuperAdmin);
+                    }
+
                     return true;
                 }
             }

@@ -9,6 +9,9 @@ import AdminEngagement from '../components/admin/AdminEngagement';
 import AdminCampaignTeam from '../components/admin/AdminCampaignTeam';
 import AdminOverview from '../components/admin/AdminOverview';
 import AdminNewsManagement from '../components/admin/AdminNewsManagement';
+import AdminCommandCenter from '../components/admin/AdminCommandCenter';
+import AdminMessageComposer from '../components/admin/AdminMessageComposer';
+import AdminElectionDashboard from '../components/admin/AdminElectionDashboard';
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -23,6 +26,9 @@ export default function AdminPanel() {
 
   const tabs = [
     { id: 'overview', name: 'Overview', icon: '📊' },
+    { id: 'command-center', name: 'Command Center', icon: '🧭' },
+    { id: 'message-composer', name: 'Message Composer', icon: '📣' },
+    { id: 'election-dashboard', name: 'Election Dashboard', icon: '🗳️' },
     { id: 'projects', name: 'Campaign Projects', icon: '🎯' },
     { id: 'teams', name: 'Teams and Units', icon: '👥' },
     { id: 'volunteers', name: 'Volunteer Management', icon: '🤝' },
@@ -102,6 +108,9 @@ export default function AdminPanel() {
             {/* Content Area */}
             <div className="bg-white rounded-lg shadow-sm">
               {activeTab === 'overview' && <AdminOverview />}
+              {activeTab === 'command-center' && <AdminCommandCenter />}
+              {activeTab === 'message-composer' && <AdminMessageComposer />}
+              {activeTab === 'election-dashboard' && <AdminElectionDashboard />}
               {activeTab === 'projects' && <AdminProjects />}
               {activeTab === 'teams' && <AdminTeams />}
               {activeTab === 'volunteers' && <AdminVolunteers />}

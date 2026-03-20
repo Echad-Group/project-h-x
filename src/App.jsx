@@ -32,6 +32,7 @@ import NotificationSettings from './components/NotificationSettings'
 import VolunteerDashboard from './components/VolunteerDashboard'
 import UnitsTeamsVisualization from './components/UnitsTeamsVisualization'
 import AdminPanel from './pages/AdminPanel'
+import AdminNewsEditor from './components/admin/AdminNewsEditor'
 
 
 export default function App() {
@@ -77,6 +78,16 @@ export default function App() {
               <Route path="/admin" element={
                 <ProtectedRoute roles={['Admin']}>
                   <AdminPanel/>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/news/create" element={
+                <ProtectedRoute roles={['Admin']}>
+                  <AdminNewsEditor/>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/news/edit/:id" element={
+                <ProtectedRoute roles={['Admin']}>
+                  <AdminNewsEditor/>
                 </ProtectedRoute>
               } />
               <Route path="/unauthorized" element={<Unauthorized/>} />

@@ -15,9 +15,16 @@ builder.Services.AddControllers();
 
 // Add Email Service
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<CampaignHierarchyService>();
+builder.Services.AddScoped<OtpService>();
+builder.Services.AddScoped<CampaignMessagingService>();
+builder.Services.AddScoped<LeaderboardService>();
+builder.Services.AddScoped<CampaignBootstrapService>();
+builder.Services.AddHttpClient("twilio-whatsapp");
 
 // Add Role Initialization Service
 builder.Services.AddScoped<RoleInitializationService>();
+builder.Services.AddHostedService<MessageDeliveryWorker>();
 
 // Configure rate limiting
 builder.Services.AddMemoryCache();
@@ -40,7 +47,11 @@ builder.Services.AddCors(options =>
 
 // Configure Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseSqlite($"{connectionString};Cache=Shared");
+    options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
+});
 
 // Configure Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -96,6 +107,9 @@ using (var scope = app.Services.CreateScope())
     var adminEmail = config["DefaultAdmin:Email"] ?? "admin@newkenya.org";
     var adminPassword = config["DefaultAdmin:Password"] ?? "Admin@123456";
     await roleService.CreateDefaultAdminAsync(adminEmail, adminPassword);
+
+    var bootstrapService = scope.ServiceProvider.GetRequiredService<CampaignBootstrapService>();
+    await bootstrapService.SeedInitialHierarchyAsync(adminPassword);
 }
 
 // Configure the HTTP request pipeline

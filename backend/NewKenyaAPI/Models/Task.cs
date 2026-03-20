@@ -45,10 +45,33 @@ namespace NewKenyaAPI.Models
         // Assignment to specific volunteer
         public int? AssignedToVolunteerId { get; set; }
         public Volunteer? AssignedToVolunteer { get; set; }
+
+        // Assignment to a campaign user in the command hierarchy
+        public string? AssignedToUserId { get; set; }
+        public ApplicationUser? AssignedToUser { get; set; }
         
         // Who created this task
         public string? CreatedByUserId { get; set; }
         public ApplicationUser? CreatedByUser { get; set; }
+
+        // Who assigned this task in the command hierarchy
+        public string? AssignedByUserId { get; set; }
+        public ApplicationUser? AssignedByUser { get; set; }
+
+        [MaxLength(100)]
+        public string? County { get; set; }
+
+        [MaxLength(100)]
+        public string? SubCounty { get; set; }
+
+        [MaxLength(100)]
+        public string? Constituency { get; set; }
+
+        [MaxLength(100)]
+        public string? Ward { get; set; }
+
+        [MaxLength(100)]
+        public string? PollingStation { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

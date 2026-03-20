@@ -196,6 +196,7 @@ namespace NewKenyaAPI.Controllers
                         Email = request.Email,
                         FirstName = firstName,
                         LastName = lastName,
+                        CampaignRole = UserRoles.Volunteer,
                         EmailConfirmed = false, // They need to verify email
                         CreatedAt = DateTime.UtcNow
                     };

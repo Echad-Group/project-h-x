@@ -21,6 +21,18 @@ export const authService = {
     return response.data;
   },
 
+  // Send OTP code for login/verification
+  sendOtp: async (payload) => {
+    const response = await api.post('/auth/send-otp', payload);
+    return response.data;
+  },
+
+  // Verify OTP code
+  verifyOtp: async (payload) => {
+    const response = await api.post('/auth/verify', payload);
+    return response.data;
+  },
+
   // Logout user
   logout: async () => {
     try {
@@ -89,11 +101,21 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || '';
+    const otpRequired = error.response?.data?.otpRequired === true;
+
+    // Login can intentionally return 401 to trigger OTP challenge.
+    if (status === 401 && requestUrl.includes('/auth/login') && otpRequired) {
+      return Promise.reject(error);
+    }
+
+    if (status === 401) {
       // Clear auth data and redirect to login
       authService.logout();
       window.location.href = '/login';
     }
+
     return Promise.reject(error);
   }
 );

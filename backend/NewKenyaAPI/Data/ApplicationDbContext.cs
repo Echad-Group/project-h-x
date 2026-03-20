@@ -26,6 +26,11 @@ namespace NewKenyaAPI.Data
         public DbSet<IssueQuestion> IssueQuestions { get; set; }
         public DbSet<CampaignTeamMember> CampaignTeamMembers { get; set; }
         public DbSet<Article> Articles { get; set; }
+        public DbSet<CampaignMessage> CampaignMessages { get; set; }
+        public DbSet<ComplianceReminder> ComplianceReminders { get; set; }
+        public DbSet<LeaderboardScore> LeaderboardScores { get; set; }
+        public DbSet<OtpVerificationCode> OtpVerificationCodes { get; set; }
+        public DbSet<ElectionResult> ElectionResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,8 +52,24 @@ namespace NewKenyaAPI.Data
             modelBuilder.Entity<IssueQuestion>().ToTable("IssueQuestions");
             modelBuilder.Entity<CampaignTeamMember>().ToTable("CampaignTeamMembers");
             modelBuilder.Entity<Article>().ToTable("Articles");
+            modelBuilder.Entity<CampaignMessage>().ToTable("CampaignMessages");
+            modelBuilder.Entity<ComplianceReminder>().ToTable("ComplianceReminders");
+            modelBuilder.Entity<LeaderboardScore>().ToTable("LeaderboardScores");
+            modelBuilder.Entity<OtpVerificationCode>().ToTable("OtpVerificationCodes");
+            modelBuilder.Entity<ElectionResult>().ToTable("ElectionResults");
 
             // Configure indexes for better query performance
+            modelBuilder.Entity<ApplicationUser>()
+                .HasIndex(u => u.PhoneNumber)
+                .IsUnique()
+                .HasFilter("\"PhoneNumber\" IS NOT NULL AND \"PhoneNumber\" <> ''");
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasIndex(u => new { u.CampaignRole, u.Region, u.County, u.VerificationStatus, u.VoterCardStatus });
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasIndex(u => u.ParentUserId);
+
             modelBuilder.Entity<Volunteer>()
                 .HasIndex(v => v.Email)
                 .IsUnique();
@@ -83,6 +104,9 @@ namespace NewKenyaAPI.Data
             
             modelBuilder.Entity<Models.Task>()
                 .HasIndex(t => t.Region);
+
+            modelBuilder.Entity<Models.Task>()
+                .HasIndex(t => t.AssignedToUserId);
             
             // Configure indexes for Issues
             modelBuilder.Entity<Issue>()
@@ -153,6 +177,91 @@ namespace NewKenyaAPI.Data
             
             modelBuilder.Entity<Article>()
                 .HasIndex(a => a.IsFeatured);
+
+            modelBuilder.Entity<CampaignMessage>()
+                .HasIndex(m => new { m.Channel, m.Status, m.CreatedAt });
+
+            modelBuilder.Entity<CampaignMessage>()
+                .HasIndex(m => new { m.Status, m.NextAttemptAt, m.RetryCount });
+
+            modelBuilder.Entity<ComplianceReminder>()
+                .HasIndex(r => new { r.UserId, r.CreatedAt });
+
+            modelBuilder.Entity<LeaderboardScore>()
+                .HasIndex(l => new { l.Scope, l.Region, l.County, l.TotalPoints });
+
+            modelBuilder.Entity<OtpVerificationCode>()
+                .HasIndex(o => new { o.UserId, o.Purpose, o.ExpiresAt, o.IsUsed });
+
+            modelBuilder.Entity<ElectionResult>()
+                .HasIndex(r => new { r.ReportingWindow, r.PollingStationCode });
+
+            modelBuilder.Entity<ElectionResult>()
+                .HasIndex(r => new { r.ReportingWindow, r.County, r.Constituency });
+
+            modelBuilder.Entity<ElectionResult>()
+                .HasIndex(r => new { r.SubmittedByUserId, r.ReportingWindow, r.PollingStationCode })
+                .IsUnique();
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.ParentUser)
+                .WithMany(u => u.DirectDownlines)
+                .HasForeignKey(u => u.ParentUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Models.Task>()
+                .HasOne(t => t.AssignedToUser)
+                .WithMany()
+                .HasForeignKey(t => t.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Models.Task>()
+                .HasOne(t => t.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(t => t.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Models.Task>()
+                .HasOne(t => t.AssignedByUser)
+                .WithMany()
+                .HasForeignKey(t => t.AssignedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CampaignMessage>()
+                .HasOne(m => m.SenderUser)
+                .WithMany()
+                .HasForeignKey(m => m.SenderUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CampaignMessage>()
+                .HasOne(m => m.ReceiverUser)
+                .WithMany()
+                .HasForeignKey(m => m.ReceiverUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ComplianceReminder>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LeaderboardScore>()
+                .HasOne(l => l.User)
+                .WithMany()
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OtpVerificationCode>()
+                .HasOne(o => o.User)
+                .WithMany()
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ElectionResult>()
+                .HasOne(r => r.SubmittedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.SubmittedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NewKenyaAPI.Models;
+using NewKenyaAPI.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,27 +16,44 @@ namespace NewKenyaAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly OtpService _otpService;
+        private readonly IEmailService _emailService;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            OtpService otpService,
+            IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _otpService = otpService;
+            _emailService = emailService;
         }
 
         // POST: api/Auth/register
         [HttpPost("register")]
         public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
         {
+            var campaignRole = ResolveSelfRegisterRole(request.CampaignRole);
+
             var user = new ApplicationUser
             {
                 UserName = request.Email,
                 Email = request.Email,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
+                PhoneNumber = request.PhoneNumber,
+                CampaignRole = campaignRole,
+                NationalIdNumber = request.NationalIdNumber,
+                Region = request.Region,
+                County = request.County,
+                SubCounty = request.SubCounty,
+                Constituency = request.Constituency,
+                Ward = request.Ward,
+                PollingStation = request.PollingStation,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -46,8 +64,7 @@ namespace NewKenyaAPI.Controllers
                 return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
             }
 
-            // Add default User role
-            await _userManager.AddToRoleAsync(user, UserRoles.User);
+            await _userManager.AddToRoleAsync(user, campaignRole == UserRoles.Volunteer ? UserRoles.Volunteer : UserRoles.User);
 
             var token = await GenerateJwtTokenAsync(user);
             var expiresAt = DateTime.UtcNow.AddDays(7);
@@ -59,6 +76,13 @@ namespace NewKenyaAPI.Controllers
                 Email = user.Email!,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                CampaignRole = user.CampaignRole,
+                VerificationStatus = user.VerificationStatus,
+                VoterCardStatus = user.VoterCardStatus,
+                Region = user.Region,
+                County = user.County,
+                OtpVerified = user.IsOtpVerified,
                 Roles = roles.ToList(),
                 ExpiresAt = expiresAt
             });
@@ -80,6 +104,12 @@ namespace NewKenyaAPI.Controllers
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
+            if (!user.IsOtpVerified && !string.IsNullOrWhiteSpace(user.PhoneNumber))
+            {
+                await _otpService.GenerateAndSendOtpAsync(user, OtpPurposes.Login);
+                return Unauthorized(new { message = "OTP verification required.", otpRequired = true, email = user.Email });
+            }
+
             // Update last login
             user.LastLoginAt = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
@@ -94,9 +124,49 @@ namespace NewKenyaAPI.Controllers
                 Email = user.Email!,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                CampaignRole = user.CampaignRole,
+                VerificationStatus = user.VerificationStatus,
+                VoterCardStatus = user.VoterCardStatus,
+                Region = user.Region,
+                County = user.County,
+                OtpVerified = user.IsOtpVerified,
                 Roles = roles.ToList(),
                 ExpiresAt = expiresAt
             });
+        }
+
+        // POST: api/Auth/send-otp
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtp([FromBody] SendOtpRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return Ok(new { message = "If the account exists, OTP has been sent." });
+            }
+
+            var result = await _otpService.GenerateAndSendOtpAsync(user, request.Purpose);
+            return Ok(new { message = result.Message });
+        }
+
+        // POST: api/Auth/verify
+        [HttpPost("verify")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid verification request." });
+            }
+
+            var verify = await _otpService.VerifyOtpAsync(user, request.Purpose, request.Code);
+            if (!verify.Success)
+            {
+                return BadRequest(new { message = verify.Message });
+            }
+
+            return Ok(new { message = verify.Message, level = request.Level, verifiedAt = user.OtpVerifiedAt });
         }
 
         // POST: api/Auth/logout
@@ -151,10 +221,7 @@ namespace NewKenyaAPI.Controllers
             }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            
-            // TODO: Send email with reset link
-            // For now, just return success
-            // In production, you'd call: await _emailService.SendPasswordResetEmailAsync(user.Email, token);
+            await _emailService.SendPasswordResetEmailAsync(user.Email!, token);
             
             return Ok(new { 
                 message = "Password reset instructions have been sent to your email.",
@@ -176,8 +243,21 @@ namespace NewKenyaAPI.Controllers
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("firstName", user.FirstName ?? ""),
-                new Claim("lastName", user.LastName ?? "")
+                new Claim("lastName", user.LastName ?? ""),
+                new Claim("campaignRole", user.CampaignRole ?? UserRoles.User),
+                new Claim("verificationStatus", user.VerificationStatus ?? CampaignVerificationStatuses.Pending),
+                new Claim("voterCardStatus", user.VoterCardStatus ?? CampaignVoterCardStatuses.Missing)
             };
+
+            if (!string.IsNullOrWhiteSpace(user.Region))
+            {
+                claims.Add(new Claim("region", user.Region));
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.County))
+            {
+                claims.Add(new Claim("county", user.County));
+            }
 
             // Add role claims
             foreach (var role in roles)
@@ -198,6 +278,16 @@ namespace NewKenyaAPI.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private static string ResolveSelfRegisterRole(string? requestedRole)
+        {
+            if (string.Equals(requestedRole, UserRoles.Volunteer, StringComparison.OrdinalIgnoreCase))
+            {
+                return UserRoles.Volunteer;
+            }
+
+            return UserRoles.User;
         }
     }
 }
