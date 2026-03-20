@@ -58,6 +58,18 @@ export default function Navbar({ onOpenDonate }) {
                   </svg>
                   Dashboard
                 </Link>
+                <Link to="/tasks" className="px-3 py-2 text-sm font-medium text-[var(--kenya-green)] hover:bg-[var(--kenya-green)]/10 rounded-md flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
+                  </svg>
+                  Tasks
+                </Link>
+                <Link to="/leaderboard" className="px-3 py-2 text-sm font-medium text-[var(--kenya-green)] hover:bg-[var(--kenya-green)]/10 rounded-md flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-6m3 6V7m3 10v-4m4 8H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2z" />
+                  </svg>
+                  Leaderboard
+                </Link>
                 {user?.roles?.includes('Admin') && (
                   <Link to="/admin" className="px-3 py-2 text-sm font-medium text-purple-600 hover:bg-purple-100 rounded-md flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

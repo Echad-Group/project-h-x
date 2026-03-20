@@ -12,6 +12,10 @@ import AdminNewsManagement from '../components/admin/AdminNewsManagement';
 import AdminCommandCenter from '../components/admin/AdminCommandCenter';
 import AdminMessageComposer from '../components/admin/AdminMessageComposer';
 import AdminElectionDashboard from '../components/admin/AdminElectionDashboard';
+import AdminWarRoom from '../components/admin/AdminWarRoom';
+import AdminVerificationQueue from '../components/admin/AdminVerificationQueue';
+import AdminHierarchyManager from '../components/admin/AdminHierarchyManager';
+import AdminCoverageMap from '../components/admin/AdminCoverageMap';
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -26,6 +30,10 @@ export default function AdminPanel() {
 
   const tabs = [
     { id: 'overview', name: 'Overview', icon: '📊' },
+    { id: 'war-room', name: 'War Room', icon: '🛰️' },
+    { id: 'verification-queue', name: 'Verification Queue', icon: '🪪' },
+    { id: 'hierarchy-manager', name: 'Hierarchy Manager', icon: '🌳' },
+    { id: 'coverage-map', name: 'Coverage Map', icon: '🗺️' },
     { id: 'command-center', name: 'Command Center', icon: '🧭' },
     { id: 'message-composer', name: 'Message Composer', icon: '📣' },
     { id: 'election-dashboard', name: 'Election Dashboard', icon: '🗳️' },
@@ -108,6 +116,10 @@ export default function AdminPanel() {
             {/* Content Area */}
             <div className="bg-white rounded-lg shadow-sm">
               {activeTab === 'overview' && <AdminOverview />}
+              {activeTab === 'war-room' && <AdminWarRoom />}
+              {activeTab === 'verification-queue' && <AdminVerificationQueue />}
+              {activeTab === 'hierarchy-manager' && <AdminHierarchyManager />}
+              {activeTab === 'coverage-map' && <AdminCoverageMap />}
               {activeTab === 'command-center' && <AdminCommandCenter />}
               {activeTab === 'message-composer' && <AdminMessageComposer />}
               {activeTab === 'election-dashboard' && <AdminElectionDashboard />}

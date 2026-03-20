@@ -6,6 +6,9 @@ const defaultSubmission = {
   constituency: '',
   county: '',
   region: '',
+  latitude: '',
+  longitude: '',
+  deviceFingerprint: '',
   candidateA: 0,
   candidateB: 0,
   candidateC: 0,
@@ -19,6 +22,8 @@ export default function AdminElectionDashboard() {
   const [countyFilter, setCountyFilter] = useState('');
   const [status, setStatus] = useState(null);
   const [aggregateRows, setAggregateRows] = useState([]);
+  const [pendingReview, setPendingReview] = useState([]);
+  const [conflicts, setConflicts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -33,16 +38,20 @@ export default function AdminElectionDashboard() {
       setLoading(true);
       setError('');
 
-      const [statusData, aggregateData] = await Promise.all([
+      const [statusData, aggregateData, pendingData, conflictData] = await Promise.all([
         electionResultsService.getStatus({ reportingWindow: reportingWindow || undefined }),
         electionResultsService.getAggregate({
           reportingWindow: reportingWindow || undefined,
           county: countyFilter || undefined
-        })
+        }),
+        electionResultsService.getPendingReview({ reportingWindow: reportingWindow || undefined }),
+        electionResultsService.getConflicts({ reportingWindow: reportingWindow || undefined })
       ]);
 
       setStatus(statusData);
       setAggregateRows(Array.isArray(aggregateData) ? aggregateData : []);
+      setPendingReview(Array.isArray(pendingData) ? pendingData : []);
+      setConflicts(Array.isArray(conflictData) ? conflictData : []);
     } catch (err) {
       console.error('Failed to load election dashboard data', err);
       setError(err.response?.data?.message || 'Unable to load election data.');
@@ -71,7 +80,14 @@ export default function AdminElectionDashboard() {
     setSubmitting(true);
 
     try {
-      const response = await electionResultsService.submit(submissionForm);
+      const payload = {
+        ...submissionForm,
+        latitude: submissionForm.latitude === '' ? null : Number(submissionForm.latitude),
+        longitude: submissionForm.longitude === '' ? null : Number(submissionForm.longitude),
+        deviceFingerprint: submissionForm.deviceFingerprint || null
+      };
+
+      const response = await electionResultsService.submit(payload);
       setFeedback(`Submission accepted. Status: ${response.status}.`);
       resetSubmission();
       await loadDashboardData();
@@ -80,6 +96,34 @@ export default function AdminElectionDashboard() {
       setError(err.response?.data?.message || 'Submission failed. Please review values and try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const reviewResult = async (resultId, decision) => {
+    setError('');
+    try {
+      await electionResultsService.reviewResult(resultId, {
+        decision,
+        notes: `Reviewed in dashboard with decision ${decision}.`
+      });
+      await loadDashboardData();
+    } catch (err) {
+      console.error('Failed to review result', err);
+      setError(err.response?.data?.message || 'Could not review result.');
+    }
+  };
+
+  const adjudicateConflict = async (conflictGroupKey, acceptedResultId) => {
+    setError('');
+    try {
+      await electionResultsService.adjudicateConflict(conflictGroupKey, {
+        acceptedResultId,
+        notes: 'Adjudicated from conflict board.'
+      });
+      await loadDashboardData();
+    } catch (err) {
+      console.error('Failed to adjudicate conflict', err);
+      setError(err.response?.data?.message || 'Could not adjudicate conflict.');
     }
   };
 
@@ -158,6 +202,27 @@ export default function AdminElectionDashboard() {
               onChange={(event) => onSubmissionChange('constituency', event.target.value)}
               className="rounded-xl border border-stone-300 px-3 py-2"
               placeholder="Constituency"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input
+              value={submissionForm.latitude}
+              onChange={(event) => onSubmissionChange('latitude', event.target.value)}
+              className="rounded-xl border border-stone-300 px-3 py-2"
+              placeholder="Latitude (optional)"
+            />
+            <input
+              value={submissionForm.longitude}
+              onChange={(event) => onSubmissionChange('longitude', event.target.value)}
+              className="rounded-xl border border-stone-300 px-3 py-2"
+              placeholder="Longitude (optional)"
+            />
+            <input
+              value={submissionForm.deviceFingerprint}
+              onChange={(event) => onSubmissionChange('deviceFingerprint', event.target.value)}
+              className="rounded-xl border border-stone-300 px-3 py-2"
+              placeholder="Device fingerprint (optional)"
             />
           </div>
 
@@ -312,6 +377,60 @@ export default function AdminElectionDashboard() {
               )}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-6">
+        <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="text-xl font-semibold text-stone-900">Pending validation queue</h3>
+          <div className="mt-4 space-y-3 max-h-[30rem] overflow-y-auto pr-1">
+            {pendingReview.length === 0 ? (
+              <p className="text-sm text-stone-500">No pending anomalies in current filter.</p>
+            ) : (
+              pendingReview.map((item) => (
+                <div key={item.id} className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold text-stone-900">Result #{item.id}</p>
+                    {item.isConflictFlagged && <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs text-rose-700">Conflict</span>}
+                    {item.isTamperSuspected && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">Low integrity</span>}
+                  </div>
+                  <p className="mt-1 text-xs text-stone-600">{item.pollingStationCode} • {item.county || 'Unspecified'} • {item.constituency || 'Unspecified'}</p>
+                  <p className="mt-2 text-xs text-stone-600">{item.validationNotes}</p>
+                  <p className="mt-1 text-xs text-stone-500">Integrity score: {item.integrityConfidenceScore ?? 'N/A'}</p>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => reviewResult(item.id, 'Validated')} className="rounded-lg border border-emerald-300 px-3 py-1 text-xs text-emerald-700 hover:bg-emerald-50">Validate</button>
+                    <button type="button" onClick={() => reviewResult(item.id, 'Rejected')} className="rounded-lg border border-rose-300 px-3 py-1 text-xs text-rose-700 hover:bg-rose-50">Reject</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="text-xl font-semibold text-stone-900">Duplicate submitter conflicts</h3>
+          <div className="mt-4 space-y-3 max-h-[30rem] overflow-y-auto pr-1">
+            {conflicts.length === 0 ? (
+              <p className="text-sm text-stone-500">No active conflicts for this window.</p>
+            ) : (
+              conflicts.map((conflict) => (
+                <div key={conflict.conflictGroupKey} className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                  <p className="font-semibold text-stone-900">{conflict.pollingStationCode}</p>
+                  <p className="text-xs text-stone-500">{conflict.conflictGroupKey}</p>
+                  <div className="mt-2 space-y-2">
+                    {(conflict.submissions || []).map((item) => (
+                      <div key={item.id} className="rounded-lg border border-stone-200 bg-white p-3">
+                        <p className="text-xs text-stone-700">Submission #{item.id} • {item.submittedByUserId}</p>
+                        <p className="text-xs text-stone-500">Integrity: {item.integrityConfidenceScore ?? 'N/A'} {item.isTamperSuspected ? '(tamper suspected)' : ''}</p>
+                        <button type="button" onClick={() => adjudicateConflict(conflict.conflictGroupKey, item.id)} className="mt-2 rounded-lg border border-sky-300 px-2 py-1 text-xs text-sky-700 hover:bg-sky-50">Accept This Submission</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </section>
     </div>

@@ -27,6 +27,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ResetPassword from './pages/ResetPassword'
 import Profile from './pages/Profile'
+import TaskExecutionHub from './pages/TaskExecutionHub'
+import Leaderboard from './pages/Leaderboard'
 import Unauthorized from './pages/Unauthorized'
 import NotificationSettings from './components/NotificationSettings'
 import VolunteerDashboard from './components/VolunteerDashboard'
@@ -73,6 +75,12 @@ export default function App() {
                   <Profile/>
                 </ProtectedRoute>
               } />
+              <Route path="/tasks" element={
+                <ProtectedRoute>
+                  <TaskExecutionHub/>
+                </ProtectedRoute>
+              } />
+              <Route path="/leaderboard" element={<Leaderboard/>} />
               <Route path="/volunteer/dashboard" element={<VolunteerDashboard/>} />
               <Route path="/organization" element={<UnitsTeamsVisualization/>} />
               <Route path="/admin" element={

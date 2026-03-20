@@ -28,6 +28,16 @@ namespace NewKenyaAPI.Services
                 return (false, "Leader or downline user was not found.");
             }
 
+            if (!string.Equals(leader.VerificationStatus, CampaignVerificationStatuses.Verified, StringComparison.OrdinalIgnoreCase))
+            {
+                return (false, "Only verified leaders can recruit downlines.");
+            }
+
+            if (!string.Equals(downline.VerificationStatus, CampaignVerificationStatuses.Verified, StringComparison.OrdinalIgnoreCase))
+            {
+                return (false, "Only verified members can be recruited as downlines.");
+            }
+
             if (!string.IsNullOrWhiteSpace(downline.ParentUserId))
             {
                 return (false, "This user already belongs to another leader.");

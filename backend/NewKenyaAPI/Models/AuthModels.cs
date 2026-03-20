@@ -15,6 +15,7 @@ namespace NewKenyaAPI.Models
         public string? PhoneNumber { get; set; }
         public string? CampaignRole { get; set; }
         public string? NationalIdNumber { get; set; }
+        public string? VoterCardNumber { get; set; }
         public string? Region { get; set; }
         public string? County { get; set; }
         public string? SubCounty { get; set; }

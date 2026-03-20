@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { authService } from '../services/authService';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -9,11 +10,22 @@ export default function Register() {
     password: '',
     confirmPassword: '',
     firstName: '',
-    lastName: ''
+    lastName: '',
+    nationalIdNumber: '',
+    voterCardNumber: ''
   });
+  const [documents, setDocuments] = useState({
+    nidaDocument: null,
+    voterCardDocument: null,
+    selfieDocument: null
+  });
+  const [otpCode, setOtpCode] = useState('');
+  const [otpStage, setOtpStage] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, login } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -24,9 +36,18 @@ export default function Register() {
     });
   };
 
+  const handleDocumentChange = (event) => {
+    const { name, files } = event.target;
+    setDocuments((current) => ({
+      ...current,
+      [name]: files && files[0] ? files[0] : null
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setInfoMessage('');
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -40,15 +61,34 @@ export default function Register() {
       return;
     }
 
+    if (!documents.nidaDocument || !documents.voterCardDocument || !documents.selfieDocument) {
+      setError('NIDA document, voter card document, and selfie are required.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await register({
-        email: formData.email,
-        password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName
-      });
+      const payload = new FormData();
+      payload.append('email', formData.email);
+      payload.append('password', formData.password);
+      payload.append('firstName', formData.firstName);
+      payload.append('lastName', formData.lastName);
+      payload.append('nationalIdNumber', formData.nationalIdNumber);
+      payload.append('voterCardNumber', formData.voterCardNumber);
+      payload.append('nidaDocument', documents.nidaDocument);
+      payload.append('voterCardDocument', documents.voterCardDocument);
+      payload.append('selfieDocument', documents.selfieDocument);
+
+      const response = await register(payload, true);
+
+      if (response?.otpRequired) {
+        setOtpStage(true);
+        setPendingEmail(response.email || formData.email);
+        setInfoMessage(response.message || 'OTP sent to your email. Enter it to activate your account.');
+        return;
+      }
+
       navigate('/');
     } catch (err) {
       console.error('Registration error:', err);
@@ -69,6 +109,33 @@ export default function Register() {
     }
   };
 
+  const handleOtpVerification = async (event) => {
+    event.preventDefault();
+    setError('');
+    setInfoMessage('');
+    setLoading(true);
+
+    try {
+      await authService.verifyOtp({
+        email: pendingEmail,
+        purpose: 'Registration',
+        code: otpCode
+      });
+
+      await login({
+        email: formData.email,
+        password: formData.password
+      });
+
+      navigate('/');
+    } catch (err) {
+      console.error('OTP verification error:', err);
+      setError(err.response?.data?.message || 'OTP verification failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full">
@@ -83,6 +150,36 @@ export default function Register() {
               {error}
             </div>
           )}
+          {infoMessage && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded text-sm">
+              {infoMessage}
+            </div>
+          )}
+
+          {otpStage ? (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-700">
+                Enter the one-time code sent to {pendingEmail} to finish registration.
+              </p>
+              <input
+                type="text"
+                value={otpCode}
+                onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="fluent-input"
+                placeholder="6-digit OTP"
+                required
+              />
+              <button
+                type="button"
+                onClick={handleOtpVerification}
+                disabled={loading || otpCode.length !== 6}
+                className="fluent-btn fluent-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Verifying OTP...' : 'Verify OTP and Activate'}
+              </button>
+            </div>
+          ) : (
+            <>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -126,6 +223,55 @@ export default function Register() {
               className="fluent-input"
               placeholder="you@example.com"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              National ID Number
+            </label>
+            <input
+              type="text"
+              name="nationalIdNumber"
+              value={formData.nationalIdNumber}
+              onChange={handleChange}
+              required
+              className="fluent-input"
+              placeholder="NIDA Number"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Voter Card Number
+            </label>
+            <input
+              type="text"
+              name="voterCardNumber"
+              value={formData.voterCardNumber}
+              onChange={handleChange}
+              required
+              className="fluent-input"
+              placeholder="Voter Card Number"
+            />
+          </div>
+
+          <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm font-semibold text-gray-800">Verification Upload Pack (Required)</p>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">NIDA Document</label>
+              <input type="file" name="nidaDocument" accept="image/*,.pdf" onChange={handleDocumentChange} required className="block w-full text-sm text-gray-700" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Voter Card Document</label>
+              <input type="file" name="voterCardDocument" accept="image/*,.pdf" onChange={handleDocumentChange} required className="block w-full text-sm text-gray-700" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Live Selfie</label>
+              <input type="file" name="selfieDocument" accept="image/*" onChange={handleDocumentChange} required className="block w-full text-sm text-gray-700" />
+            </div>
           </div>
 
           <div>
@@ -175,6 +321,8 @@ export default function Register() {
               {t('auth.register.signIn') || 'Sign in'}
             </Link>
           </div>
+            </>
+          )}
         </form>
       </div>
     </div>

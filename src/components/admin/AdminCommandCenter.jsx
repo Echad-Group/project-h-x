@@ -15,7 +15,11 @@ const initialSummary = {
   reminderBacklog: 0,
   topLeaders: [],
   verificationDistribution: [],
-  taskDistribution: []
+  taskDistribution: [],
+  regionBreakdown: [],
+  countyBreakdown: [],
+  subCountyBreakdown: [],
+  wardBreakdown: []
 };
 
 const initialCompliance = {
@@ -31,6 +35,7 @@ const initialCompliance = {
 export default function AdminCommandCenter() {
   const [summary, setSummary] = useState(initialSummary);
   const [compliance, setCompliance] = useState(initialCompliance);
+  const [opsHealth, setOpsHealth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshingReminders, setRefreshingReminders] = useState(false);
   const [error, setError] = useState('');
@@ -50,8 +55,11 @@ export default function AdminCommandCenter() {
         complianceService.getSummary()
       ]);
 
+      const healthData = await commandDashboardService.getOperationsHealth().catch(() => null);
+
       setSummary(summaryData);
       setCompliance(complianceData);
+      setOpsHealth(healthData);
     } catch (err) {
       console.error('Failed to load command center', err);
       setError('The command center could not load. Check backend auth and the new campaign endpoints.');
@@ -146,6 +154,26 @@ export default function AdminCommandCenter() {
           </div>
         ))}
       </section>
+
+      {opsHealth && (
+        <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="text-xl font-semibold text-stone-900">Operational health</h3>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="rounded-xl bg-stone-50 p-4">
+              <p className="text-sm text-stone-500">Health score</p>
+              <p className="text-3xl font-bold text-stone-900">{opsHealth.healthScore}</p>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-4">
+              <p className="text-sm text-stone-500">Status</p>
+              <p className="text-2xl font-bold text-stone-900">{opsHealth.status}</p>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-4">
+              <p className="text-sm text-stone-500">Queued messages</p>
+              <p className="text-3xl font-bold text-stone-900">{opsHealth.queuedMessages}</p>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_1fr]">
         <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
@@ -273,6 +301,32 @@ export default function AdminCommandCenter() {
               )}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="text-xl font-semibold text-stone-900">Regional drilldown</h3>
+          <div className="mt-4 space-y-2 max-h-72 overflow-y-auto pr-1">
+            {(summary.regionBreakdown || []).map((row) => (
+              <div key={row.region} className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm flex items-center justify-between">
+                <span>{row.region}</span>
+                <span className="text-stone-700">Users {row.users} • Verified {row.verified}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="text-xl font-semibold text-stone-900">County and sub-county drilldown</h3>
+          <div className="mt-4 space-y-2 max-h-72 overflow-y-auto pr-1">
+            {(summary.countyBreakdown || []).slice(0, 25).map((row, index) => (
+              <div key={`${row.region}-${row.county}-${index}`} className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm">
+                <p className="font-semibold text-stone-900">{row.region} / {row.county}</p>
+                <p className="text-xs text-stone-600">Users {row.users} • Verified {row.verified}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>

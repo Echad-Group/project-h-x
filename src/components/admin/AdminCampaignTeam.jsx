@@ -9,6 +9,20 @@ export default function AdminCampaignTeam() {
   const [error, setError] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
 
+  const commandRoleChains = [
+    { lane: 'Chairperson', keywords: ['chair', 'candidate'] },
+    { lane: 'Chief Strategist', keywords: ['strateg', 'advisor'] },
+    { lane: 'General Counsel', keywords: ['counsel', 'legal'] },
+    { lane: 'Field Command', keywords: ['field', 'mobilization'] },
+    { lane: 'Digital Command', keywords: ['digital', 'media', 'communications'] }
+  ];
+
+  const orgChartRows = commandRoleChains.map((lane) => ({
+    lane: lane.lane,
+    members: teamMembers.filter((member) =>
+      lane.keywords.some((keyword) => (member.role || '').toLowerCase().includes(keyword)))
+  }));
+
   const [form, setForm] = useState({
     name: '',
     role: '',
@@ -164,6 +178,30 @@ export default function AdminCampaignTeam() {
           <p className="text-3xl font-bold text-gray-900">
             {teamMembers.filter(m => !m.role.toLowerCase().includes('director') && !m.role.toLowerCase().includes('manager')).length}
           </p>
+        </div>
+      </div>
+
+      <div className="bg-white border rounded-lg p-6 mb-8">
+        <h3 className="text-xl font-bold text-gray-900">Strategic Command Org Chart</h3>
+        <p className="text-sm text-gray-600 mt-1">Candidate-level chain mapping for chairperson, strategists, counsel, and unit command ownership.</p>
+
+        <div className="mt-4 space-y-3">
+          {orgChartRows.map((row) => (
+            <div key={row.lane} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="font-semibold text-gray-900">{row.lane}</p>
+              {row.members.length === 0 ? (
+                <p className="text-sm text-gray-500 mt-1">No assigned member in this command lane.</p>
+              ) : (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {row.members.map((member) => (
+                    <span key={`${row.lane}-${member.id}`} className="rounded-full bg-[var(--kenya-green)]/10 px-3 py-1 text-xs font-semibold text-[var(--kenya-green)]">
+                      {member.name} • {member.role}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 

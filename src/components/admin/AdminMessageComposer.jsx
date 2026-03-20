@@ -26,6 +26,7 @@ const defaultForm = {
   title: '',
   body: '',
   url: '',
+  scheduledFor: '',
   region: '',
   county: '',
   campaignRole: ''
@@ -38,12 +39,24 @@ export default function AdminMessageComposer() {
   const [networkUsers, setNetworkUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
   const [feedback, setFeedback] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
     loadNetworkUsers();
+    loadAnalytics();
   }, []);
+
+  async function loadAnalytics() {
+    try {
+      const data = await campaignMessagingService.getAnalytics();
+      setAnalytics(data);
+    } catch (err) {
+      console.error('Failed to load messaging analytics', err);
+      setAnalytics(null);
+    }
+  }
 
   async function loadNetworkUsers() {
     try {
@@ -97,7 +110,8 @@ export default function AdminMessageComposer() {
         channel: form.channel,
         title: form.title || null,
         body: form.body,
-        url: form.url || null
+        url: form.url || null,
+        scheduledFor: form.scheduledFor ? new Date(form.scheduledFor).toISOString() : null
       };
 
       let response;
@@ -116,6 +130,7 @@ export default function AdminMessageComposer() {
 
       setFeedback(`${response.queuedCount || 0} message(s) queued successfully.`);
       resetComposer();
+      await loadAnalytics();
     } catch (err) {
       console.error('Failed to queue messages', err);
       setError(err.response?.data?.message || 'Unable to queue the message batch.');
@@ -214,6 +229,17 @@ export default function AdminMessageComposer() {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-2">Send now or schedule</label>
+            <input
+              type="datetime-local"
+              value={form.scheduledFor}
+              onChange={(event) => onChange('scheduledFor', event.target.value)}
+              className="w-full rounded-xl border border-stone-300 px-3 py-2"
+            />
+            <p className="mt-1 text-xs text-stone-500">Leave blank to send immediately via queue worker.</p>
+          </div>
+
           {mode === 'target' && (
             <div className="space-y-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
               <h3 className="font-semibold text-stone-900">Target filters</h3>
@@ -309,6 +335,40 @@ export default function AdminMessageComposer() {
             </button>
           </div>
         </form>
+      </section>
+
+      <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold text-stone-900">Delivery intelligence dashboard</h3>
+          <button type="button" onClick={loadAnalytics} className="rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100">Refresh</button>
+        </div>
+
+        {!analytics ? (
+          <p className="mt-3 text-sm text-stone-500">Analytics not available yet.</p>
+        ) : (
+          <div className="mt-4 space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {(analytics.totalsByStatus || []).map((item) => (
+                <div key={item.status} className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+                  <p className="text-xs uppercase text-stone-500">{item.status}</p>
+                  <p className="text-lg font-semibold text-stone-900">{item.count}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {(analytics.totalsByChannel || []).map((row) => (
+                <div key={row.channel} className="rounded-lg border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">
+                  <p className="font-semibold text-stone-900">{row.channel}</p>
+                  <p>Sent: {row.sent}</p>
+                  <p>Delivered: {row.delivered}</p>
+                  <p>Read: {row.read}</p>
+                  <p>Failed: {row.failed}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

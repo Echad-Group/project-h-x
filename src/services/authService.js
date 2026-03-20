@@ -2,8 +2,10 @@ import api from './api';
 
 export const authService = {
   // Register new user
-  register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
+  register: async (userData, isMultipart = false) => {
+    const response = await api.post('/auth/register', userData, isMultipart
+      ? { headers: { 'Content-Type': 'multipart/form-data' } }
+      : undefined);
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data));

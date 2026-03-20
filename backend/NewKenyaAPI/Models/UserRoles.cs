@@ -16,6 +16,10 @@ namespace NewKenyaAPI.Models
         public const string User = "User";
         public const string Moderator = "Moderator";
         public const string TeamLead = "TeamLead";
+        public const string PartyLiaison = "PartyLiaison";
+        public const string TribalRegionalMobilizer = "TribalRegionalMobilizer";
+        public const string ReligiousAdvisoryLead = "ReligiousAdvisoryLead";
+        public const string VillageElderCoordinator = "VillageElderCoordinator";
 
         public const string LeadershipAccess = Admin + "," + SuperAdmin + "," + RegionalLeader + "," + CountyLeader + "," + SubCountyLeader + "," + ConstituencyLeader + "," + WardLeader;
 
@@ -32,7 +36,11 @@ namespace NewKenyaAPI.Models
             Volunteer,
             User,
             Moderator,
-            TeamLead
+            TeamLead,
+            PartyLiaison,
+            TribalRegionalMobilizer,
+            ReligiousAdvisoryLead,
+            VillageElderCoordinator
         };
     }
 }

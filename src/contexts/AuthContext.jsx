@@ -20,9 +20,11 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
-  const register = async (userData) => {
-    const newUser = await authService.register(userData);
-    setUser(newUser);
+  const register = async (userData, isMultipart = false) => {
+    const newUser = await authService.register(userData, isMultipart);
+    if (newUser?.token) {
+      setUser(newUser);
+    }
     return newUser;
   };
 

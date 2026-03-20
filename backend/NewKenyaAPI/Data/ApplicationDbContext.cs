@@ -31,6 +31,8 @@ namespace NewKenyaAPI.Data
         public DbSet<LeaderboardScore> LeaderboardScores { get; set; }
         public DbSet<OtpVerificationCode> OtpVerificationCodes { get; set; }
         public DbSet<ElectionResult> ElectionResults { get; set; }
+        public DbSet<CampaignGeoPing> CampaignGeoPings { get; set; }
+        public DbSet<AuditLogEvent> AuditLogEvents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,6 +59,8 @@ namespace NewKenyaAPI.Data
             modelBuilder.Entity<LeaderboardScore>().ToTable("LeaderboardScores");
             modelBuilder.Entity<OtpVerificationCode>().ToTable("OtpVerificationCodes");
             modelBuilder.Entity<ElectionResult>().ToTable("ElectionResults");
+            modelBuilder.Entity<CampaignGeoPing>().ToTable("CampaignGeoPings");
+            modelBuilder.Entity<AuditLogEvent>().ToTable("AuditLogEvents");
 
             // Configure indexes for better query performance
             modelBuilder.Entity<ApplicationUser>()
@@ -203,6 +207,18 @@ namespace NewKenyaAPI.Data
                 .HasIndex(r => new { r.SubmittedByUserId, r.ReportingWindow, r.PollingStationCode })
                 .IsUnique();
 
+            modelBuilder.Entity<CampaignGeoPing>()
+                .HasIndex(p => new { p.CapturedAt, p.Region, p.County });
+
+            modelBuilder.Entity<CampaignGeoPing>()
+                .HasIndex(p => new { p.UserId, p.CapturedAt });
+
+            modelBuilder.Entity<AuditLogEvent>()
+                .HasIndex(a => new { a.EventType, a.CreatedAt });
+
+            modelBuilder.Entity<AuditLogEvent>()
+                .HasIndex(a => new { a.ActorUserId, a.CreatedAt });
+
             modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.ParentUser)
                 .WithMany(u => u.DirectDownlines)
@@ -262,6 +278,12 @@ namespace NewKenyaAPI.Data
                 .WithMany()
                 .HasForeignKey(r => r.SubmittedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CampaignGeoPing>()
+                .HasOne(p => p.User)
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

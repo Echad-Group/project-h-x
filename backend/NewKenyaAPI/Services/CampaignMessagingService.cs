@@ -15,6 +15,11 @@ namespace NewKenyaAPI.Services
 
         public async Task<int> QueueTargetMessagesAsync(string senderUserId, MessageTargetRequest request)
         {
+            if (request.ScheduledFor.HasValue && request.ScheduledFor.Value < DateTime.UtcNow.AddMinutes(-1))
+            {
+                throw new InvalidOperationException("Scheduled time must be in the future.");
+            }
+
             var query = _context.Users.AsQueryable();
 
             if (request.ReceiverUserIds != null && request.ReceiverUserIds.Count > 0)
@@ -44,6 +49,7 @@ namespace NewKenyaAPI.Services
             }
 
             var now = DateTime.UtcNow;
+            var dispatchTime = request.ScheduledFor?.ToUniversalTime() ?? now;
             var messages = recipients.Select(receiverId => new CampaignMessage
             {
                 SenderUserId = senderUserId,
@@ -53,7 +59,7 @@ namespace NewKenyaAPI.Services
                 Body = request.Body,
                 Url = request.Url,
                 Status = CampaignMessageStatuses.Queued,
-                NextAttemptAt = now,
+                NextAttemptAt = dispatchTime,
                 CreatedAt = now
             }).ToList();
 

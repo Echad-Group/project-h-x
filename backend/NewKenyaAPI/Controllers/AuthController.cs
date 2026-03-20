@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NewKenyaAPI.Models;
 using NewKenyaAPI.Services;
+using System.IO;
+using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,25 +21,66 @@ namespace NewKenyaAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly OtpService _otpService;
         private readonly IEmailService _emailService;
+        private readonly FaceMatchService _faceMatchService;
+        private readonly VerificationReviewService _verificationReviewService;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration,
             OtpService otpService,
-            IEmailService emailService)
+            IEmailService emailService,
+            FaceMatchService faceMatchService,
+            VerificationReviewService verificationReviewService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _otpService = otpService;
             _emailService = emailService;
+            _faceMatchService = faceMatchService;
+            _verificationReviewService = verificationReviewService;
         }
 
         // POST: api/Auth/register
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
+        public async Task<ActionResult<AuthResponse>> Register(
+            [FromForm] RegisterRequest request,
+            IFormFile? nidaDocument,
+            IFormFile? voterCardDocument,
+            IFormFile? selfieDocument)
         {
+            if (nidaDocument == null || voterCardDocument == null || selfieDocument == null)
+            {
+                return BadRequest(new { message = "NIDA document, voter card document, and selfie are required." });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.NationalIdNumber) || string.IsNullOrWhiteSpace(request.VoterCardNumber))
+            {
+                return BadRequest(new { message = "National ID number and voter card number are required." });
+            }
+
+            var normalizedNida = request.NationalIdNumber.Trim();
+            var normalizedVoterCard = request.VoterCardNumber.Trim();
+
+            var duplicateNida = await _userManager.Users.AnyAsync(user => user.NationalIdNumber == normalizedNida);
+            if (duplicateNida)
+            {
+                return Conflict(new { message = "An account with this National ID number already exists." });
+            }
+
+            var duplicateVoterCard = await _userManager.Users.AnyAsync(user => user.VoterCardNumber == normalizedVoterCard);
+            if (duplicateVoterCard)
+            {
+                return Conflict(new { message = "An account with this voter card number already exists." });
+            }
+
+            var selfieHash = await ComputeHashAsync(selfieDocument.OpenReadStream());
+            if (await IsDuplicateSelfieAsync(selfieHash))
+            {
+                return Conflict(new { message = "Duplicate selfie detected. This identity appears to be already registered." });
+            }
+
             var campaignRole = ResolveSelfRegisterRole(request.CampaignRole);
 
             var user = new ApplicationUser
@@ -47,7 +91,8 @@ namespace NewKenyaAPI.Controllers
                 LastName = request.LastName,
                 PhoneNumber = request.PhoneNumber,
                 CampaignRole = campaignRole,
-                NationalIdNumber = request.NationalIdNumber,
+                NationalIdNumber = normalizedNida,
+                VoterCardNumber = normalizedVoterCard,
                 Region = request.Region,
                 County = request.County,
                 SubCounty = request.SubCounty,
@@ -66,25 +111,42 @@ namespace NewKenyaAPI.Controllers
 
             await _userManager.AddToRoleAsync(user, campaignRole == UserRoles.Volunteer ? UserRoles.Volunteer : UserRoles.User);
 
-            var token = await GenerateJwtTokenAsync(user);
-            var expiresAt = DateTime.UtcNow.AddDays(7);
-            var roles = await _userManager.GetRolesAsync(user);
-
-            return Ok(new AuthResponse
+            try
             {
-                Token = token,
-                Email = user.Email!,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber,
-                CampaignRole = user.CampaignRole,
-                VerificationStatus = user.VerificationStatus,
-                VoterCardStatus = user.VoterCardStatus,
-                Region = user.Region,
-                County = user.County,
-                OtpVerified = user.IsOtpVerified,
-                Roles = roles.ToList(),
-                ExpiresAt = expiresAt
+                user.IdImageUrl = await SaveRegistrationDocumentAsync(user.Id, nidaDocument, "nida");
+                user.VoterCardImageUrl = await SaveRegistrationDocumentAsync(user.Id, voterCardDocument, "voter-card");
+                user.SelfieImageUrl = await SaveRegistrationDocumentAsync(user.Id, selfieDocument, "selfie", selfieHash);
+                user.VoterCardStatus = CampaignVoterCardStatuses.Pending;
+
+                var faceMatch = await _faceMatchService.CompareAsync(nidaDocument, selfieDocument);
+                user.FaceMatchScore = faceMatch.Score;
+                user.VerificationStatus = CampaignVerificationStatuses.Pending;
+
+                _verificationReviewService.AddEvent(user.Id, new VerificationTimelineEvent
+                {
+                    Timestamp = DateTime.UtcNow,
+                    Action = faceMatch.Passed ? "FaceMatchPassed" : "FaceMatchFailed",
+                    ReviewerName = "AI Verification Pipeline",
+                    Notes = faceMatch.Passed
+                        ? $"Automated face-match passed with score {faceMatch.Score}."
+                        : $"Automated face-match below threshold with score {faceMatch.Score}; routed to manual review."
+                });
+
+                await _userManager.UpdateAsync(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to store registration documents.", error = ex.Message });
+            }
+
+            await _otpService.GenerateAndSendOtpAsync(user, OtpPurposes.Registration);
+
+            return Ok(new
+            {
+                email = user.Email,
+                otpRequired = true,
+                purpose = OtpPurposes.Registration,
+                message = "Registration submitted. Enter OTP sent to your email to activate account."
             });
         }
 
@@ -104,7 +166,23 @@ namespace NewKenyaAPI.Controllers
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
-            if (!user.IsOtpVerified && !string.IsNullOrWhiteSpace(user.PhoneNumber))
+            var roles = await _userManager.GetRolesAsync(user);
+            var highRiskRoles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                UserRoles.Admin,
+                UserRoles.SuperAdmin,
+                UserRoles.RegionalLeader,
+                UserRoles.CountyLeader,
+                UserRoles.SubCountyLeader,
+                UserRoles.ConstituencyLeader,
+                UserRoles.WardLeader
+            };
+
+            var isHighRisk = roles.Any(role => highRiskRoles.Contains(role));
+            var otpFreshWindow = DateTime.UtcNow.AddHours(-24);
+            var requiresOtpChallenge = !user.IsOtpVerified || (isHighRisk && (!user.OtpVerifiedAt.HasValue || user.OtpVerifiedAt.Value < otpFreshWindow));
+
+            if (requiresOtpChallenge)
             {
                 await _otpService.GenerateAndSendOtpAsync(user, OtpPurposes.Login);
                 return Unauthorized(new { message = "OTP verification required.", otpRequired = true, email = user.Email });
@@ -116,8 +194,6 @@ namespace NewKenyaAPI.Controllers
 
             var token = await GenerateJwtTokenAsync(user);
             var expiresAt = DateTime.UtcNow.AddDays(7);
-            var roles = await _userManager.GetRolesAsync(user);
-
             return Ok(new AuthResponse
             {
                 Token = token,
@@ -288,6 +364,104 @@ namespace NewKenyaAPI.Controllers
             }
 
             return UserRoles.User;
+        }
+
+        private async Task<string> SaveRegistrationDocumentAsync(string userId, IFormFile file, string category, string? fingerprintHash = null)
+        {
+            const long maxSizeBytes = 8 * 1024 * 1024;
+            if (file.Length <= 0 || file.Length > maxSizeBytes)
+            {
+                throw new InvalidOperationException("Invalid file size. Max allowed is 8MB.");
+            }
+
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp", "application/pdf" };
+            if (!allowedTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Unsupported document format.");
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "secure-storage", "identity", category);
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var ext = Path.GetExtension(file.FileName);
+            if (string.IsNullOrWhiteSpace(ext))
+            {
+                ext = file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase) ? ".pdf" : ".jpg";
+            }
+
+            var hashSegment = string.IsNullOrWhiteSpace(fingerprintHash)
+                ? Guid.NewGuid().ToString("N")
+                : fingerprintHash[..Math.Min(16, fingerprintHash.Length)].ToLowerInvariant();
+
+            var fileName = $"{userId}_{category}_{hashSegment}{ext}.enc";
+            var fullPath = Path.Combine(uploadsFolder, fileName);
+
+            await using var sourceStream = file.OpenReadStream();
+            using var plainBuffer = new MemoryStream();
+            await sourceStream.CopyToAsync(plainBuffer);
+            var plainBytes = plainBuffer.ToArray();
+
+            var encryptedBytes = EncryptPayload(plainBytes, ResolveIdentityEncryptionKey());
+            await System.IO.File.WriteAllBytesAsync(fullPath, encryptedBytes);
+
+            return $"identity/{category}/{fileName}";
+        }
+
+        private async Task<bool> IsDuplicateSelfieAsync(string selfieHash)
+        {
+            var hashPrefix = selfieHash[..Math.Min(16, selfieHash.Length)].ToLowerInvariant();
+            return await _userManager.Users.AnyAsync(user =>
+                !string.IsNullOrWhiteSpace(user.SelfieImageUrl)
+                && user.SelfieImageUrl.Contains(hashPrefix));
+        }
+
+        private static async Task<string> ComputeHashAsync(Stream stream)
+        {
+            stream.Position = 0;
+            var bytes = await SHA256.HashDataAsync(stream);
+            return Convert.ToHexString(bytes);
+        }
+
+        private byte[] ResolveIdentityEncryptionKey()
+        {
+            var configured = _configuration["IdentityDocs:EncryptionKey"];
+            if (!string.IsNullOrWhiteSpace(configured))
+            {
+                try
+                {
+                    var key = Convert.FromBase64String(configured);
+                    if (key.Length == 32)
+                    {
+                        return key;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            var fallbackSecret = _configuration["Jwt:SecretKey"] ?? "NewKenyaIdentityFallbackSecretKeyMaterial";
+            return SHA256.HashData(Encoding.UTF8.GetBytes(fallbackSecret));
+        }
+
+        private static byte[] EncryptPayload(byte[] plainBytes, byte[] key)
+        {
+            using var aes = Aes.Create();
+            aes.Key = key;
+            aes.GenerateIV();
+            aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.PKCS7;
+
+            using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+            var cipherBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
+
+            var output = new byte[aes.IV.Length + cipherBytes.Length];
+            Buffer.BlockCopy(aes.IV, 0, output, 0, aes.IV.Length);
+            Buffer.BlockCopy(cipherBytes, 0, output, aes.IV.Length, cipherBytes.Length);
+            return output;
         }
     }
 }

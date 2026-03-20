@@ -61,6 +61,59 @@ namespace NewKenyaAPI.Controllers
                 .Select(group => new { status = group.Key, count = group.Count() })
                 .ToListAsync();
 
+            var regionBreakdown = await _context.Users
+                .GroupBy(user => user.Region)
+                .Select(group => new
+                {
+                    region = group.Key ?? "Unspecified",
+                    users = group.Count(),
+                    verified = group.Count(user => user.VerificationStatus == CampaignVerificationStatuses.Verified),
+                    compliant = group.Count(user => user.VoterCardStatus == CampaignVoterCardStatuses.Verified)
+                })
+                .OrderByDescending(item => item.users)
+                .ToListAsync();
+
+            var countyBreakdown = await _context.Users
+                .GroupBy(user => new { user.Region, user.County })
+                .Select(group => new
+                {
+                    region = group.Key.Region ?? "Unspecified",
+                    county = group.Key.County ?? "Unspecified",
+                    users = group.Count(),
+                    verified = group.Count(user => user.VerificationStatus == CampaignVerificationStatuses.Verified)
+                })
+                .OrderByDescending(item => item.users)
+                .Take(120)
+                .ToListAsync();
+
+            var subCountyBreakdown = await _context.Users
+                .Where(user => user.SubCounty != null)
+                .GroupBy(user => new { user.County, user.SubCounty })
+                .Select(group => new
+                {
+                    county = group.Key.County ?? "Unspecified",
+                    subCounty = group.Key.SubCounty ?? "Unspecified",
+                    users = group.Count(),
+                    verified = group.Count(user => user.VerificationStatus == CampaignVerificationStatuses.Verified)
+                })
+                .OrderByDescending(item => item.users)
+                .Take(200)
+                .ToListAsync();
+
+            var wardBreakdown = await _context.Users
+                .Where(user => user.Ward != null)
+                .GroupBy(user => new { user.SubCounty, user.Ward })
+                .Select(group => new
+                {
+                    subCounty = group.Key.SubCounty ?? "Unspecified",
+                    ward = group.Key.Ward ?? "Unspecified",
+                    users = group.Count(),
+                    missingVoterCards = group.Count(user => user.VoterCardStatus == CampaignVoterCardStatuses.Missing)
+                })
+                .OrderByDescending(item => item.users)
+                .Take(300)
+                .ToListAsync();
+
             return Ok(new
             {
                 totalUsers,
@@ -76,7 +129,11 @@ namespace NewKenyaAPI.Controllers
                 reminderBacklog,
                 topLeaders,
                 verificationDistribution,
-                taskDistribution
+                taskDistribution,
+                regionBreakdown,
+                countyBreakdown,
+                subCountyBreakdown,
+                wardBreakdown
             });
         }
 

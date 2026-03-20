@@ -20,11 +20,17 @@ builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<CampaignMessagingService>();
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddScoped<CampaignBootstrapService>();
+builder.Services.AddScoped<FaceMatchService>();
+builder.Services.AddScoped<AuditLogService>();
+builder.Services.AddSingleton<WarRoomCommandService>();
+builder.Services.AddSingleton<VerificationReviewService>();
 builder.Services.AddHttpClient("twilio-whatsapp");
 
 // Add Role Initialization Service
 builder.Services.AddScoped<RoleInitializationService>();
 builder.Services.AddHostedService<MessageDeliveryWorker>();
+builder.Services.AddHostedService<ComplianceReminderScheduler>();
+builder.Services.AddHostedService<WeeklyCommandReportingService>();
 
 // Configure rate limiting
 builder.Services.AddMemoryCache();

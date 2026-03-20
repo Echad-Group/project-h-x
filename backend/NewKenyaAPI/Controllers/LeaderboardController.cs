@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NewKenyaAPI.Data;
 using NewKenyaAPI.Models;
 using NewKenyaAPI.Services;
+using System.Security.Claims;
 
 namespace NewKenyaAPI.Controllers
 {
@@ -58,6 +59,10 @@ namespace NewKenyaAPI.Controllers
                     score.DirectDownlines,
                     score.TasksCompleted,
                     score.VerifiedVoterCards,
+                    score.VerificationIntegrityPoints,
+                    score.BadgeTier,
+                    score.RecognitionTitle,
+                    score.IncentiveTag,
                     score.Region,
                     score.County,
                     score.LastCalculatedAt
@@ -65,6 +70,51 @@ namespace NewKenyaAPI.Controllers
                 .ToListAsync();
 
             return Ok(scores);
+        }
+
+        [HttpGet("my-rank")]
+        [Authorize]
+        public async Task<ActionResult<object>> GetMyRank([FromQuery] string scope = "National")
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Unauthorized();
+            }
+
+            var ordered = await _context.LeaderboardScores
+                .Where(score => score.Scope == scope)
+                .OrderByDescending(score => score.TotalPoints)
+                .Select(score => new
+                {
+                    score.UserId,
+                    score.TotalPoints,
+                    score.BadgeTier,
+                    score.RecognitionTitle,
+                    score.IncentiveTag,
+                    score.Region,
+                    score.County
+                })
+                .ToListAsync();
+
+            var index = ordered.FindIndex(item => item.UserId == userId);
+            if (index < 0)
+            {
+                return NotFound(new { message = "User does not have a leaderboard score yet." });
+            }
+
+            var me = ordered[index];
+            return Ok(new
+            {
+                rank = index + 1,
+                totalParticipants = ordered.Count,
+                me.TotalPoints,
+                me.BadgeTier,
+                me.RecognitionTitle,
+                me.IncentiveTag,
+                me.Region,
+                me.County
+            });
         }
     }
 }
