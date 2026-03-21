@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ProjectHX.Mobile.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:ProjectHX.Mobile.Pages"
+    Shell.FlyoutBehavior="Disabled">
+
+    <ShellContent
+        Title="Login"
+        Route="login"
+        ContentTemplate="{DataTemplate pages:LoginPage}" />
+
+    <TabBar Route="main">
+        <Tab Title="Tasks">
+            <ShellContent ContentTemplate="{DataTemplate pages:TasksPage}" Route="tasks" />
+        </Tab>
+        <Tab Title="Submit">
+            <ShellContent ContentTemplate="{DataTemplate pages:SubmitResultPage}" Route="submit" />
+        </Tab>
+        <Tab Title="Inbox">
+            <ShellContent ContentTemplate="{DataTemplate pages:InboxPage}" Route="inbox" />
+        </Tab>
+        <Tab Title="Leaderboard">
+            <ShellContent ContentTemplate="{DataTemplate pages:LeaderboardPage}" Route="leaderboard" />
+        </Tab>
+        <Tab Title="Profile">
+            <ShellContent ContentTemplate="{DataTemplate pages:ProfilePage}" Route="profile" />
+        </Tab>
+    </TabBar>
+</Shell>

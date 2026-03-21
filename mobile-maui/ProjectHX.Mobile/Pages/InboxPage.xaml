@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectHX.Mobile.Pages.InboxPage"
+             Title="Inbox">
+    <VerticalStackLayout Padding="24" Spacing="10">
+        <Label Text="Inbox" FontSize="24" FontAttributes="Bold" />
+        <Label Text="Scaffold page: message list and read acknowledgments." TextColor="#6B7280" />
+    </VerticalStackLayout>
+</ContentPage>
