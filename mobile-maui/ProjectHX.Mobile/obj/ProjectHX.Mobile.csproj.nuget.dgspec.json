@@ -36,7 +36,7 @@
             "targetAlias": "net9.0-android",
             "projectReferences": {}
           },
-          "net9.0-ios26.0": {
+          "net9.0-ios26.2": {
             "targetAlias": "net9.0-ios",
             "projectReferences": {}
           }
@@ -51,7 +51,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net9.0-android35.0": {
@@ -72,7 +72,7 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.13, )",
+              "version": "[9.0.14, )",
               "autoReferenced": true
             },
             "sqlite-net-pcl": {
@@ -113,9 +113,9 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
         },
-        "net9.0-ios26.0": {
+        "net9.0-ios26.2": {
           "targetAlias": "net9.0-ios",
           "dependencies": {
             "CommunityToolkit.Mvvm": {
@@ -133,7 +133,7 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.13, )",
+              "version": "[9.0.14, )",
               "autoReferenced": true
             },
             "sqlite-net-pcl": {
@@ -154,12 +154,12 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.iOS.Ref.net9.0_26.0",
-              "version": "[26.0.9783, 26.0.9783]"
+              "name": "Microsoft.iOS.Ref.net9.0_26.2",
+              "version": "[26.2.9000, 26.2.9000]"
             },
             {
-              "name": "Microsoft.iOS.Runtime.iossimulator-x64.net9.0_26.0",
-              "version": "[26.0.9783, 26.0.9783]"
+              "name": "Microsoft.iOS.Runtime.iossimulator-x64.net9.0_26.2",
+              "version": "[26.2.9000, 26.2.9000]"
             }
           ],
           "frameworkReferences": {
@@ -170,7 +170,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {

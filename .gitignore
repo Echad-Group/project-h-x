@@ -81,3 +81,11 @@ backend/**/Migrations/
 
 # Uploaded files
 backend/**/wwwroot/uploads/
+
+# .NET MAUI
+mobile-maui/**/bin/
+mobile-maui/**/obj/
+mobile-maui/ProjectHX.Mobile/bin/
+mobile-maui/ProjectHX.Mobile/obj/
+maui/obj/
+maui/bin/

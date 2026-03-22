@@ -20,12 +20,14 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<HttpClient>(_ => new HttpClient
         {
-            BaseAddress = new Uri("https://localhost:5065/api/")
+            BaseAddress = new Uri("https://6a27-102-244-197-164.ngrok-free.app/api/")
         });
 
         builder.Services.AddSingleton<ISessionService, SessionService>();
         builder.Services.AddSingleton<IAuthApiService, AuthApiService>();
         builder.Services.AddSingleton<ISyncOutboxService, SyncOutboxService>();
+
+        builder.Services.AddSingleton<AppShell>();
 
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<OtpChallengeViewModel>();

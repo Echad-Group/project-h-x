@@ -1,6 +1,6 @@
-using System.Net.Http.Json;
 using ProjectHX.Mobile.Models.Auth;
 using ProjectHX.Mobile.Services.Interfaces;
+using System.Net.Http.Json;
 
 namespace ProjectHX.Mobile.Services;
 
@@ -11,6 +11,8 @@ public sealed class AuthApiService : IAuthApiService
     public AuthApiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
+
+        if (httpClient.BaseAddress!.Host.Contains("ngrok")) _httpClient.DefaultRequestHeaders.Add("ngrok-skip-browser-warning", "69420");
     }
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)

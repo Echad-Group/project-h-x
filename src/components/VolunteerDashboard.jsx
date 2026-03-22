@@ -78,7 +78,7 @@ export default function VolunteerDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl space-y-6 mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-[var(--kenya-green)] to-green-600 text-white rounded-lg p-6">
         <h1 className="text-3xl font-bold mb-2">Welcome back, {volunteerData.name}!</h1>
