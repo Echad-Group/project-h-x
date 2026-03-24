@@ -166,6 +166,8 @@ namespace NewKenyaAPI.Controllers
             [FromQuery] string? status = null,
             [FromQuery] string? priority = null,
             [FromQuery] string? region = null,
+            [FromQuery] int? page = null,
+            [FromQuery] int pageSize = 25,
             [FromQuery] int limit = 300)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -226,35 +228,77 @@ namespace NewKenyaAPI.Controllers
 
             limit = Math.Clamp(limit, 1, 1000);
 
-            var tasks = await query
-                .OrderByDescending(task => task.CreatedAt)
-                .Take(limit)
-                .Select(task => new
-                {
-                    task.Id,
-                    task.Title,
-                    task.Description,
-                    task.Status,
-                    task.Priority,
-                    task.DueDate,
-                    task.Location,
-                    task.Region,
-                    task.County,
-                    task.SubCounty,
-                    task.Constituency,
-                    task.Ward,
-                    task.PollingStation,
-                    task.AssignedToUserId,
-                    task.AssignedByUserId,
-                    task.CreatedByUserId,
-                    task.CreatedAt,
-                    task.UpdatedAt,
-                    task.CompletedAt,
-                    task.CompletionNotes
-                })
-                .ToListAsync();
+            if (page.HasValue)
+            {
+                // Paged mode — returns { tasks, totalCount, page, pageSize }
+                var totalCount = await query.CountAsync();
+                var pageVal = Math.Max(1, page.Value);
+                var pageSizeVal = Math.Clamp(pageSize, 1, 100);
 
-            return Ok(tasks);
+                var tasks = await query
+                    .OrderByDescending(task => task.CreatedAt)
+                    .Skip((pageVal - 1) * pageSizeVal)
+                    .Take(pageSizeVal)
+                    .Select(task => new
+                    {
+                        task.Id,
+                        task.Title,
+                        task.Description,
+                        task.Status,
+                        task.Priority,
+                        task.DueDate,
+                        task.Location,
+                        task.Region,
+                        task.County,
+                        task.SubCounty,
+                        task.Constituency,
+                        task.Ward,
+                        task.PollingStation,
+                        task.AssignedToUserId,
+                        task.AssignedByUserId,
+                        task.CreatedByUserId,
+                        task.CreatedAt,
+                        task.UpdatedAt,
+                        task.CompletedAt,
+                        task.CompletionNotes
+                    })
+                    .ToListAsync();
+
+                return Ok(new { tasks, totalCount, page = pageVal, pageSize = pageSizeVal });
+            }
+            else
+            {
+                // Legacy flat-array mode — uses limit param
+                var tasks = await query
+                    .OrderByDescending(task => task.CreatedAt)
+                    .Take(limit)
+                    .Select(task => new
+                    {
+                        task.Id,
+                        task.Title,
+                        task.Description,
+                        task.Status,
+                        task.Priority,
+                        task.DueDate,
+                        task.Location,
+                        task.Region,
+                        task.County,
+                        task.SubCounty,
+                        task.Constituency,
+                        task.Ward,
+                        task.PollingStation,
+                        task.AssignedToUserId,
+                        task.AssignedByUserId,
+                        task.CreatedByUserId,
+                        task.CreatedAt,
+                        task.UpdatedAt,
+                        task.CompletedAt,
+                        task.CompletionNotes
+                    })
+                    .ToListAsync();
+
+                return Ok(tasks);
+            }
         }
 
         [HttpPut("{taskId:int}")]

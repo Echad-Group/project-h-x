@@ -8,6 +8,7 @@ export default function AdminCampaignTeam() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
+  const [notice, setNotice] = useState('');
 
   const commandRoleChains = [
     { lane: 'Chairperson', keywords: ['chair', 'candidate'] },
@@ -62,9 +63,11 @@ export default function AdminCampaignTeam() {
       await loadMembers();
       setShowAddModal(false);
       resetForm();
+      setNotice('Team member added successfully.');
+      setTimeout(() => setNotice(''), 3500);
     } catch (err) {
       console.error('Error creating team member:', err);
-      alert('Failed to create team member. Please try again.');
+      setError(err.response?.data?.message || 'Failed to create team member. Please try again.');
     }
   }
 
@@ -76,21 +79,26 @@ export default function AdminCampaignTeam() {
       setShowEditModal(false);
       setEditingMember(null);
       resetForm();
+      setNotice('Team member updated successfully.');
+      setTimeout(() => setNotice(''), 3500);
     } catch (err) {
       console.error('Error updating team member:', err);
-      alert('Failed to update team member. Please try again.');
+      setError(err.response?.data?.message || 'Failed to update team member. Please try again.');
     }
   }
 
   async function deleteMember(id) {
-    if (confirm('Are you sure you want to remove this team member?')) {
-      try {
-        await campaignTeamService.deleteMember(id);
-        await loadMembers();
-      } catch (err) {
-        console.error('Error deleting team member:', err);
-        alert('Failed to delete team member. Please try again.');
-      }
+    if (!window.confirm('Are you sure you want to remove this team member?')) return;
+    const prev = [...teamMembers];
+    setTeamMembers(teamMembers.filter((m) => m.id !== id));
+    try {
+      await campaignTeamService.deleteMember(id);
+      setNotice('Team member removed.');
+      setTimeout(() => setNotice(''), 3500);
+    } catch (err) {
+      console.error('Error deleting team member:', err);
+      setTeamMembers(prev);
+      setError(err.response?.data?.message || 'Failed to delete team member. Please try again.');
     }
   }
 
@@ -156,8 +164,20 @@ export default function AdminCampaignTeam() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-6">
-          {error}
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4 flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            onClick={() => { setError(null); loadMembers(); }}
+            className="ml-4 text-sm underline hover:no-underline shrink-0"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {notice && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded mb-4">
+          {notice}
         </div>
       )}
 

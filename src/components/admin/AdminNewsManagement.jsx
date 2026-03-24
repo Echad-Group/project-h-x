@@ -15,6 +15,7 @@ export default function AdminNewsManagement() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const pageSize = 10;
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -88,40 +89,43 @@ export default function AdminNewsManagement() {
 
     try {
       setDeleting(true);
+      setDeleteError('');
       await newsService.deleteArticle(articleToDelete.id);
-      
-      // Refresh the list
       await fetchArticles();
-      
       setShowDeleteModal(false);
       setArticleToDelete(null);
     } catch (err) {
       console.error('Failed to delete article:', err);
-      alert('Failed to delete article. Please try again.');
+      setDeleteError('Failed to delete article. Please try again.');
     } finally {
       setDeleting(false);
     }
   };
 
   const handleStatusChange = async (articleId, newStatus) => {
+    // Optimistic update
+    const prev = articles.map((a) => ({ ...a }));
+    setArticles(articles.map((a) => (a.id === articleId ? { ...a, status: newStatus } : a)));
     try {
       await newsService.updateArticle(articleId, { status: newStatus });
-      // Refresh the list
-      await fetchArticles();
     } catch (err) {
       console.error('Failed to update article status:', err);
-      alert('Failed to update article status. Please try again.');
+      setError('Failed to update article status. Please try again.');
+      setArticles(prev);
     }
   };
 
   const handleToggleFeatured = async (article) => {
+    const newFeatured = !article.isFeatured;
+    // Optimistic update
+    const prev = articles.map((a) => ({ ...a }));
+    setArticles(articles.map((a) => (a.id === article.id ? { ...a, isFeatured: newFeatured } : a)));
     try {
-      await newsService.updateArticle(article.id, { isFeatured: !article.isFeatured });
-      // Refresh the list
-      await fetchArticles();
+      await newsService.updateArticle(article.id, { isFeatured: newFeatured });
     } catch (err) {
       console.error('Failed to toggle featured status:', err);
-      alert('Failed to update featured status. Please try again.');
+      setError('Failed to update featured status. Please try again.');
+      setArticles(prev);
     }
   };
 
@@ -244,8 +248,14 @@ export default function AdminNewsManagement() {
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
-          {error}
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-4 flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            onClick={() => { setError(null); fetchArticles(); }}
+            className="ml-4 text-sm underline hover:no-underline shrink-0"
+          >
+            Retry
+          </button>
         </div>
       )}
 
@@ -412,14 +422,20 @@ export default function AdminNewsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Delete Article</h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4">
               Are you sure you want to delete "{articleToDelete?.title}"? This action cannot be undone.
             </p>
+            {deleteError && (
+              <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2 mb-4">  
+                {deleteError}
+              </p>
+            )}
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => {
                   setShowDeleteModal(false);
                   setArticleToDelete(null);
+                  setDeleteError('');
                 }}
                 disabled={deleting}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"

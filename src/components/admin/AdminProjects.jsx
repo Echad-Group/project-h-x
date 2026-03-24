@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { campaignTasksService } from '../../services/campaignCommandService';
 
 const initialForm = {
@@ -33,12 +33,22 @@ export default function AdminProjects() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 25;
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState(initialForm);
+
+  // Debounce search
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
   const loadProjects = async () => {
     try {
@@ -46,14 +56,21 @@ export default function AdminProjects() {
       setError('');
 
       const params = {
-        limit: 500,
-        search: search || undefined,
+        page: currentPage,
+        pageSize,
+        search: debouncedSearch || undefined,
         status: statusFilter !== 'all' ? statusFilter : undefined,
         priority: priorityFilter !== 'all' ? priorityFilter : undefined
       };
 
       const data = await campaignTasksService.getManage(params);
-      setProjects(Array.isArray(data) ? data : []);
+      if (Array.isArray(data)) {
+        setProjects(data);
+        setTotalCount(data.length);
+      } else {
+        setProjects(data.tasks ?? []);
+        setTotalCount(data.totalCount ?? 0);
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load projects.');
     } finally {
@@ -62,23 +79,15 @@ export default function AdminProjects() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, priorityFilter, debouncedSearch]);
+
+  useEffect(() => {
     loadProjects();
-  }, [statusFilter, priorityFilter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, statusFilter, priorityFilter, debouncedSearch]);
 
-  const filteredProjects = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) {
-      return projects;
-    }
-
-    return projects.filter((project) => {
-      const title = (project.title || '').toLowerCase();
-      const description = (project.description || '').toLowerCase();
-      const region = (project.region || '').toLowerCase();
-      const county = (project.county || '').toLowerCase();
-      return title.includes(query) || description.includes(query) || region.includes(query) || county.includes(query);
-    });
-  }, [projects, search]);
+  const filteredProjects = projects; // already filtered server-side
 
   const openCreateModal = () => {
     setEditingProject(null);
@@ -264,6 +273,45 @@ export default function AdminProjects() {
             </div>
           ))}
           {!filteredProjects.length && <div className="text-sm text-gray-500">No projects found with the current filters.</div>}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && Math.ceil(totalCount / pageSize) > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Page {currentPage} of {Math.ceil(totalCount / pageSize)} &bull; {totalCount} total projects
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40 text-sm"
+            >
+              ← Prev
+            </button>
+            {Array.from({ length: Math.min(5, Math.ceil(totalCount / pageSize)) }, (_, i) => {
+              const start = Math.max(1, currentPage - 2);
+              const pg = start + i;
+              if (pg > Math.ceil(totalCount / pageSize)) return null;
+              return (
+                <button
+                  key={pg}
+                  onClick={() => setCurrentPage(pg)}
+                  className={`px-3 py-1.5 border rounded text-sm ${currentPage === pg ? 'bg-[var(--kenya-green)] text-white border-[var(--kenya-green)]' : 'border-gray-300 hover:bg-gray-50'}`}
+                >
+                  {pg}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(Math.ceil(totalCount / pageSize), p + 1))}
+              disabled={currentPage === Math.ceil(totalCount / pageSize)}
+              className="px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40 text-sm"
+            >
+              Next →
+            </button>
+          </div>
         </div>
       )}
 

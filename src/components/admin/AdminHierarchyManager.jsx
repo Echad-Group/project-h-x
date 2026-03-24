@@ -141,7 +141,12 @@ export default function AdminHierarchyManager() {
             </button>
           </div>
         </div>
-        {error && <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && (
+          <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={loadAll} className="ml-4 text-sm underline hover:no-underline shrink-0">Retry</button>
+          </div>
+        )}
         {feedback && <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">{feedback}</div>}
       </section>
 

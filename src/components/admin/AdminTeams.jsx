@@ -5,6 +5,8 @@ export default function AdminTeams() {
   const [units, setUnits] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [modalType, setModalType] = useState('unit'); // 'unit' or 'team'
@@ -28,6 +30,7 @@ export default function AdminTeams() {
   async function loadData() {
     try {
       setLoading(true);
+      setError('');
       const [unitsData, teamsData] = await Promise.all([
         unitsService.getAll(),
         teamsService.getAll()
@@ -36,6 +39,7 @@ export default function AdminTeams() {
       setTeams(teamsData);
     } catch (error) {
       console.error('Error loading teams:', error);
+      setError('Failed to load teams and units. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -56,9 +60,11 @@ export default function AdminTeams() {
       await loadData();
       setShowCreateModal(false);
       resetForm();
+      setNotice(`${modalType === 'unit' ? 'Unit' : 'Team'} created successfully.`);
+      setTimeout(() => setNotice(''), 3500);
     } catch (error) {
       console.error('Error creating:', error);
-      alert('Failed to create. Please try again.');
+      setError(error.response?.data?.message || 'Failed to create. Please try again.');
     }
   }
 
@@ -100,6 +106,13 @@ export default function AdminTeams() {
         </div>
         <div className="flex gap-2">
           <button
+            onClick={loadData}
+            className="fluent-btn fluent-btn-ghost text-sm"
+            title="Refresh"
+          >
+            ↻ Refresh
+          </button>
+          <button
             onClick={() => openCreateModal('unit')}
             className="fluent-btn fluent-btn-primary"
           >
@@ -113,6 +126,19 @@ export default function AdminTeams() {
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4 flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => { setError(''); loadData(); }} className="ml-4 text-sm underline hover:no-underline shrink-0">Retry</button>
+        </div>
+      )}
+
+      {notice && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded mb-4">
+          {notice}
+        </div>
+      )}
 
       {/* Units List */}
       <div className="space-y-6">

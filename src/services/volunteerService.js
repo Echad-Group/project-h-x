@@ -1,9 +1,20 @@
 import api from './api';
 
 export const volunteerService = {
-  // Get all volunteers
+  // Get all volunteers (legacy, unfiltered)
   getAll: async () => {
     const response = await api.get('/volunteers');
+    return response.data;
+  },
+
+  // Get paged volunteers for admin panel
+  // Returns { volunteers, totalCount, page, pageSize }
+  getPaged: async ({ page = 1, pageSize = 25, search, region, skills } = {}) => {
+    const params = { page, pageSize };
+    if (search) params.search = search;
+    if (region) params.region = region;
+    if (skills) params.skills = skills;
+    const response = await api.get('/volunteers/admin', { params });
     return response.data;
   },
 

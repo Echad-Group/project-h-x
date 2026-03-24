@@ -110,7 +110,10 @@ export default function AdminCommandCenter() {
       <div className="p-8">
         <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-800">
           <h3 className="text-lg font-semibold mb-2">Command center unavailable</h3>
-          <p>{error}</p>
+          <p className="mb-4">{error}</p>
+          <button onClick={loadCommandCenter} className="fluent-btn fluent-btn-primary text-sm">
+            ↻ Retry
+          </button>
         </div>
       </div>
     );

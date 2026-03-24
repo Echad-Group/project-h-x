@@ -78,7 +78,12 @@ export default function AdminVerificationQueue() {
             <option value="Rejected">Rejected</option>
           </select>
         </div>
-        {error && <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => loadQueue(statusFilter)} className="ml-4 text-sm underline hover:no-underline shrink-0">Retry</button>
+          </div>
+        )}
       </section>
 
       <section className="grid grid-cols-1 xl:grid-cols-[1fr_1.3fr] gap-6">

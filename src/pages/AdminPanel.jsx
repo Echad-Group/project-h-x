@@ -16,6 +16,7 @@ import AdminWarRoom from '../components/admin/AdminWarRoom';
 import AdminVerificationQueue from '../components/admin/AdminVerificationQueue';
 import AdminHierarchyManager from '../components/admin/AdminHierarchyManager';
 import AdminCoverageMap from '../components/admin/AdminCoverageMap';
+import AdminErrorBoundary from '../components/admin/AdminErrorBoundary';
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -115,21 +116,23 @@ export default function AdminPanel() {
 
             {/* Content Area */}
             <div className="bg-white rounded-lg shadow-sm">
-              {activeTab === 'overview' && <AdminOverview />}
-              {activeTab === 'war-room' && <AdminWarRoom />}
-              {activeTab === 'verification-queue' && <AdminVerificationQueue />}
-              {activeTab === 'hierarchy-manager' && <AdminHierarchyManager />}
-              {activeTab === 'coverage-map' && <AdminCoverageMap />}
-              {activeTab === 'command-center' && <AdminCommandCenter />}
-              {activeTab === 'message-composer' && <AdminMessageComposer />}
-              {activeTab === 'election-dashboard' && <AdminElectionDashboard />}
-              {activeTab === 'projects' && <AdminProjects />}
-              {activeTab === 'teams' && <AdminTeams />}
-              {activeTab === 'volunteers' && <AdminVolunteers />}
-              {activeTab === 'campaign-team' && <AdminCampaignTeam />}
-              {activeTab === 'news' && <AdminNewsManagement />}
-              {activeTab === 'emails' && <AdminEmails />}
-              {activeTab === 'engagement' && <AdminEngagement />}
+              <AdminErrorBoundary key={activeTab}>
+                {activeTab === 'overview' && <AdminOverview />}
+                {activeTab === 'war-room' && <AdminWarRoom />}
+                {activeTab === 'verification-queue' && <AdminVerificationQueue />}
+                {activeTab === 'hierarchy-manager' && <AdminHierarchyManager />}
+                {activeTab === 'coverage-map' && <AdminCoverageMap />}
+                {activeTab === 'command-center' && <AdminCommandCenter />}
+                {activeTab === 'message-composer' && <AdminMessageComposer />}
+                {activeTab === 'election-dashboard' && <AdminElectionDashboard />}
+                {activeTab === 'projects' && <AdminProjects />}
+                {activeTab === 'teams' && <AdminTeams />}
+                {activeTab === 'volunteers' && <AdminVolunteers />}
+                {activeTab === 'campaign-team' && <AdminCampaignTeam />}
+                {activeTab === 'news' && <AdminNewsManagement />}
+                {activeTab === 'emails' && <AdminEmails />}
+                {activeTab === 'engagement' && <AdminEngagement />}
+              </AdminErrorBoundary>
             </div>
           </div>
         </main>

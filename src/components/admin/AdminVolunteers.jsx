@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { volunteerService } from '../../services/volunteerService';
 import { assignmentsService, unitsService, teamsService } from '../../services/organizationService';
 
@@ -7,6 +7,11 @@ export default function AdminVolunteers() {
   const [units, setUnits] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 25;
   const [filters, setFilters] = useState({
     search: '',
     unit: '',
@@ -14,6 +19,7 @@ export default function AdminVolunteers() {
     skills: '',
     region: ''
   });
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedVolunteers, setSelectedVolunteers] = useState([]);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignForm, setAssignForm] = useState({
@@ -26,23 +32,57 @@ export default function AdminVolunteers() {
     loadData();
   }, []);
 
+  // Debounce the search field 350 ms before triggering a fetch
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(filters.search), 350);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
+
+  // Re-fetch whenever page or server-side filters change
+  useEffect(() => {
+    loadVolunteers();
+  }, [currentPage, debouncedSearch, filters.region, filters.skills]);
+
   async function loadData() {
     try {
       setLoading(true);
-      const [volunteersData, unitsData, teamsData] = await Promise.all([
-        volunteerService.getAll(),
+      setError('');
+      const [unitsData, teamsData] = await Promise.all([
         unitsService.getAll(),
         teamsService.getAll()
       ]);
-      setVolunteers(volunteersData);
       setUnits(unitsData);
       setTeams(teamsData);
     } catch (error) {
-      console.error('Error loading volunteers:', error);
+      console.error('Error loading org data:', error);
+      setError('Failed to load org data. Please try again.');
     } finally {
       setLoading(false);
     }
+    // Volunteers are loaded by the separate useEffect below
   }
+
+  const loadVolunteers = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const result = await volunteerService.getPaged({
+        page: currentPage,
+        pageSize,
+        search: debouncedSearch || undefined,
+        region: filters.region || undefined,
+        skills: filters.skills || undefined,
+      });
+      setVolunteers(result.volunteers ?? []);
+      setTotalCount(result.totalCount ?? 0);
+    } catch (error) {
+      console.error('Error loading volunteers:', error);
+      setError('Failed to load volunteers. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, debouncedSearch, filters.region, filters.skills]);
 
   async function handleBulkAssign() {
     try {
@@ -52,13 +92,14 @@ export default function AdminVolunteers() {
         teamId: assignForm.teamId ? parseInt(assignForm.teamId) : null,
         notes: assignForm.notes
       });
-      alert(`Successfully assigned ${selectedVolunteers.length} volunteers`);
       setShowAssignModal(false);
       setSelectedVolunteers([]);
       setAssignForm({ unitId: '', teamId: '', notes: '' });
+      setNotice(`Successfully assigned ${selectedVolunteers.length} volunteer${selectedVolunteers.length !== 1 ? 's' : ''}.`);
+      setTimeout(() => setNotice(''), 4000);
     } catch (error) {
       console.error('Error assigning volunteers:', error);
-      alert('Failed to assign volunteers');
+      setError(error.response?.data?.message || 'Failed to assign volunteers. Please try again.');
     }
   }
 
@@ -83,18 +124,14 @@ export default function AdminVolunteers() {
     a.click();
   }
 
-  const filteredVolunteers = volunteers.filter(v => {
-    if (filters.search && !v.name.toLowerCase().includes(filters.search.toLowerCase()) &&
-        !v.email.toLowerCase().includes(filters.search.toLowerCase())) {
-      return false;
-    }
-    if (filters.region && v.region !== filters.region) return false;
-    if (filters.skills && (!v.skills || !v.skills.includes(filters.skills))) return false;
-    return true;
-  });
+  const filteredVolunteers = volunteers; // served from API, already filtered
+  const totalPages = Math.ceil(totalCount / pageSize);
 
-  const regions = [...new Set(volunteers.map(v => v.region).filter(Boolean))];
-  const allSkills = [...new Set(volunteers.flatMap(v => v.skills ? v.skills.split(',').map(s => s.trim()) : []))];
+  // Reset page when filter values change (except pagination itself)
+  function applyFilter(patch) {
+    setCurrentPage(1);
+    setFilters((prev) => ({ ...prev, ...patch }));
+  }
 
   if (loading) {
     return (
@@ -110,9 +147,12 @@ export default function AdminVolunteers() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Volunteer Management</h2>
-          <p className="text-gray-600">{filteredVolunteers.length} volunteers</p>
+          <p className="text-gray-600">Showing {volunteers.length} of {totalCount} volunteers</p>
         </div>
         <div className="flex gap-2">
+          <button onClick={() => { setError(''); loadData(); loadVolunteers(); }} className="fluent-btn fluent-btn-ghost text-sm" title="Refresh">
+            ↻ Refresh
+          </button>
           <button
             onClick={exportToCSV}
             className="fluent-btn fluent-btn-secondary"
@@ -131,48 +171,45 @@ export default function AdminVolunteers() {
         </div>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4 flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => { setError(''); loadData(); loadVolunteers(); }} className="ml-4 text-sm underline hover:no-underline shrink-0">Retry</button>
+        </div>
+      )}
+
+      {notice && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded mb-4">
+          {notice}
+        </div>
+      )}
+
       {/* Filters */}
       <div className="bg-white border rounded-lg p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <input
             type="text"
             placeholder="Search by name or email..."
             className="fluent-input"
             value={filters.search}
-            onChange={e => setFilters({ ...filters, search: e.target.value })}
+            onChange={e => applyFilter({ search: e.target.value })}
           />
-          <select
-            className="fluent-input"
-            value={filters.unit}
-            onChange={e => setFilters({ ...filters, unit: e.target.value })}
-          >
-            <option value="">All Units</option>
-            {units.map(u => (
-              <option key={u.id} value={u.id}>{u.name}</option>
-            ))}
-          </select>
-          <select
+          <input
+            type="text"
+            placeholder="Filter by region..."
             className="fluent-input"
             value={filters.region}
-            onChange={e => setFilters({ ...filters, region: e.target.value })}
-          >
-            <option value="">All Regions</option>
-            {regions.map(r => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-          <select
+            onChange={e => applyFilter({ region: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Filter by skill..."
             className="fluent-input"
             value={filters.skills}
-            onChange={e => setFilters({ ...filters, skills: e.target.value })}
-          >
-            <option value="">All Skills</option>
-            {allSkills.map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+            onChange={e => applyFilter({ skills: e.target.value })}
+          />
           <button
-            onClick={() => setFilters({ search: '', unit: '', team: '', skills: '', region: '' })}
+            onClick={() => { setCurrentPage(1); setFilters({ search: '', unit: '', team: '', skills: '', region: '' }); }}
             className="fluent-btn fluent-btn-ghost"
           >
             Clear Filters
@@ -257,6 +294,45 @@ export default function AdminVolunteers() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages} &bull; {totalCount} total volunteers
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40 text-sm"
+            >
+              ← Prev
+            </button>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const start = Math.max(1, currentPage - 2);
+              const pg = start + i;
+              if (pg > totalPages) return null;
+              return (
+                <button
+                  key={pg}
+                  onClick={() => setCurrentPage(pg)}
+                  className={`px-3 py-1.5 border rounded text-sm ${currentPage === pg ? 'bg-[var(--kenya-green)] text-white border-[var(--kenya-green)]' : 'border-gray-300 hover:bg-gray-50'}`}
+                >
+                  {pg}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40 text-sm"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Bulk Assign Modal */}
       {showAssignModal && (

@@ -34,6 +34,50 @@ namespace NewKenyaAPI.Controllers
             return await _context.Volunteers.ToListAsync();
         }
 
+        // GET: api/Volunteers/admin?page=1&pageSize=25&search=&region=&skills=
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<ActionResult<object>> GetVolunteersAdmin(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 25,
+            [FromQuery] string? search = null,
+            [FromQuery] string? region = null,
+            [FromQuery] string? skills = null)
+        {
+            var query = _context.Volunteers.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var pattern = "%" + search.Trim().ToLower() + "%";
+                query = query.Where(v =>
+                    EF.Functions.Like(v.Name.ToLower(), pattern) ||
+                    EF.Functions.Like(v.Email.ToLower(), pattern));
+            }
+
+            if (!string.IsNullOrWhiteSpace(region))
+            {
+                query = query.Where(v => v.Region == region);
+            }
+
+            if (!string.IsNullOrWhiteSpace(skills))
+            {
+                var skillPattern = "%" + skills.Trim().ToLower() + "%";
+                query = query.Where(v => v.Skills != null && EF.Functions.Like(v.Skills.ToLower(), skillPattern));
+            }
+
+            var totalCount = await query.CountAsync();
+            var pageVal = Math.Max(1, page);
+            var pageSizeVal = Math.Clamp(pageSize, 1, 100);
+
+            var volunteers = await query
+                .OrderByDescending(v => v.CreatedAt)
+                .Skip((pageVal - 1) * pageSizeVal)
+                .Take(pageSizeVal)
+                .ToListAsync();
+
+            return Ok(new { volunteers, totalCount, page = pageVal, pageSize = pageSizeVal });
+        }
+
         // GET: api/Volunteers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Volunteer>> GetVolunteer(int id)
