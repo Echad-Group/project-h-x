@@ -45,12 +45,26 @@ export default function AdminNewsEditor() {
   const fetchArticle = async () => {
     try {
       setLoading(true);
-      // For edit mode, we need to fetch by ID - we'll need to add a getArticleById function
-      // For now, this is a placeholder
-      setError('Edit functionality coming soon');
+      setError(null);
+      const article = await newsService.getArticleById(id);
+
+      setFormData({
+        title: article.title || '',
+        excerpt: article.excerpt || '',
+        content: article.content || '',
+        category: article.category || 'policy',
+        tags: article.tags || [],
+        author: article.author || 'Campaign Team',
+        publishedDate: article.publishedDate ? new Date(article.publishedDate).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
+        featuredImageUrl: article.featuredImageUrl || '',
+        imageUrls: article.imageUrls || [],
+        status: article.status || 'draft',
+        isFeatured: !!article.isFeatured,
+        readTimeMinutes: article.readTimeMinutes || 5
+      });
     } catch (err) {
       console.error('Error fetching article:', err);
-      setError('Failed to load article');
+      setError(err.response?.data?.message || 'Failed to load article');
     } finally {
       setLoading(false);
     }

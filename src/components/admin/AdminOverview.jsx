@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { campaignTasksService } from '../../services/campaignCommandService';
 
 export default function AdminOverview() {
   const [stats, setStats] = useState({
@@ -23,7 +24,7 @@ export default function AdminOverview() {
     try {
       setLoading(true);
       // Fetch various stats from different endpoints with silent failure
-      const [volunteers, events, donations, units, teams] = await Promise.all([
+      const [volunteers, events, donations, units, teams, projects] = await Promise.all([
         api.get('/volunteers').catch(() => {
           setBackendAvailable(false);
           return { data: [] };
@@ -43,17 +44,28 @@ export default function AdminOverview() {
         api.get('/teams').catch(() => {
           setBackendAvailable(false);
           return { data: [] };
+        }),
+        campaignTasksService.getManage({ limit: 500 }).catch(() => {
+          setBackendAvailable(false);
+          return [];
         })
       ]);
 
       const totalDonations = donations.data.reduce((sum, d) => sum + (d.amount || 0), 0);
       const upcomingEvents = events.data.filter(e => new Date(e.date) > new Date()).length;
 
+      const activeProjects = Array.isArray(projects)
+        ? projects.filter((task) => {
+            const normalized = (task.status || '').toLowerCase();
+            return normalized === 'pending' || normalized === 'in progress' || normalized === 'active';
+          }).length
+        : 0;
+
       setStats({
         volunteers: volunteers.data.length || 0,
         events: events.data.length || 0,
         donations: donations.data.length || 0,
-        activeProjects: 0, // TODO: Fetch from projects endpoint
+        activeProjects,
         teams: teams.data.length || 0,
         units: units.data.length || 0,
         totalDonations,

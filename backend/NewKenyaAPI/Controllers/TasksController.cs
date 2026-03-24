@@ -159,6 +159,198 @@ namespace NewKenyaAPI.Controllers
             return Ok(tasks);
         }
 
+        [HttpGet("manage")]
+        [Authorize(Roles = UserRoles.LeadershipAccess)]
+        public async Task<ActionResult<object>> GetManageTasks(
+            [FromQuery] string? search = null,
+            [FromQuery] string? status = null,
+            [FromQuery] string? priority = null,
+            [FromQuery] string? region = null,
+            [FromQuery] int limit = 300)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var currentUser = await _userManager.FindByIdAsync(currentUserId);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var isAdmin = currentRoles.Contains(UserRoles.Admin) || currentRoles.Contains(UserRoles.SuperAdmin);
+            var descendantIds = isAdmin
+                ? new HashSet<string>()
+                : await _hierarchyService.GetDescendantIdsAsync(currentUserId);
+
+            var query = _context.Tasks.AsQueryable();
+
+            if (!isAdmin)
+            {
+                query = query.Where(task =>
+                    task.CreatedByUserId == currentUserId ||
+                    task.AssignedByUserId == currentUserId ||
+                    task.AssignedToUserId == currentUserId ||
+                    (task.AssignedToUserId != null && descendantIds.Contains(task.AssignedToUserId)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(task => task.Status.ToLower() == status.ToLower());
+            }
+
+            if (!string.IsNullOrWhiteSpace(priority))
+            {
+                query = query.Where(task => task.Priority.ToLower() == priority.ToLower());
+            }
+
+            if (!string.IsNullOrWhiteSpace(region))
+            {
+                query = query.Where(task => task.Region != null && task.Region.ToLower() == region.ToLower());
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var q = search.Trim().ToLower();
+                query = query.Where(task =>
+                    task.Title.ToLower().Contains(q) ||
+                    task.Description.ToLower().Contains(q) ||
+                    (task.Region != null && task.Region.ToLower().Contains(q)) ||
+                    (task.County != null && task.County.ToLower().Contains(q)) ||
+                    (task.Constituency != null && task.Constituency.ToLower().Contains(q)) ||
+                    (task.Ward != null && task.Ward.ToLower().Contains(q)));
+            }
+
+            limit = Math.Clamp(limit, 1, 1000);
+
+            var tasks = await query
+                .OrderByDescending(task => task.CreatedAt)
+                .Take(limit)
+                .Select(task => new
+                {
+                    task.Id,
+                    task.Title,
+                    task.Description,
+                    task.Status,
+                    task.Priority,
+                    task.DueDate,
+                    task.Location,
+                    task.Region,
+                    task.County,
+                    task.SubCounty,
+                    task.Constituency,
+                    task.Ward,
+                    task.PollingStation,
+                    task.AssignedToUserId,
+                    task.AssignedByUserId,
+                    task.CreatedByUserId,
+                    task.CreatedAt,
+                    task.UpdatedAt,
+                    task.CompletedAt,
+                    task.CompletionNotes
+                })
+                .ToListAsync();
+
+            return Ok(tasks);
+        }
+
+        [HttpPut("{taskId:int}")]
+        [Authorize(Roles = UserRoles.LeadershipAccess)]
+        public async Task<ActionResult<object>> UpdateTask(int taskId, [FromBody] CampaignTaskUpdateRequest request)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var task = await _context.Tasks.FirstOrDefaultAsync(item => item.Id == taskId);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            var canManage = await CanManageTaskAsync(currentUserId, task);
+            if (!canManage)
+            {
+                return Forbid();
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Title))
+            {
+                task.Title = request.Title;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Description))
+            {
+                task.Description = request.Description;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Priority))
+            {
+                task.Priority = request.Priority;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Status))
+            {
+                task.Status = request.Status;
+            }
+
+            if (request.Deadline.HasValue)
+            {
+                task.DueDate = request.Deadline;
+            }
+
+            if (request.AssignedToUserId != null)
+            {
+                task.AssignedToUserId = request.AssignedToUserId;
+                task.AssignedByUserId = currentUserId;
+            }
+
+            task.Location = request.Location ?? task.Location;
+            task.Region = request.Region ?? task.Region;
+            task.County = request.County ?? task.County;
+            task.SubCounty = request.SubCounty ?? task.SubCounty;
+            task.Constituency = request.Constituency ?? task.Constituency;
+            task.Ward = request.Ward ?? task.Ward;
+            task.PollingStation = request.PollingStation ?? task.PollingStation;
+            task.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Task updated successfully.", task.Id });
+        }
+
+        [HttpDelete("{taskId:int}")]
+        [Authorize(Roles = UserRoles.LeadershipAccess)]
+        public async Task<ActionResult<object>> DeleteTask(int taskId)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var task = await _context.Tasks.FirstOrDefaultAsync(item => item.Id == taskId);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            var canManage = await CanManageTaskAsync(currentUserId, task);
+            if (!canManage)
+            {
+                return Forbid();
+            }
+
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Task deleted successfully.", taskId });
+        }
+
         [HttpPost("status")]
         public async Task<ActionResult<object>> UpdateStatus([FromBody] CampaignTaskStatusUpdateRequest request)
         {
@@ -260,6 +452,33 @@ namespace NewKenyaAPI.Controllers
             }
 
             return await _hierarchyService.IsDownlineAsync(currentUserId, assignedToUserId);
+        }
+
+        private async Task<bool> CanManageTaskAsync(string currentUserId, CampaignTask task)
+        {
+            var currentUser = await _userManager.FindByIdAsync(currentUserId);
+            if (currentUser == null)
+            {
+                return false;
+            }
+
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            if (currentRoles.Contains(UserRoles.Admin) || currentRoles.Contains(UserRoles.SuperAdmin))
+            {
+                return true;
+            }
+
+            if (task.CreatedByUserId == currentUserId || task.AssignedByUserId == currentUserId || task.AssignedToUserId == currentUserId)
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(task.AssignedToUserId))
+            {
+                return await _hierarchyService.IsDownlineAsync(currentUserId, task.AssignedToUserId);
+            }
+
+            return false;
         }
     }
 }

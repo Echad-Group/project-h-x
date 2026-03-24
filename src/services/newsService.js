@@ -4,6 +4,7 @@ const NEWS_ENDPOINTS = {
   base: '/news',
   featured: '/news/featured',
   bySlug: (slug) => `/news/${slug}`,
+  byGuidId: (id) => `/news/by-id/${id}`,
   byId: (id) => `/news/${id}`,
   incrementView: (id) => `/news/${id}/increment-view`,
   categories: '/news/categories',
@@ -80,6 +81,21 @@ export const getArticleBySlug = async (slug) => {
     return response.data;
   } catch (error) {
     console.error(`Error fetching article with slug ${slug}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Get a single article by GUID id (Admin only)
+ * @param {string} id - Article GUID
+ * @returns {Promise<Object>}
+ */
+export const getArticleById = async (id) => {
+  try {
+    const response = await api.get(NEWS_ENDPOINTS.byGuidId(id));
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching article with id ${id}:`, error);
     throw error;
   }
 };
@@ -191,6 +207,7 @@ export default {
   getArticles,
   getFeaturedArticles,
   getArticleBySlug,
+  getArticleById,
   incrementArticleViews,
   createArticle,
   updateArticle,

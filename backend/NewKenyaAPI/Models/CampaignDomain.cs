@@ -271,6 +271,31 @@ namespace NewKenyaAPI.Models
         public string? CompletionNotes { get; set; }
     }
 
+    public class CampaignTaskUpdateRequest
+    {
+        [MaxLength(200)]
+        public string? Title { get; set; }
+
+        [MaxLength(2000)]
+        public string? Description { get; set; }
+
+        [MaxLength(50)]
+        public string? Status { get; set; }
+
+        [MaxLength(50)]
+        public string? Priority { get; set; }
+
+        public DateTime? Deadline { get; set; }
+        public string? AssignedToUserId { get; set; }
+        public string? Location { get; set; }
+        public string? Region { get; set; }
+        public string? County { get; set; }
+        public string? SubCounty { get; set; }
+        public string? Constituency { get; set; }
+        public string? Ward { get; set; }
+        public string? PollingStation { get; set; }
+    }
+
     public class ComplianceReminderRequest
     {
         public string? UserId { get; set; }

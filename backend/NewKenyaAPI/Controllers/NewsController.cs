@@ -198,6 +198,50 @@ namespace NewKenyaAPI.Controllers
             }
         }
 
+        // GET: api/news/by-id/{id}
+        [HttpGet("by-id/{id:guid}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ArticleDTO>> GetArticleById(Guid id)
+        {
+            try
+            {
+                var article = await _context.Articles.FirstOrDefaultAsync(a => a.Id == id);
+                if (article == null)
+                {
+                    return NotFound();
+                }
+
+                var articleDto = new ArticleDTO
+                {
+                    Id = article.Id,
+                    Title = article.Title,
+                    Slug = article.Slug,
+                    Excerpt = article.Excerpt,
+                    Content = article.Content,
+                    Category = article.Category,
+                    Tags = string.IsNullOrEmpty(article.Tags) ? new List<string>() : article.Tags.Split(',').ToList(),
+                    Author = article.Author,
+                    PublishedDate = article.PublishedDate,
+                    UpdatedDate = article.UpdatedDate,
+                    FeaturedImageUrl = article.FeaturedImageUrl,
+                    ImageUrls = string.IsNullOrEmpty(article.ImageUrls) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(article.ImageUrls) ?? new List<string>(),
+                    Status = article.Status,
+                    Views = article.Views,
+                    IsFeatured = article.IsFeatured,
+                    ReadTimeMinutes = article.ReadTimeMinutes,
+                    AuthorUserId = article.AuthorUserId,
+                    CreatedAt = article.CreatedAt
+                };
+
+                return Ok(articleDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching article with id {Id}", id);
+                return StatusCode(500, "An error occurred while fetching the article");
+            }
+        }
+
         // POST: api/news/{id}/increment-view
         [HttpPost("{id}/increment-view")]
         public async Task<IActionResult> IncrementView(Guid id)

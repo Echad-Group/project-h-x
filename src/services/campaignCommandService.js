@@ -62,6 +62,11 @@ export const campaignTasksService = {
     return response.data;
   },
 
+  async getManage(params = {}) {
+    const response = await api.get('/tasks/manage', { params });
+    return response.data;
+  },
+
   async create(taskData) {
     const response = await api.post('/tasks/create', taskData);
     return response.data;
@@ -79,6 +84,16 @@ export const campaignTasksService = {
 
   async complete(taskData) {
     const response = await api.post('/tasks/complete', taskData);
+    return response.data;
+  },
+
+  async update(taskId, payload) {
+    const response = await api.put(`/tasks/${taskId}`, payload);
+    return response.data;
+  },
+
+  async remove(taskId) {
+    const response = await api.delete(`/tasks/${taskId}`);
     return response.data;
   }
 };
