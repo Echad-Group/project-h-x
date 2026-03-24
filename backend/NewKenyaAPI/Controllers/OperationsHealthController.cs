@@ -28,7 +28,10 @@ namespace NewKenyaAPI.Controllers
             var failedMessages = await _context.CampaignMessages.CountAsync(message => message.Status == CampaignMessageStatuses.Failed && message.CreatedAt >= lastHour);
             var pendingResults = await _context.ElectionResults.CountAsync(result => result.Status == ElectionResultStatuses.PendingValidation);
             var complianceBacklog = await _context.ComplianceReminders.CountAsync(reminder => reminder.Status == CampaignMessageStatuses.Queued);
-            var activeIncidents = await _context.CampaignMessages.CountAsync(message => message.Title != null && message.Title.Contains("Escalation", StringComparison.OrdinalIgnoreCase) && message.CreatedAt >= now.AddHours(-24));
+            var activeIncidents = await _context.CampaignMessages.CountAsync(message =>
+                message.Title != null &&
+                EF.Functions.Like(message.Title.ToLower(), "%escalation%") &&
+                message.CreatedAt >= now.AddHours(-24));
             var geoPingsLastHour = await _context.CampaignGeoPings.CountAsync(ping => ping.CapturedAt >= lastHour);
 
             var healthScore = 100;
