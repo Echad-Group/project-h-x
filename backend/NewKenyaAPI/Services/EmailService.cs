@@ -1,16 +1,22 @@
 using System.Net;
 using System.Net.Mail;
+using System.Text.Json;
 
 namespace NewKenyaAPI.Services
 {
     public class EmailService : IEmailService
     {
+        private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+        private static readonly SemaphoreSlim ArchiveLock = new(1, 1);
+
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
         private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+        public EmailService(IConfiguration configuration, IWebHostEnvironment environment, ILogger<EmailService> logger)
         {
             _configuration = configuration;
+            _environment = environment;
             _logger = logger;
         }
 
@@ -121,10 +127,25 @@ namespace NewKenyaAPI.Services
             var smtpPassword = _configuration["EmailSettings:SmtpPassword"];
             var fromEmail = _configuration["EmailSettings:FromEmail"] ?? "noreply@newkenya.org";
             var fromName = _configuration["EmailSettings:FromName"] ?? "New Kenya Movement";
+            var archiveRecord = new ArchivedEmailRecord
+            {
+                SentAtUtc = DateTime.UtcNow,
+                To = to,
+                Subject = subject,
+                HtmlBody = htmlBody,
+                FromEmail = fromEmail,
+                FromName = fromName,
+                SmtpConfigured = !string.IsNullOrEmpty(smtpHost) && !string.IsNullOrEmpty(smtpUsername),
+                DeliveryStatus = "pending"
+            };
 
             // If email is not configured, log instead of sending
             if (string.IsNullOrEmpty(smtpHost) || string.IsNullOrEmpty(smtpUsername))
             {
+                archiveRecord.DeliveryStatus = "skipped";
+                archiveRecord.Error = "SMTP not configured";
+                await AppendToArchiveAsync(archiveRecord);
+
                 _logger.LogWarning("Email service not configured. Email would be sent to: {Email}", to);
                 _logger.LogInformation("Subject: {Subject}", subject);
                 _logger.LogInformation("Body (first 200 chars): {Body}", htmlBody.Substring(0, Math.Min(200, htmlBody.Length)));
@@ -149,13 +170,71 @@ namespace NewKenyaAPI.Services
                 mailMessage.To.Add(to);
 
                 await client.SendMailAsync(mailMessage);
+                archiveRecord.DeliveryStatus = "sent";
+                await AppendToArchiveAsync(archiveRecord);
                 _logger.LogInformation("Email sent successfully to: {Email}", to);
             }
             catch (Exception ex)
             {
+                archiveRecord.DeliveryStatus = "failed";
+                archiveRecord.Error = ex.Message;
+                await AppendToArchiveAsync(archiveRecord);
                 _logger.LogError(ex, "Failed to send email to: {Email}", to);
                 // Don't throw - email failure shouldn't break the registration flow
             }
+        }
+
+        private async Task AppendToArchiveAsync(ArchivedEmailRecord record)
+        {
+            var archivePath = Path.Combine(_environment.ContentRootPath, "App_Data", "email-archive.json");
+            var archiveDirectory = Path.GetDirectoryName(archivePath);
+
+            if (!string.IsNullOrWhiteSpace(archiveDirectory))
+            {
+                Directory.CreateDirectory(archiveDirectory);
+            }
+
+            await ArchiveLock.WaitAsync();
+            try
+            {
+                List<ArchivedEmailRecord> archive;
+
+                if (File.Exists(archivePath))
+                {
+                    await using var readStream = File.OpenRead(archivePath);
+                    archive = await JsonSerializer.DeserializeAsync<List<ArchivedEmailRecord>>(readStream) ?? new List<ArchivedEmailRecord>();
+                }
+                else
+                {
+                    archive = new List<ArchivedEmailRecord>();
+                }
+
+                archive.Add(record);
+
+                await using var writeStream = File.Create(archivePath);
+                await JsonSerializer.SerializeAsync(writeStream, archive, JsonOptions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to archive email to JSON file.");
+            }
+            finally
+            {
+                ArchiveLock.Release();
+            }
+        }
+
+        private sealed class ArchivedEmailRecord
+        {
+            public DateTime SentAtUtc { get; set; }
+            public string To { get; set; } = string.Empty;
+            public string Subject { get; set; } = string.Empty;
+            public string HtmlBody { get; set; } = string.Empty;
+            public string FromEmail { get; set; } = string.Empty;
+            public string FromName { get; set; } = string.Empty;
+            public bool SmtpConfigured { get; set; }
+            public string DeliveryStatus { get; set; } = string.Empty;
+            public string? Error { get; set; }
         }
     }
 }

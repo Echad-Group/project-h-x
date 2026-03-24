@@ -82,6 +82,10 @@ backend/**/Migrations/
 # Uploaded files
 backend/**/wwwroot/uploads/
 
+# Backend - Created files
+backend/**/App_Data/
+
+
 # .NET MAUI
 mobile-maui/**/bin/
 mobile-maui/**/obj/
