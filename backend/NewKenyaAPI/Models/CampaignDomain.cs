@@ -538,6 +538,14 @@ namespace NewKenyaAPI.Models
         public List<WarRoomCommandPodItem> CommandPods { get; set; } = new();
     }
 
+    public class PagedResponse<T>
+    {
+        public List<T> Items { get; set; } = new();
+        public int TotalCount { get; set; }
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+    }
+
     public class WarRoomCommandPodItem
     {
         [Required]

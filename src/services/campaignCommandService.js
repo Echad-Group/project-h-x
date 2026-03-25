@@ -260,8 +260,17 @@ export const warRoomService = {
     return response.data;
   },
 
-  async getRedZoneState() {
-    const response = await api.get('/warroom/red-zone');
+  async getRedZoneState(includeDecisions = true) {
+    const response = await api.get('/warroom/red-zone', {
+      params: {
+        includeDecisions
+      }
+    });
+    return response.data;
+  },
+
+  async getIncidents(params = {}) {
+    const response = await api.get('/warroom/incidents', { params });
     return response.data;
   },
 
@@ -272,6 +281,11 @@ export const warRoomService = {
 
   async addRedZoneDecision(payload) {
     const response = await api.post('/warroom/red-zone/decisions', payload);
+    return response.data;
+  },
+
+  async getRedZoneDecisions(params = {}) {
+    const response = await api.get('/warroom/red-zone/decisions', { params });
     return response.data;
   },
 
@@ -322,6 +336,11 @@ export const warRoomService = {
 
   async getLegalCases() {
     const response = await api.get('/warroom/legal-cases');
+    return response.data;
+  },
+
+  async getLegalCasesPaged(params = {}) {
+    const response = await api.get('/warroom/legal-cases/query', { params });
     return response.data;
   },
 

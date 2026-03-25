@@ -117,14 +117,134 @@ namespace NewKenyaAPI.Services
             return pod;
         }
 
-        public WarRoomRedZoneState GetRedZoneState()
+        public WarRoomRedZoneState GetRedZoneState(bool includeDecisions = true)
         {
             if (_redZoneState.IsElectionWeekModeEnabled && _redZoneState.NextCheckpointAt == null)
             {
                 _redZoneState.NextCheckpointAt = DateTime.UtcNow.AddMinutes(_redZoneState.DecisionIntervalMinutes);
             }
 
-            return _redZoneState;
+            if (includeDecisions)
+            {
+                return _redZoneState;
+            }
+
+            // Return metadata-only state for lightweight dashboard polling.
+            return new WarRoomRedZoneState
+            {
+                IsElectionWeekModeEnabled = _redZoneState.IsElectionWeekModeEnabled,
+                ActivatedAt = _redZoneState.ActivatedAt,
+                ActivatedByUserId = _redZoneState.ActivatedByUserId,
+                DecisionIntervalMinutes = _redZoneState.DecisionIntervalMinutes,
+                LastDecisionAt = _redZoneState.LastDecisionAt,
+                NextCheckpointAt = _redZoneState.NextCheckpointAt,
+                Decisions = new List<WarRoomRedZoneDecisionLogItem>()
+            };
+        }
+
+        public PagedResponse<WarRoomIncidentItem> GetIncidents(string? status, string? search, int page, int pageSize)
+        {
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+
+            var query = _incidents.Values.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(status) && !string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(incident =>
+                    string.Equals(incident.Status, status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+                query = query.Where(incident =>
+                    incident.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    incident.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    incident.Lane.Contains(term, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var filtered = query
+                .OrderByDescending(incident => incident.UpdatedAt)
+                .ToList();
+
+            return new PagedResponse<WarRoomIncidentItem>
+            {
+                Items = filtered.Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                TotalCount = filtered.Count,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+        public PagedResponse<WarRoomLegalCaseItem> GetLegalCases(string? status, string? search, int page, int pageSize)
+        {
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+
+            var query = _legalCases.Values.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(status) && !string.Equals(status, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(item =>
+                    string.Equals(item.Status, status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+                query = query.Where(item =>
+                    item.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    item.Jurisdiction.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    item.FilingType.Contains(term, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var filtered = query
+                .OrderByDescending(item => item.UpdatedAt)
+                .ToList();
+
+            return new PagedResponse<WarRoomLegalCaseItem>
+            {
+                Items = filtered.Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                TotalCount = filtered.Count,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+        public PagedResponse<WarRoomRedZoneDecisionLogItem> GetRedZoneDecisions(string? severity, string? search, int page, int pageSize)
+        {
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+
+            var query = _redZoneState.Decisions.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(severity) && !string.Equals(severity, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(item =>
+                    string.Equals(item.Severity, severity, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+                query = query.Where(item =>
+                    item.DecisionTitle.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    item.DecisionSummary.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (item.OwnerRole != null && item.OwnerRole.Contains(term, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            var filtered = query
+                .OrderByDescending(item => item.LoggedAt)
+                .ToList();
+
+            return new PagedResponse<WarRoomRedZoneDecisionLogItem>
+            {
+                Items = filtered.Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                TotalCount = filtered.Count,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public WarRoomRedZoneState ToggleRedZoneMode(string currentUserId, WarRoomRedZoneToggleRequest request)

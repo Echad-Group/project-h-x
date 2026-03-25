@@ -41,15 +41,20 @@ const coalitionTemplate = {
 export default function AdminWarRoom() {
   const [state, setState] = useState(null);
   const [battleRhythm, setBattleRhythm] = useState([]);
+  const [incidents, setIncidents] = useState([]);
+  const [incidentTotalCount, setIncidentTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [feedback, setFeedback] = useState('');
   const [incidentForm, setIncidentForm] = useState(incidentTemplate);
   const [legalCases, setLegalCases] = useState([]);
+  const [legalTotalCount, setLegalTotalCount] = useState(0);
   const [legalCaseForm, setLegalCaseForm] = useState(legalCaseTemplate);
   const [podForm, setPodForm] = useState(podTemplate);
   const [redZoneState, setRedZoneState] = useState(null);
+  const [decisions, setDecisions] = useState([]);
+  const [decisionTotalCount, setDecisionTotalCount] = useState(0);
   const [decisionForm, setDecisionForm] = useState(decisionTemplate);
   const [commandGrid, setCommandGrid] = useState([]);
   const [coalitions, setCoalitions] = useState([]);
@@ -57,10 +62,34 @@ export default function AdminWarRoom() {
   const [mobilizationRoles, setMobilizationRoles] = useState([]);
   const [campaignPhases, setCampaignPhases] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [busyActions, setBusyActions] = useState({});
+  const [incidentStatusFilter, setIncidentStatusFilter] = useState('all');
+  const [incidentSearch, setIncidentSearch] = useState('');
+  const [incidentPage, setIncidentPage] = useState(1);
+  const [legalStatusFilter, setLegalStatusFilter] = useState('all');
+  const [legalSearch, setLegalSearch] = useState('');
+  const [legalPage, setLegalPage] = useState(1);
+  const [decisionPage, setDecisionPage] = useState(1);
+  const [decisionSeverityFilter, setDecisionSeverityFilter] = useState('all');
+  const [decisionSearch, setDecisionSearch] = useState('');
+
+  const pageSize = 8;
 
   useEffect(() => {
     loadState();
   }, []);
+
+  useEffect(() => {
+    loadIncidentPage();
+  }, [incidentPage, incidentStatusFilter, incidentSearch]);
+
+  useEffect(() => {
+    loadLegalCasesPage();
+  }, [legalPage, legalStatusFilter, legalSearch]);
+
+  useEffect(() => {
+    loadDecisionPage();
+  }, [decisionPage, decisionSeverityFilter, decisionSearch]);
 
   async function loadState({ silent = false } = {}) {
     try {
@@ -71,11 +100,10 @@ export default function AdminWarRoom() {
       }
       setError('');
 
-      const [snapshot, rhythmItems, legalCaseItems, redZone, grid, coalitionItems, roleItems, phaseState] = await Promise.all([
+      const [snapshot, rhythmItems, redZone, grid, coalitionItems, roleItems, phaseState] = await Promise.all([
         warRoomService.getState(),
         warRoomService.getBattleRhythm(),
-        warRoomService.getLegalCases(),
-        warRoomService.getRedZoneState(),
+        warRoomService.getRedZoneState(false),
         warRoomService.getCommandGrid(),
         warRoomService.getCoalitions(),
         warRoomService.getMobilizationRoles(),
@@ -83,18 +111,68 @@ export default function AdminWarRoom() {
       ]);
       setState(snapshot);
       setBattleRhythm(Array.isArray(rhythmItems) ? rhythmItems : []);
-      setLegalCases(Array.isArray(legalCaseItems) ? legalCaseItems : []);
       setRedZoneState(redZone || null);
       setCommandGrid(Array.isArray(grid) ? grid : []);
       setCoalitions(Array.isArray(coalitionItems) ? coalitionItems : []);
       setMobilizationRoles(Array.isArray(roleItems) ? roleItems : []);
       setCampaignPhases(phaseState || null);
+      if (silent) {
+        await Promise.all([loadIncidentPage(), loadLegalCasesPage(), loadDecisionPage()]);
+      }
     } catch (err) {
       console.error('Failed to load war room state', err);
       setError(err.response?.data?.message || 'Unable to load war room state.');
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  }
+
+  async function loadIncidentPage() {
+    try {
+      const response = await warRoomService.getIncidents({
+        page: incidentPage,
+        pageSize,
+        status: incidentStatusFilter !== 'all' ? incidentStatusFilter : undefined,
+        search: incidentSearch || undefined
+      });
+      setIncidents(response.items || []);
+      setIncidentTotalCount(response.totalCount || 0);
+    } catch (err) {
+      console.error('Failed to load incidents page', err);
+      setError(err.response?.data?.message || 'Could not load incidents.');
+    }
+  }
+
+  async function loadLegalCasesPage() {
+    try {
+      const response = await warRoomService.getLegalCasesPaged({
+        page: legalPage,
+        pageSize,
+        status: legalStatusFilter !== 'all' ? legalStatusFilter : undefined,
+        search: legalSearch || undefined
+      });
+      setLegalCases(response.items || []);
+      setLegalTotalCount(response.totalCount || 0);
+    } catch (err) {
+      console.error('Failed to load legal cases page', err);
+      setError(err.response?.data?.message || 'Could not load legal cases.');
+    }
+  }
+
+  async function loadDecisionPage() {
+    try {
+      const response = await warRoomService.getRedZoneDecisions({
+        page: decisionPage,
+        pageSize,
+        severity: decisionSeverityFilter !== 'all' ? decisionSeverityFilter : undefined,
+        search: decisionSearch || undefined
+      });
+      setDecisions(response.items || []);
+      setDecisionTotalCount(response.totalCount || 0);
+    } catch (err) {
+      console.error('Failed to load decision page', err);
+      setError(err.response?.data?.message || 'Could not load red-zone decisions.');
     }
   }
 
@@ -123,40 +201,55 @@ export default function AdminWarRoom() {
 
   const updateIncidentStatus = async (incidentId, status) => {
     setError('');
+    const busyKey = `incident-status-${incidentId}-${status}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.updateIncident(incidentId, { status });
       await loadState({ silent: true });
+      setFeedback(`Incident #${incidentId} updated to ${status}.`);
     } catch (err) {
       console.error('Failed to update incident', err);
       setError(err.response?.data?.message || 'Could not update incident.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
   const escalateIncident = async (incidentId, escalationLevel) => {
     setError('');
+    const busyKey = `incident-escalate-${incidentId}-${escalationLevel}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.escalateIncident(incidentId, {
         escalationLevel,
         rationale: `Escalated to level ${escalationLevel} from war-room board.`
       });
       await loadState({ silent: true });
+      setFeedback(`Incident #${incidentId} escalated to L${escalationLevel}.`);
     } catch (err) {
       console.error('Failed to escalate incident', err);
       setError(err.response?.data?.message || 'Could not escalate incident.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
   const completeRhythmItem = async (itemId) => {
     setError('');
+    const busyKey = `rhythm-${itemId}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.completeBattleRhythmItem(itemId, {
         attendanceCount: 0,
         completionNotes: 'Completed from war-room board.'
       });
       await loadState({ silent: true });
+      setFeedback('Battle-rhythm item completed.');
     } catch (err) {
       console.error('Failed to complete rhythm item', err);
       setError(err.response?.data?.message || 'Could not complete battle-rhythm item.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
@@ -171,24 +264,34 @@ export default function AdminWarRoom() {
   const submitCommandPod = async (event) => {
     event.preventDefault();
     setError('');
+    setFeedback('');
     try {
+      setSubmitting(true);
       await warRoomService.createCommandPod(podForm);
       setPodForm(podTemplate);
       await loadState({ silent: true });
+      setFeedback('Command pod created.');
     } catch (err) {
       console.error('Failed to create command pod', err);
       setError(err.response?.data?.message || 'Could not create command pod.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const updatePodStatus = async (podId, status) => {
     setError('');
+    const busyKey = `pod-${podId}-${status}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.updateCommandPod(podId, { status });
       await loadState({ silent: true });
+      setFeedback(`Pod status changed to ${status}.`);
     } catch (err) {
       console.error('Failed to update pod status', err);
       setError(err.response?.data?.message || 'Could not update command pod.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
@@ -198,39 +301,54 @@ export default function AdminWarRoom() {
 
   const toggleRedZone = async (enable) => {
     setError('');
+    const busyKey = `red-zone-${enable ? 'on' : 'off'}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.toggleRedZoneMode({
         enable,
         decisionIntervalMinutes: 60
       });
       await loadState({ silent: true });
+      setFeedback(enable ? 'Red-zone mode enabled.' : 'Red-zone mode disabled.');
     } catch (err) {
       console.error('Failed to toggle red-zone mode', err);
       setError(err.response?.data?.message || 'Could not change election-week mode.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
   const submitDecision = async (event) => {
     event.preventDefault();
     setError('');
+    setFeedback('');
     try {
+      setSubmitting(true);
       await warRoomService.addRedZoneDecision(decisionForm);
       setDecisionForm(decisionTemplate);
       await loadState({ silent: true });
+      setFeedback('Red-zone decision logged.');
     } catch (err) {
       console.error('Failed to log decision', err);
       setError(err.response?.data?.message || 'Could not log red-zone decision.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const updateGridStatus = async (nodeId, readinessStatus) => {
     setError('');
+    const busyKey = `grid-${nodeId}-${readinessStatus}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.updateCommandGridNode(nodeId, { readinessStatus });
       await loadState({ silent: true });
+      setFeedback(`Grid node updated to ${readinessStatus}.`);
     } catch (err) {
       console.error('Failed to update grid node', err);
       setError(err.response?.data?.message || 'Could not update command grid node.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
@@ -241,53 +359,75 @@ export default function AdminWarRoom() {
   const submitCoalition = async (event) => {
     event.preventDefault();
     setError('');
+    setFeedback('');
     try {
+      setSubmitting(true);
       await warRoomService.createCoalition(coalitionForm);
       setCoalitionForm(coalitionTemplate);
       await loadState({ silent: true });
+      setFeedback('Coalition command created.');
     } catch (err) {
       console.error('Failed to create coalition command', err);
       setError(err.response?.data?.message || 'Could not create coalition command.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const updateCoalitionModuleStatus = async (coalitionId, groupType, status) => {
     setError('');
+    const busyKey = `coalition-${coalitionId}-${groupType}-${status}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.updateCoalitionModule(coalitionId, { groupType, status });
       await loadState({ silent: true });
+      setFeedback(`${groupType} module updated to ${status}.`);
     } catch (err) {
       console.error('Failed to update coalition module', err);
       setError(err.response?.data?.message || 'Could not update coalition module.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
   const updateMobilizationRole = async (roleCode, status) => {
     setError('');
+    const busyKey = `mobilization-${roleCode}-${status}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.updateMobilizationRole(roleCode, { status });
       await loadState({ silent: true });
+      setFeedback(`${roleCode} updated to ${status}.`);
     } catch (err) {
       console.error('Failed to update mobilization role', err);
       setError(err.response?.data?.message || 'Could not update mobilization role.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
   const switchPhase = async (phase) => {
     setError('');
+    const busyKey = `phase-${phase}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.switchCampaignPhase({ phase });
       await loadState({ silent: true });
+      setFeedback(`Campaign phase switched to ${phase}.`);
     } catch (err) {
       console.error('Failed to switch campaign phase', err);
       setError(err.response?.data?.message || 'Could not switch campaign phase.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
 
   const submitLegalCase = async (event) => {
     event.preventDefault();
     setError('');
+    setFeedback('');
     try {
+      setSubmitting(true);
       await warRoomService.createLegalCase({
         incidentId: legalCaseForm.incidentId ? Number(legalCaseForm.incidentId) : null,
         title: legalCaseForm.title,
@@ -297,22 +437,50 @@ export default function AdminWarRoom() {
       });
       setLegalCaseForm(legalCaseTemplate);
       await loadState({ silent: true });
+      setFeedback('Legal case created.');
     } catch (err) {
       console.error('Failed to create legal case', err);
       setError(err.response?.data?.message || 'Could not create legal case.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const updateLegalCaseStatus = async (caseId, status) => {
     setError('');
+    const busyKey = `legal-${caseId}-${status}`;
     try {
+      setBusy(busyKey, true);
       await warRoomService.updateLegalCase(caseId, { status });
       await loadState({ silent: true });
+      setFeedback(`Legal case #${caseId} updated to ${status}.`);
     } catch (err) {
       console.error('Failed to update legal case', err);
       setError(err.response?.data?.message || 'Could not update legal case.');
+    } finally {
+      setBusy(busyKey, false);
     }
   };
+
+  const incidentTotalPages = Math.max(1, Math.ceil(incidentTotalCount / pageSize));
+  const legalTotalPages = Math.max(1, Math.ceil(legalTotalCount / pageSize));
+  const decisionTotalPages = Math.max(1, Math.ceil(decisionTotalCount / pageSize));
+
+  const pagedIncidents = incidents;
+  const pagedLegalCases = legalCases;
+  const pagedDecisions = decisions;
+
+  useEffect(() => {
+    setIncidentPage((current) => Math.min(current, incidentTotalPages));
+  }, [incidentTotalPages]);
+
+  useEffect(() => {
+    setLegalPage((current) => Math.min(current, legalTotalPages));
+  }, [legalTotalPages]);
+
+  useEffect(() => {
+    setDecisionPage((current) => Math.min(current, decisionTotalPages));
+  }, [decisionTotalPages]);
 
   if (loading) {
     return (
@@ -324,8 +492,43 @@ export default function AdminWarRoom() {
   }
 
   const lanes = state?.lanes || [];
-  const incidents = state?.activeIncidents || [];
   const pods = state?.commandPods || [];
+
+  const setBusy = (key, value) => {
+    setBusyActions((current) => ({ ...current, [key]: value }));
+  };
+
+  const isBusy = (key) => Boolean(busyActions[key]);
+
+  const renderPager = (page, setPage, totalPages, totalCount) => {
+    if (totalPages <= 1) {
+      return null;
+    }
+
+    return (
+      <div className="mt-3 flex items-center justify-between text-xs text-stone-600">
+        <p>Page {page} of {totalPages} • {totalCount} total</p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+            disabled={page === 1}
+            className="rounded border border-stone-300 px-2 py-1 disabled:opacity-40"
+          >
+            Prev
+          </button>
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+            disabled={page === totalPages}
+            className="rounded border border-stone-300 px-2 py-1 disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="p-8 space-y-6 bg-stone-50 rounded-lg">
@@ -349,13 +552,24 @@ export default function AdminWarRoom() {
         </div>
       </section>
 
-      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center justify-between gap-3">
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => loadState({ silent: true })}
+            className="rounded border border-red-300 px-2 py-1 text-xs font-semibold hover:bg-red-100"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       {feedback && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{feedback}</div>}
 
       <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-semibold text-stone-900">Command lanes</h3>
-          <p className="text-xs text-stone-500">Snapshot: {new Date(state.snapshotAt).toLocaleString()}</p>
+          <p className="text-xs text-stone-500">Snapshot: {state?.snapshotAt ? new Date(state.snapshotAt).toLocaleString() : 'Unavailable'}</p>
         </div>
 
         <div className="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -401,7 +615,8 @@ export default function AdminWarRoom() {
                 <button
                   type="button"
                   onClick={() => completeRhythmItem(item.id)}
-                  className="mt-3 rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100"
+                  disabled={isBusy(`rhythm-${item.id}`)}
+                  className="mt-3 rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100 disabled:opacity-40"
                 >
                   Mark Completed
                 </button>
@@ -452,7 +667,7 @@ export default function AdminWarRoom() {
             placeholder="Focus objective"
           />
 
-          <button type="submit" className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700">
+          <button type="submit" disabled={submitting} className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-40">
             Create Pod
           </button>
         </form>
@@ -475,10 +690,10 @@ export default function AdminWarRoom() {
                   {pod.focusObjective && <p className="mt-2 text-sm text-stone-700">{pod.focusObjective}</p>}
 
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => updatePodStatus(pod.id, 'Active')} className="rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100">Active</button>
-                    <button type="button" onClick={() => updatePodStatus(pod.id, 'Standby')} className="rounded-lg border border-amber-300 px-3 py-1 text-xs text-amber-700 hover:bg-amber-50">Standby</button>
-                    <button type="button" onClick={() => updatePodStatus(pod.id, 'Escalated')} className="rounded-lg border border-orange-300 px-3 py-1 text-xs text-orange-700 hover:bg-orange-50">Escalated</button>
-                    <button type="button" onClick={() => updatePodStatus(pod.id, 'Completed')} className="rounded-lg border border-emerald-300 px-3 py-1 text-xs text-emerald-700 hover:bg-emerald-50">Completed</button>
+                    <button type="button" disabled={isBusy(`pod-${pod.id}-Active`)} onClick={() => updatePodStatus(pod.id, 'Active')} className="rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100 disabled:opacity-40">Active</button>
+                    <button type="button" disabled={isBusy(`pod-${pod.id}-Standby`)} onClick={() => updatePodStatus(pod.id, 'Standby')} className="rounded-lg border border-amber-300 px-3 py-1 text-xs text-amber-700 hover:bg-amber-50 disabled:opacity-40">Standby</button>
+                    <button type="button" disabled={isBusy(`pod-${pod.id}-Escalated`)} onClick={() => updatePodStatus(pod.id, 'Escalated')} className="rounded-lg border border-orange-300 px-3 py-1 text-xs text-orange-700 hover:bg-orange-50 disabled:opacity-40">Escalated</button>
+                    <button type="button" disabled={isBusy(`pod-${pod.id}-Completed`)} onClick={() => updatePodStatus(pod.id, 'Completed')} className="rounded-lg border border-emerald-300 px-3 py-1 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-40">Completed</button>
                   </div>
                 </div>
               ))
@@ -501,8 +716,8 @@ export default function AdminWarRoom() {
           </p>
 
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => toggleRedZone(true)} className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Enable Red Zone</button>
-            <button type="button" onClick={() => toggleRedZone(false)} className="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-100">Disable Red Zone</button>
+            <button type="button" disabled={isBusy('red-zone-on')} onClick={() => toggleRedZone(true)} className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-40">Enable Red Zone</button>
+            <button type="button" disabled={isBusy('red-zone-off')} onClick={() => toggleRedZone(false)} className="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-100 disabled:opacity-40">Disable Red Zone</button>
           </div>
 
           {redZoneState?.nextCheckpointAt && (
@@ -554,17 +769,17 @@ export default function AdminWarRoom() {
               rows={2}
             />
 
-            <button type="submit" className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700">Log Hourly Decision</button>
+            <button type="submit" disabled={submitting} className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-40">Log Hourly Decision</button>
           </form>
         </div>
 
         <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
           <h3 className="text-xl font-semibold text-stone-900">Decision log</h3>
           <div className="mt-4 space-y-3 max-h-[30rem] overflow-y-auto pr-1">
-            {(redZoneState?.decisions || []).length === 0 ? (
+            {pagedDecisions.length === 0 ? (
               <p className="text-sm text-stone-500">No hourly decisions logged yet.</p>
             ) : (
-              redZoneState.decisions.map((item) => (
+              pagedDecisions.map((item) => (
                 <div key={item.id} className="rounded-xl border border-stone-200 bg-stone-50 p-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold text-stone-900">{item.decisionTitle}</p>
@@ -577,6 +792,7 @@ export default function AdminWarRoom() {
               ))
             )}
           </div>
+          {renderPager(decisionPage, setDecisionPage, decisionTotalPages)}
         </div>
       </section>
 
@@ -628,7 +844,7 @@ export default function AdminWarRoom() {
             required
           />
 
-          <button type="submit" className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700">
+          <button type="submit" disabled={submitting} className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-40">
             Create Coalition Command
           </button>
         </form>
@@ -653,10 +869,10 @@ export default function AdminWarRoom() {
                         </div>
                         <p className="mt-1 text-xs text-stone-600">{module.objective}</p>
                         <div className="mt-2 flex flex-wrap gap-2">
-                          <button type="button" onClick={() => updateCoalitionModuleStatus(coalition.id, module.groupType, 'Planned')} className="rounded-lg border border-stone-300 px-2 py-1 text-xs text-stone-700 hover:bg-stone-100">Planned</button>
-                          <button type="button" onClick={() => updateCoalitionModuleStatus(coalition.id, module.groupType, 'Active')} className="rounded-lg border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50">Active</button>
-                          <button type="button" onClick={() => updateCoalitionModuleStatus(coalition.id, module.groupType, 'Blocked')} className="rounded-lg border border-rose-300 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50">Blocked</button>
-                          <button type="button" onClick={() => updateCoalitionModuleStatus(coalition.id, module.groupType, 'Completed')} className="rounded-lg border border-sky-300 px-2 py-1 text-xs text-sky-700 hover:bg-sky-50">Completed</button>
+                          <button type="button" disabled={isBusy(`coalition-${coalition.id}-${module.groupType}-Planned`)} onClick={() => updateCoalitionModuleStatus(coalition.id, module.groupType, 'Planned')} className="rounded-lg border border-stone-300 px-2 py-1 text-xs text-stone-700 hover:bg-stone-100 disabled:opacity-40">Planned</button>
+                          <button type="button" disabled={isBusy(`coalition-${coalition.id}-${module.groupType}-Active`)} onClick={() => updateCoalitionModuleStatus(coalition.id, module.groupType, 'Active')} className="rounded-lg border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-40">Active</button>
+                          <button type="button" disabled={isBusy(`coalition-${coalition.id}-${module.groupType}-Blocked`)} onClick={() => updateCoalitionModuleStatus(coalition.id, module.groupType, 'Blocked')} className="rounded-lg border border-rose-300 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50 disabled:opacity-40">Blocked</button>
+                          <button type="button" disabled={isBusy(`coalition-${coalition.id}-${module.groupType}-Completed`)} onClick={() => updateCoalitionModuleStatus(coalition.id, module.groupType, 'Completed')} className="rounded-lg border border-sky-300 px-2 py-1 text-xs text-sky-700 hover:bg-sky-50 disabled:opacity-40">Completed</button>
                         </div>
                       </div>
                     ))}
@@ -681,10 +897,10 @@ export default function AdminWarRoom() {
                   <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs text-stone-700">{role.status}</span>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => updateMobilizationRole(role.roleCode, 'Open')} className="rounded-lg border border-stone-300 px-2 py-1 text-xs text-stone-700 hover:bg-stone-100">Open</button>
-                  <button type="button" onClick={() => updateMobilizationRole(role.roleCode, 'Assigned')} className="rounded-lg border border-amber-300 px-2 py-1 text-xs text-amber-700 hover:bg-amber-50">Assigned</button>
-                  <button type="button" onClick={() => updateMobilizationRole(role.roleCode, 'Active')} className="rounded-lg border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50">Active</button>
-                  <button type="button" onClick={() => updateMobilizationRole(role.roleCode, 'Completed')} className="rounded-lg border border-sky-300 px-2 py-1 text-xs text-sky-700 hover:bg-sky-50">Completed</button>
+                  <button type="button" disabled={isBusy(`mobilization-${role.roleCode}-Open`)} onClick={() => updateMobilizationRole(role.roleCode, 'Open')} className="rounded-lg border border-stone-300 px-2 py-1 text-xs text-stone-700 hover:bg-stone-100 disabled:opacity-40">Open</button>
+                  <button type="button" disabled={isBusy(`mobilization-${role.roleCode}-Assigned`)} onClick={() => updateMobilizationRole(role.roleCode, 'Assigned')} className="rounded-lg border border-amber-300 px-2 py-1 text-xs text-amber-700 hover:bg-amber-50 disabled:opacity-40">Assigned</button>
+                  <button type="button" disabled={isBusy(`mobilization-${role.roleCode}-Active`)} onClick={() => updateMobilizationRole(role.roleCode, 'Active')} className="rounded-lg border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-40">Active</button>
+                  <button type="button" disabled={isBusy(`mobilization-${role.roleCode}-Completed`)} onClick={() => updateMobilizationRole(role.roleCode, 'Completed')} className="rounded-lg border border-sky-300 px-2 py-1 text-xs text-sky-700 hover:bg-sky-50 disabled:opacity-40">Completed</button>
                 </div>
               </div>
             ))}
@@ -717,7 +933,7 @@ export default function AdminWarRoom() {
                   ))}
                 </div>
 
-                <button type="button" onClick={() => switchPhase(phase.phase)} className="mt-3 rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100">
+                <button type="button" disabled={isBusy(`phase-${phase.phase}`)} onClick={() => switchPhase(phase.phase)} className="mt-3 rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100 disabled:opacity-40">
                   Activate Phase
                 </button>
               </div>
@@ -784,11 +1000,36 @@ export default function AdminWarRoom() {
 
         <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
           <h3 className="text-xl font-semibold text-stone-900">Active incidents</h3>
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <input
+              value={incidentSearch}
+              onChange={(event) => {
+                setIncidentSearch(event.target.value);
+                setIncidentPage(1);
+              }}
+              className="rounded-xl border border-stone-300 px-3 py-2 text-sm"
+              placeholder="Search title, lane, or description"
+            />
+            <select
+              value={incidentStatusFilter}
+              onChange={(event) => {
+                setIncidentStatusFilter(event.target.value);
+                setIncidentPage(1);
+              }}
+              className="rounded-xl border border-stone-300 px-3 py-2 text-sm"
+            >
+              <option value="all">All statuses</option>
+              <option value="open">Open</option>
+              <option value="triaged">Triaged</option>
+              <option value="escalated">Escalated</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
           <div className="mt-4 space-y-3 max-h-[32rem] overflow-y-auto pr-1">
-            {incidents.length === 0 ? (
+            {pagedIncidents.length === 0 ? (
               <p className="text-sm text-stone-500">No incidents logged. War-room lanes are operational.</p>
             ) : (
-              incidents.map((incident) => (
+              pagedIncidents.map((incident) => (
                 <div key={incident.id} className="rounded-xl border border-stone-200 bg-stone-50 p-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold text-stone-900">#{incident.id} {incident.title}</p>
@@ -814,6 +1055,7 @@ export default function AdminWarRoom() {
                     <button
                       type="button"
                       onClick={() => updateIncidentStatus(incident.id, 'Triaged')}
+                      disabled={isBusy(`incident-status-${incident.id}-Triaged`)}
                       className="rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100"
                     >
                       Mark Triaged
@@ -821,6 +1063,7 @@ export default function AdminWarRoom() {
                     <button
                       type="button"
                       onClick={() => updateIncidentStatus(incident.id, 'Escalated')}
+                      disabled={isBusy(`incident-status-${incident.id}-Escalated`)}
                       className="rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100"
                     >
                       Escalate
@@ -828,6 +1071,7 @@ export default function AdminWarRoom() {
                     <button
                       type="button"
                       onClick={() => updateIncidentStatus(incident.id, 'Resolved')}
+                      disabled={isBusy(`incident-status-${incident.id}-Resolved`)}
                       className="rounded-lg border border-emerald-300 px-3 py-1 text-xs text-emerald-700 hover:bg-emerald-50"
                     >
                       Resolve
@@ -835,6 +1079,7 @@ export default function AdminWarRoom() {
                     <button
                       type="button"
                       onClick={() => escalateIncident(incident.id, 1)}
+                      disabled={isBusy(`incident-escalate-${incident.id}-1`)}
                       className="rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100"
                     >
                       Escalate L1
@@ -842,6 +1087,7 @@ export default function AdminWarRoom() {
                     <button
                       type="button"
                       onClick={() => escalateIncident(incident.id, 2)}
+                      disabled={isBusy(`incident-escalate-${incident.id}-2`)}
                       className="rounded-lg border border-amber-300 px-3 py-1 text-xs text-amber-700 hover:bg-amber-50"
                     >
                       Escalate L2
@@ -849,6 +1095,7 @@ export default function AdminWarRoom() {
                     <button
                       type="button"
                       onClick={() => escalateIncident(incident.id, 3)}
+                      disabled={isBusy(`incident-escalate-${incident.id}-3`)}
                       className="rounded-lg border border-orange-300 px-3 py-1 text-xs text-orange-700 hover:bg-orange-50"
                     >
                       Escalate L3
@@ -856,6 +1103,7 @@ export default function AdminWarRoom() {
                     <button
                       type="button"
                       onClick={() => escalateIncident(incident.id, 4)}
+                      disabled={isBusy(`incident-escalate-${incident.id}-4`)}
                       className="rounded-lg border border-rose-300 px-3 py-1 text-xs text-rose-700 hover:bg-rose-50"
                     >
                       Escalate L4
@@ -865,6 +1113,7 @@ export default function AdminWarRoom() {
               ))
             )}
           </div>
+          {renderPager(incidentPage, setIncidentPage, incidentTotalPages)}
         </div>
       </section>
 
@@ -909,7 +1158,8 @@ export default function AdminWarRoom() {
 
           <button
             type="submit"
-            className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+            disabled={submitting}
+            className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-40"
           >
             Create Legal Case
           </button>
@@ -917,11 +1167,36 @@ export default function AdminWarRoom() {
 
         <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
           <h3 className="text-xl font-semibold text-stone-900">Legal caseboard</h3>
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <input
+              value={legalSearch}
+              onChange={(event) => {
+                setLegalSearch(event.target.value);
+                setLegalPage(1);
+              }}
+              className="rounded-xl border border-stone-300 px-3 py-2 text-sm"
+              placeholder="Search title, jurisdiction, filing"
+            />
+            <select
+              value={legalStatusFilter}
+              onChange={(event) => {
+                setLegalStatusFilter(event.target.value);
+                setLegalPage(1);
+              }}
+              className="rounded-xl border border-stone-300 px-3 py-2 text-sm"
+            >
+              <option value="all">All statuses</option>
+              <option value="drafting">Drafting</option>
+              <option value="filed">Filed</option>
+              <option value="hearing">Hearing</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
           <div className="mt-4 space-y-3 max-h-[28rem] overflow-y-auto pr-1">
-            {legalCases.length === 0 ? (
+            {pagedLegalCases.length === 0 ? (
               <p className="text-sm text-stone-500">No legal cases opened yet.</p>
             ) : (
-              legalCases.map((item) => (
+              pagedLegalCases.map((item) => (
                 <div key={item.id} className="rounded-xl border border-stone-200 bg-stone-50 p-4">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-semibold text-stone-900">Case #{item.id}: {item.title}</p>
@@ -931,15 +1206,16 @@ export default function AdminWarRoom() {
                   {item.summary && <p className="mt-2 text-sm text-stone-700">{item.summary}</p>}
 
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => updateLegalCaseStatus(item.id, 'Drafting')} className="rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100">Drafting</button>
-                    <button type="button" onClick={() => updateLegalCaseStatus(item.id, 'Filed')} className="rounded-lg border border-amber-300 px-3 py-1 text-xs text-amber-700 hover:bg-amber-50">Filed</button>
-                    <button type="button" onClick={() => updateLegalCaseStatus(item.id, 'Hearing')} className="rounded-lg border border-orange-300 px-3 py-1 text-xs text-orange-700 hover:bg-orange-50">Hearing</button>
-                    <button type="button" onClick={() => updateLegalCaseStatus(item.id, 'Closed')} className="rounded-lg border border-emerald-300 px-3 py-1 text-xs text-emerald-700 hover:bg-emerald-50">Close</button>
+                    <button type="button" disabled={isBusy(`legal-${item.id}-Drafting`)} onClick={() => updateLegalCaseStatus(item.id, 'Drafting')} className="rounded-lg border border-stone-300 px-3 py-1 text-xs text-stone-700 hover:bg-stone-100 disabled:opacity-40">Drafting</button>
+                    <button type="button" disabled={isBusy(`legal-${item.id}-Filed`)} onClick={() => updateLegalCaseStatus(item.id, 'Filed')} className="rounded-lg border border-amber-300 px-3 py-1 text-xs text-amber-700 hover:bg-amber-50 disabled:opacity-40">Filed</button>
+                    <button type="button" disabled={isBusy(`legal-${item.id}-Hearing`)} onClick={() => updateLegalCaseStatus(item.id, 'Hearing')} className="rounded-lg border border-orange-300 px-3 py-1 text-xs text-orange-700 hover:bg-orange-50 disabled:opacity-40">Hearing</button>
+                    <button type="button" disabled={isBusy(`legal-${item.id}-Closed`)} onClick={() => updateLegalCaseStatus(item.id, 'Closed')} className="rounded-lg border border-emerald-300 px-3 py-1 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-40">Close</button>
                   </div>
                 </div>
               ))
             )}
           </div>
+          {renderPager(legalPage, setLegalPage, legalTotalPages)}
         </div>
       </section>
     </div>

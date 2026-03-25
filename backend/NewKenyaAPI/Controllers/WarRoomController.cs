@@ -152,10 +152,32 @@ namespace NewKenyaAPI.Controllers
         }
 
         [HttpGet("red-zone")]
-        public ActionResult<WarRoomRedZoneState> GetRedZoneState()
+        public ActionResult<WarRoomRedZoneState> GetRedZoneState([FromQuery] bool includeDecisions = true)
         {
-            var state = _warRoomService.GetRedZoneState();
+            var state = _warRoomService.GetRedZoneState(includeDecisions);
             return Ok(state);
+        }
+
+        [HttpGet("incidents")]
+        public ActionResult<PagedResponse<WarRoomIncidentItem>> GetIncidents(
+            [FromQuery] string? status = null,
+            [FromQuery] string? search = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var result = _warRoomService.GetIncidents(status, search, page, pageSize);
+            return Ok(result);
+        }
+
+        [HttpGet("red-zone/decisions")]
+        public ActionResult<PagedResponse<WarRoomRedZoneDecisionLogItem>> GetRedZoneDecisions(
+            [FromQuery] string? severity = null,
+            [FromQuery] string? search = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var result = _warRoomService.GetRedZoneDecisions(severity, search, page, pageSize);
+            return Ok(result);
         }
 
         [HttpPost("red-zone/toggle")]
@@ -301,6 +323,17 @@ namespace NewKenyaAPI.Controllers
         public ActionResult<List<WarRoomLegalCaseItem>> GetLegalCases()
         {
             var items = _warRoomService.GetLegalCases();
+            return Ok(items);
+        }
+
+        [HttpGet("legal-cases/query")]
+        public ActionResult<PagedResponse<WarRoomLegalCaseItem>> GetLegalCasesQuery(
+            [FromQuery] string? status = null,
+            [FromQuery] string? search = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var items = _warRoomService.GetLegalCases(status, search, page, pageSize);
             return Ok(items);
         }
 
