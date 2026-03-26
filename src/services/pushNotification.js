@@ -56,23 +56,17 @@ export async function subscribeToPushNotifications() {
 }
 
 async function sendSubscriptionToServer(subscription) {
-  try {
-    const subscriptionData = subscription.toJSON();
-    
-    const response = await api.post('/push/subscribe', {
-      endpoint: subscriptionData.endpoint,
-      keys: {
-        p256dh: subscriptionData.keys?.p256dh,
-        auth: subscriptionData.keys?.auth
-      }
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error sending subscription to server:', error);
-    // Don't throw error to prevent blocking the subscription
-    return { success: false, error: error.message };
-  }
+  const subscriptionData = subscription.toJSON();
+
+  const response = await api.post('/push/subscribe', {
+    endpoint: subscriptionData.endpoint,
+    keys: {
+      p256dh: subscriptionData.keys?.p256dh,
+      auth: subscriptionData.keys?.auth
+    }
+  });
+
+  return response.data;
 }
 
 export async function unsubscribeFromPushNotifications() {

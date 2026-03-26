@@ -5,24 +5,28 @@ const DEFAULT_CATEGORIES = {
   events: {
     id: 'events',
     label: 'Campaign Events',
+    icon: '📅',
     description: 'Updates about rallies, townhalls, and community meetings',
     enabled: true
   },
   news: {
     id: 'news',
     label: 'News Updates',
+    icon: '📰',
     description: 'Latest campaign news and policy announcements',
     enabled: true
   },
   volunteer: {
     id: 'volunteer',
     label: 'Volunteer Opportunities',
+    icon: '🤝',
     description: 'Ways to get involved and help the campaign',
     enabled: true
   },
   local: {
     id: 'local',
     label: 'Local Updates',
+    icon: '📍',
     description: 'News and events in your county',
     enabled: true
   }

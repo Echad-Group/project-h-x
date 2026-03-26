@@ -72,10 +72,15 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
-        // If a window is already open, focus it
+        // If a window is already open on the target path, focus it
         for (const client of clientList) {
-          if (client.url.includes(urlToOpen) && 'focus' in client) {
-            return client.focus();
+          try {
+            const clientPath = new URL(client.url).pathname;
+            if ((urlToOpen === '/' ? clientPath === '/' : clientPath.startsWith(urlToOpen)) && 'focus' in client) {
+              return client.focus();
+            }
+          } catch {
+            // ignore malformed URLs
           }
         }
         // Otherwise open a new window
@@ -86,6 +91,26 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
+// Handle browser-rotated push subscriptions
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil(
+    self.registration.pushManager.subscribe(event.oldSubscription.options)
+      .then((newSubscription) => {
+        return fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            endpoint: newSubscription.endpoint,
+            keys: {
+              p256dh: newSubscription.toJSON().keys?.p256dh,
+              auth: newSubscription.toJSON().keys?.auth
+            }
+          })
+        });
+      })
+      .catch((err) => console.error('Failed to renew push subscription:', err))
+  );
+});
 const STATIC_ASSETS = [
   '/',
   '/index.html',

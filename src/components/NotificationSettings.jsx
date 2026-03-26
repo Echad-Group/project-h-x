@@ -63,7 +63,7 @@ export default function NotificationSettings() {
   }
 
   function handleCategoryToggle(categoryId) {
-    notificationPrefs.setCategory(categoryId, !categories[categoryId].enabled);
+    notificationPrefs.updateCategory(categoryId, !categories[categoryId].enabled);
     setCategories(notificationPrefs.getCategories());
   }
 
@@ -140,9 +140,9 @@ export default function NotificationSettings() {
                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{category.icon}</span>
+                  <span className="text-2xl">{category.icon ?? '🔔'}</span>
                   <div>
-                    <div className="font-medium">{category.name}</div>
+                    <div className="font-medium">{category.label ?? category.name}</div>
                     <div className="text-sm text-gray-500">{category.description}</div>
                   </div>
                 </div>

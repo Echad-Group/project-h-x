@@ -72,6 +72,7 @@ namespace NewKenyaAPI.Controllers
 
         // POST: api/Push/unsubscribe
         [HttpPost("unsubscribe")]
+        [Authorize]
         public async Task<ActionResult> Unsubscribe([FromBody] UnsubscribeRequest request)
         {
             try
@@ -95,7 +96,7 @@ namespace NewKenyaAPI.Controllers
 
         // POST: api/Push/send - Admin only
         [HttpPost("send")]
-        [Authorize] // Add role-based authorization if needed
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.SuperAdmin)]
         public async Task<ActionResult> SendNotification([FromBody] NotificationRequest request)
         {
             try

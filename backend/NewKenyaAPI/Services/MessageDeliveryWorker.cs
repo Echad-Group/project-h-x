@@ -157,8 +157,13 @@ namespace NewKenyaAPI.Services
             {
                 title = message.Title ?? "Campaign Update",
                 body = message.Body,
-                url = message.Url ?? "/"
+                url = message.Url ?? "/",
+                icon = "/assets/icons/icon-192.svg",
+                badge = "/assets/icons/icon-96.svg"
             });
+
+            int successCount = 0;
+            Exception? lastError = null;
 
             foreach (var sub in subscriptions)
             {
@@ -167,11 +172,22 @@ namespace NewKenyaAPI.Services
                     var pushSub = new WebPush.PushSubscription(sub.Endpoint, sub.P256dh, sub.Auth);
                     await webPushClient.SendNotificationAsync(pushSub, payload, vapid);
                     sub.LastUsed = DateTime.UtcNow;
+                    successCount++;
                 }
                 catch (WebPushException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Gone || ex.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     sub.IsActive = false;
+                    lastError = ex;
                 }
+                catch (Exception ex)
+                {
+                    lastError = ex;
+                }
+            }
+
+            if (successCount == 0)
+            {
+                throw lastError ?? new InvalidOperationException("All push subscriptions failed to deliver");
             }
 
             message.Status = CampaignMessageStatuses.Delivered;
