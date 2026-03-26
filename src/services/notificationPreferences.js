@@ -35,6 +35,32 @@ const DEFAULT_CATEGORIES = {
 class NotificationPreferences {
   constructor() {
     this.prefs = this.loadPreferences();
+    this.syncPreferencesToServiceWorker();
+  }
+
+  syncPreferencesToServiceWorker() {
+    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+      return;
+    }
+
+    const payload = {
+      categories: this.prefs.categories,
+      schedule: this.prefs.schedule
+    };
+
+    navigator.serviceWorker.ready
+      .then((registration) => {
+        if (registration.active) {
+          registration.active.postMessage({ type: 'UPDATE_NOTIFICATION_PREFS', payload });
+        }
+
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'UPDATE_NOTIFICATION_PREFS', payload });
+        }
+      })
+      .catch((error) => {
+        console.error('Error syncing notification preferences to service worker:', error);
+      });
   }
 
   loadPreferences() {
@@ -119,6 +145,7 @@ class NotificationPreferences {
     try {
       this.prefs.lastUpdated = new Date().toISOString();
       localStorage.setItem(PREFS_KEY, JSON.stringify(this.prefs));
+      this.syncPreferencesToServiceWorker();
     } catch (error) {
       console.error('Error saving notification preferences:', error);
     }

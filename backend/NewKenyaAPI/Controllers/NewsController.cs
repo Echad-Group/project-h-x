@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using NewKenyaAPI.Data;
 using NewKenyaAPI.Models;
 using NewKenyaAPI.Models.DTOs;
+using NewKenyaAPI.Services;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -19,12 +20,32 @@ namespace NewKenyaAPI.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<NewsController> _logger;
         private readonly IMemoryCache _memoryCache;
+        private readonly PushNotificationDispatcher _pushNotificationDispatcher;
 
-        public NewsController(ApplicationDbContext context, ILogger<NewsController> logger, IMemoryCache memoryCache)
+        public NewsController(
+            ApplicationDbContext context,
+            ILogger<NewsController> logger,
+            IMemoryCache memoryCache,
+            PushNotificationDispatcher pushNotificationDispatcher)
         {
             _context = context;
             _logger = logger;
             _memoryCache = memoryCache;
+            _pushNotificationDispatcher = pushNotificationDispatcher;
+        }
+
+        private static string ResolveNotificationCategory(string? articleCategory)
+        {
+            if (string.IsNullOrWhiteSpace(articleCategory))
+            {
+                return "news";
+            }
+
+            var normalized = articleCategory.ToLowerInvariant();
+            if (normalized.Contains("volunteer")) return "volunteer";
+            if (normalized.Contains("local") || normalized.Contains("county") || normalized.Contains("region")) return "local";
+            if (normalized.Contains("event")) return "events";
+            return "news";
         }
 
         // GET: api/news
@@ -335,6 +356,23 @@ namespace NewKenyaAPI.Controllers
                 _context.Articles.Add(article);
                 await _context.SaveChangesAsync();
 
+                if (string.Equals(article.Status, "published", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        await _pushNotificationDispatcher.DispatchCategoryAsync(
+                            ResolveNotificationCategory(article.Category),
+                            $"News update: {article.Title}",
+                            article.Excerpt,
+                            $"/news/{article.Slug}"
+                        );
+                    }
+                    catch
+                    {
+                        // Keep article creation successful even when push dispatch fails.
+                    }
+                }
+
                 var articleDto = new ArticleDTO
                 {
                     Id = article.Id,
@@ -411,6 +449,23 @@ namespace NewKenyaAPI.Controllers
                 article.UpdatedDate = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
+
+                if (string.Equals(article.Status, "published", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        await _pushNotificationDispatcher.DispatchCategoryAsync(
+                            ResolveNotificationCategory(article.Category),
+                            $"Updated: {article.Title}",
+                            article.Excerpt,
+                            $"/news/{article.Slug}"
+                        );
+                    }
+                    catch
+                    {
+                        // Keep article update successful even when push dispatch fails.
+                    }
+                }
 
                 return NoContent();
             }

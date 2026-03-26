@@ -148,6 +148,11 @@ namespace NewKenyaAPI.Controllers
                             icon = request.Icon ?? "/assets/icons/icon-192.svg",
                             badge = "/assets/icons/icon-96.svg",
                             url = request.Url ?? "/",
+                            category = request.Category,
+                            data = new
+                            {
+                                category = request.Category
+                            },
                             timestamp = DateTime.UtcNow
                         });
 
@@ -249,5 +254,6 @@ namespace NewKenyaAPI.Controllers
         public string Body { get; set; } = string.Empty;
         public string? Url { get; set; }
         public string? Icon { get; set; }
+        public string? Category { get; set; }
     }
 }

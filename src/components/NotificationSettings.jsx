@@ -15,7 +15,7 @@ export default function NotificationSettings() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState({});
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     initializeSettings();
@@ -62,8 +62,8 @@ export default function NotificationSettings() {
     }
   }
 
-  function handleCategoryToggle(categoryId) {
-    notificationPrefs.updateCategory(categoryId, !categories[categoryId].enabled);
+  function handleCategoryToggle(categoryId, enabled) {
+    notificationPrefs.updateCategory(categoryId, !enabled);
     setCategories(notificationPrefs.getCategories());
   }
 
@@ -134,9 +134,9 @@ export default function NotificationSettings() {
           </p>
           
           <div className="space-y-3">
-            {Object.entries(categories).map(([id, category]) => (
+            {categories.map((category) => (
               <label
-                key={id}
+                key={category.id}
                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
               >
                 <div className="flex items-center gap-3">
@@ -149,7 +149,7 @@ export default function NotificationSettings() {
                 <input
                   type="checkbox"
                   checked={category.enabled}
-                  onChange={() => handleCategoryToggle(id)}
+                  onChange={() => handleCategoryToggle(category.id, category.enabled)}
                   className="w-5 h-5 rounded"
                 />
               </label>

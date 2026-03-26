@@ -1,6 +1,91 @@
 // Service Worker
 const CACHE_NAME = 'new-kenya-v3'; // Updated version to force refresh
 const OFFLINE_URL = '/offline.html';
+const PREFS_CACHE_NAME = 'notification-preferences-v1';
+const PREFS_CACHE_KEY = '/__notification_preferences__';
+
+let notificationPreferences = {
+  categories: {
+    events: { enabled: true },
+    news: { enabled: true },
+    volunteer: { enabled: true },
+    local: { enabled: true }
+  },
+  schedule: {
+    quiet: false,
+    quietHoursStart: '22:00',
+    quietHoursEnd: '08:00'
+  }
+};
+
+function isQuietTime(schedule) {
+  if (!schedule?.quiet) return false;
+
+  const now = new Date();
+  const current = now.getHours() * 60 + now.getMinutes();
+
+  const [startHours, startMinutes] = (schedule.quietHoursStart || '22:00').split(':').map(Number);
+  const [endHours, endMinutes] = (schedule.quietHoursEnd || '08:00').split(':').map(Number);
+  const start = startHours * 60 + startMinutes;
+  const end = endHours * 60 + endMinutes;
+
+  if (start <= end) {
+    return current >= start && current <= end;
+  }
+
+  return current >= start || current <= end;
+}
+
+function shouldShowCategoryNotification(category) {
+  if (isQuietTime(notificationPreferences.schedule)) {
+    return false;
+  }
+
+  if (!category) {
+    return true;
+  }
+
+  const categoryPrefs = notificationPreferences.categories?.[category];
+  if (!categoryPrefs) {
+    return true;
+  }
+
+  return categoryPrefs.enabled !== false;
+}
+
+async function loadNotificationPreferences() {
+  try {
+    const cache = await caches.open(PREFS_CACHE_NAME);
+    const response = await cache.match(PREFS_CACHE_KEY);
+    if (!response) return;
+
+    const prefs = await response.json();
+    if (prefs && prefs.categories && prefs.schedule) {
+      notificationPreferences = prefs;
+    }
+  } catch (error) {
+    console.error('Failed to load notification preferences from cache:', error);
+  }
+}
+
+async function persistNotificationPreferences(prefs) {
+  notificationPreferences = prefs;
+  const cache = await caches.open(PREFS_CACHE_NAME);
+  await cache.put(
+    PREFS_CACHE_KEY,
+    new Response(JSON.stringify(prefs), {
+      headers: { 'Content-Type': 'application/json' }
+    })
+  );
+}
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type !== 'UPDATE_NOTIFICATION_PREFS' || !event.data.payload) {
+    return;
+  }
+
+  event.waitUntil(persistNotificationPreferences(event.data.payload));
+});
 
 // Handle push notifications
 self.addEventListener('push', (event) => {
@@ -11,49 +96,61 @@ self.addEventListener('push', (event) => {
     return;
   }
 
-  try {
-    const data = event.data.json();
-    console.log('Push data:', data);
-    
-    const title = data.title || 'New Kenya';
-    const options = {
-      body: data.body || 'You have a new notification',
-      icon: data.icon || '/assets/icons/icon-192.svg',
-      badge: '/assets/icons/icon-96.svg',
-      vibrate: [100, 50, 100],
-      data: {
-        dateOfArrival: Date.now(),
-        url: data.url || '/',
-        ...data.data
-      },
-      actions: data.actions || [
-        {
-          action: 'view',
-          title: 'View',
-          icon: '/assets/icons/icon-48.svg'
-        },
-        {
-          action: 'close',
-          title: 'Close'
-        }
-      ],
-      tag: data.tag || 'notification-' + Date.now(),
-      requireInteraction: data.requireInteraction || false
-    };
+  event.waitUntil((async () => {
+    try {
+      await loadNotificationPreferences();
 
-    event.waitUntil(
-      self.registration.showNotification(title, options)
-    );
-  } catch (error) {
-    console.error('Error processing push notification:', error);
-    // Show a generic notification on error
-    event.waitUntil(
-      self.registration.showNotification('New Kenya', {
+      let data;
+      try {
+        data = event.data.json();
+      } catch {
+        const rawText = event.data.text();
+        data = { body: rawText };
+      }
+
+      console.log('Push data:', data);
+
+      const category = data.category || data.data?.category;
+      if (!shouldShowCategoryNotification(category)) {
+        return;
+      }
+
+      const title = data.title || 'New Kenya';
+      const options = {
+        body: data.body || 'You have a new notification',
+        icon: data.icon || '/assets/icons/icon-192.svg',
+        badge: '/assets/icons/icon-96.svg',
+        vibrate: [100, 50, 100],
+        data: {
+          dateOfArrival: Date.now(),
+          url: data.url || '/',
+          category,
+          ...data.data
+        },
+        actions: data.actions || [
+          {
+            action: 'view',
+            title: 'View',
+            icon: '/assets/icons/icon-48.svg'
+          },
+          {
+            action: 'close',
+            title: 'Close'
+          }
+        ],
+        tag: data.tag || 'notification-' + Date.now(),
+        requireInteraction: data.requireInteraction || false
+      };
+
+      await self.registration.showNotification(title, options);
+    } catch (error) {
+      console.error('Error processing push notification:', error);
+      await self.registration.showNotification('New Kenya', {
         body: 'You have a new notification',
         icon: '/assets/icons/icon-192.svg'
-      })
-    );
-  }
+      });
+    }
+  })());
 });
 
 // Handle notification clicks

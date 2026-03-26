@@ -23,7 +23,7 @@ export default function Navbar({ onOpenDonate }) {
   
   return (
     <header className="sticky top-0 z-40 backdrop-blur bg-white/60 border-b">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-3">

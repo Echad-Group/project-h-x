@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewKenyaAPI.Data;
 using NewKenyaAPI.Models;
+using NewKenyaAPI.Services;
 
 namespace NewKenyaAPI.Controllers
 {
@@ -11,10 +12,12 @@ namespace NewKenyaAPI.Controllers
     public class EventsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly PushNotificationDispatcher _pushNotificationDispatcher;
 
-        public EventsController(ApplicationDbContext context)
+        public EventsController(ApplicationDbContext context, PushNotificationDispatcher pushNotificationDispatcher)
         {
             _context = context;
+            _pushNotificationDispatcher = pushNotificationDispatcher;
         }
 
         // GET: api/Events
@@ -100,6 +103,33 @@ namespace NewKenyaAPI.Controllers
             _context.Events.Add(eventItem);
             await _context.SaveChangesAsync();
 
+            if (eventItem.IsPublished)
+            {
+                try
+                {
+                    await _pushNotificationDispatcher.DispatchCategoryAsync(
+                        "events",
+                        $"New event: {eventItem.Title}",
+                        eventItem.Description,
+                        $"/events/{eventItem.Slug}"
+                    );
+
+                    if (!string.IsNullOrWhiteSpace(eventItem.Region) || !string.IsNullOrWhiteSpace(eventItem.City))
+                    {
+                        await _pushNotificationDispatcher.DispatchCategoryAsync(
+                            "local",
+                            $"Local event update: {eventItem.Title}",
+                            eventItem.Description,
+                            $"/events/{eventItem.Slug}"
+                        );
+                    }
+                }
+                catch
+                {
+                    // Keep event creation successful even when push dispatch fails.
+                }
+            }
+
             return CreatedAtAction(nameof(GetEvent), new { id = eventItem.Id }, eventItem);
         }
 
@@ -135,6 +165,33 @@ namespace NewKenyaAPI.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                if (existingEvent.IsPublished)
+                {
+                    try
+                    {
+                        await _pushNotificationDispatcher.DispatchCategoryAsync(
+                            "events",
+                            $"Event updated: {existingEvent.Title}",
+                            existingEvent.Description,
+                            $"/events/{existingEvent.Slug}"
+                        );
+
+                        if (!string.IsNullOrWhiteSpace(existingEvent.Region) || !string.IsNullOrWhiteSpace(existingEvent.City))
+                        {
+                            await _pushNotificationDispatcher.DispatchCategoryAsync(
+                                "local",
+                                $"Local event updated: {existingEvent.Title}",
+                                existingEvent.Description,
+                                $"/events/{existingEvent.Slug}"
+                            );
+                        }
+                    }
+                    catch
+                    {
+                        // Keep event update successful even when push dispatch fails.
+                    }
+                }
             }
             catch (DbUpdateConcurrencyException)
             {

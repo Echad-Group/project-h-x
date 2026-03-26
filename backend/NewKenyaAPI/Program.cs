@@ -19,6 +19,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<CampaignHierarchyService>();
 builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<CampaignMessagingService>();
+builder.Services.AddScoped<PushNotificationDispatcher>();
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddScoped<CampaignBootstrapService>();
 builder.Services.AddScoped<FaceMatchService>();
