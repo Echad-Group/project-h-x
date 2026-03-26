@@ -75,7 +75,8 @@ namespace NewKenyaAPI.Services
                 Channel = request.Channel,
                 Title = request.Title,
                 Body = request.Body,
-                Url = request.Url
+                Url = request.Url,
+                ScheduledFor = request.ScheduledFor
             };
 
             return await QueueTargetMessagesAsync(senderUserId, target);
