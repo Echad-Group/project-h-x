@@ -40,8 +40,9 @@ namespace NewKenyaAPI.Services
                 {
                     _logger.LogError(ex, "Message delivery batch failed");
                 }
-
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                
+                // TODO: Implement a more sophisticated scheduling mechanism (e.g. exponential backoff, dynamic delay based on load)
+                await Task.Delay(TimeSpan.FromSeconds(50), stoppingToken);
             }
         }
 
