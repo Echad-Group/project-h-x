@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subscribeToPushNotifications, unsubscribeFromPushNotifications, checkSubscriptionStatus } from '../services/pushNotification';
 import pwaAnalytics from '../services/pwaAnalytics';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function NotificationButton() {
+  const { isAuthenticated } = useAuth();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSupported, setIsSupported] = useState(true);
@@ -63,11 +65,15 @@ export default function NotificationButton() {
     return null;
   }
 
+  if (isAuthenticated) {
+    return null;
+  }
+
   return (
     <button
       onClick={handleClick}
       disabled={isLoading}
-      className={`px-4 py-2 rounded-full font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-xl ${
+      className={`group px-3 py-2 rounded-full font-medium flex items-center hover:gap-2 transition-all shadow-lg hover:shadow-xl ${
         isSubscribed 
           ? 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-[var(--kenya-green)]' 
           : 'bg-[var(--kenya-green)] text-white hover:opacity-90'
@@ -83,7 +89,9 @@ export default function NotificationButton() {
       ) : (
         <>
           <span>{isSubscribed ? '🔔' : '🔕'}</span>
-          <span className="hidden sm:inline">{isSubscribed ? 'Settings' : 'Get Notifications'}</span>
+          <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:max-w-[180px] group-hover:opacity-100 group-focus-visible:max-w-[180px] group-focus-visible:opacity-100">
+            {isSubscribed ? 'Settings' : 'Get Notifications'}
+          </span>
         </>
       )}
     </button>
