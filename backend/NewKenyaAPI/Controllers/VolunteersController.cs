@@ -118,6 +118,13 @@ namespace NewKenyaAPI.Controllers
                         name = volunteer.Name,
                         email = volunteer.Email,
                         phone = volunteer.Phone,
+                        city = volunteer.City,
+                        region = volunteer.Region,
+                        availabilityZones = volunteer.AvailabilityZones,
+                        skills = volunteer.Skills,
+                        hoursPerWeek = volunteer.HoursPerWeek,
+                        availableWeekends = volunteer.AvailableWeekends,
+                        availableEvenings = volunteer.AvailableEvenings,
                         interests = volunteer.Interests,
                         createdAt = volunteer.CreatedAt
                     }
@@ -350,8 +357,85 @@ namespace NewKenyaAPI.Controllers
             public string? Interests { get; set; }
         }
 
+        // PUT: api/Volunteers/me
+        [HttpPut("me")]
+        [Authorize]
+        public async Task<ActionResult<object>> UpdateMyVolunteerProfile([FromBody] VolunteerCreateRequest request)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
+            if (volunteer == null)
+            {
+                return NotFound(new { message = "Volunteer profile not found." });
+            }
+
+            volunteer.Name = request.Name;
+            volunteer.Email = request.Email;
+            volunteer.Phone = request.Phone;
+            volunteer.City = request.City;
+            volunteer.Region = request.Region;
+            volunteer.AvailabilityZones = request.AvailabilityZones;
+            volunteer.Skills = request.Skills;
+            volunteer.HoursPerWeek = request.HoursPerWeek;
+            volunteer.AvailableWeekends = request.AvailableWeekends;
+            volunteer.AvailableEvenings = request.AvailableEvenings;
+            volunteer.Interests = request.Interests;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Volunteer profile updated successfully.",
+                volunteer = new
+                {
+                    id = volunteer.Id,
+                    name = volunteer.Name,
+                    email = volunteer.Email,
+                    phone = volunteer.Phone,
+                    city = volunteer.City,
+                    region = volunteer.Region,
+                    availabilityZones = volunteer.AvailabilityZones,
+                    skills = volunteer.Skills,
+                    hoursPerWeek = volunteer.HoursPerWeek,
+                    availableWeekends = volunteer.AvailableWeekends,
+                    availableEvenings = volunteer.AvailableEvenings,
+                    interests = volunteer.Interests,
+                    createdAt = volunteer.CreatedAt
+                }
+            });
+        }
+
+        // DELETE: api/Volunteers/me
+        [HttpDelete("me")]
+        [Authorize]
+        public async Task<IActionResult> LeaveVolunteerRole()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
+            if (volunteer == null)
+            {
+                return NotFound(new { message = "Volunteer profile not found." });
+            }
+
+            _context.Volunteers.Remove(volunteer);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "You are no longer registered as a volunteer." });
+        }
+
         // DELETE: api/Volunteers/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> DeleteVolunteer(int id)
         {
             var volunteer = await _context.Volunteers.FindAsync(id);

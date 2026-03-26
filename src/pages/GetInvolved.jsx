@@ -33,6 +33,7 @@ export default function GetInvolved() {
     <section id="get-involved" className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold">{t('getInvolved.title')}</h1>
       <p className="mt-3 text-gray-600">{t('getInvolved.description')}</p>
+      <p className="mt-2 text-sm text-gray-500">Already volunteering? You can view your status, edit your skills, or opt out from this page.</p>
       <div className="mt-6">
         <VolunteerSignup />
       </div>

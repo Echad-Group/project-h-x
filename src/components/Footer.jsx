@@ -1,12 +1,13 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from './LanguageSwitcher'
 
 export default function Footer(){
   const { t } = useTranslation();
 
   return (
     <footer className="bg-[var(--kenya-black)] text-white py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="w-full px-[5%] grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <h4 className="text-lg font-semibold">New Kenya</h4>
           <p className="text-sm text-gray-200 mt-2">{t('footer.tagline')}</p>
@@ -35,8 +36,12 @@ export default function Footer(){
         </div>
         <div>
           <h5 className="font-semibold">{t('footer.contactHeading')}</h5>
-          <p className="text-sm text-gray-200 mt-2"><a href="mailto:info@newkenya.org" tagert="_blank">info@newkenya.org</a></p>
+          <p className="text-sm text-gray-200 mt-2"><a href="mailto:info@newkenya.org" target="_blank">info@newkenya.org</a></p>
           <p className="text-sm text-gray-200"><a href="tel:+254700000000" target="_blank">+254 700 000 000</a></p>
+          <div className="mt-4 [&_select]:bg-white [&_select]:text-gray-900 [&_select]:border-gray-300 [&_select]:px-2 [&_select]:py-1 [&_select]:rounded-md">
+            <p className="text-xs uppercase tracking-wide text-gray-400 mb-2">Language</p>
+            <LanguageSwitcher />
+          </div>
         </div>
       </div>
       <div className="mt-8 text-center text-xs text-gray-400">© {new Date().getFullYear()} New Kenya — {t('footer.rights')}</div>

@@ -36,6 +36,18 @@ export const volunteerService = {
     return response.data;
   },
 
+  // Update current authenticated volunteer profile
+  updateMyProfile: async (volunteerData) => {
+    const response = await api.put('/volunteers/me', volunteerData);
+    return response.data;
+  },
+
+  // Leave volunteer program for current authenticated user
+  leaveMyVolunteerRole: async () => {
+    const response = await api.delete('/volunteers/me');
+    return response.data;
+  },
+
   // Delete volunteer
   delete: async (id) => {
     const response = await api.delete(`/volunteers/${id}`);

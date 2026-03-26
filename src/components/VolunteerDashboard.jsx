@@ -79,10 +79,19 @@ export default function VolunteerDashboard() {
 
   return (
     <div className="max-w-7xl space-y-6 mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-[var(--kenya-green)] to-green-600 text-white rounded-lg p-6">
-        <h1 className="text-3xl font-bold mb-2">Welcome back, {volunteerData.name}!</h1>
-        <p className="text-green-50">Thank you for being part of the New Kenya movement</p>
+      {/* Status Banner */}
+      <div className="bg-gradient-to-r from-[var(--kenya-green)] to-green-700 text-white rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-green-100">Status</p>
+          <h1 className="text-3xl font-bold mb-2">Volunteer Active</h1>
+          <p className="text-green-50">Welcome back, {volunteerData.name}. Manage your volunteer status and profile details anytime.</p>
+        </div>
+        <Link
+          to="/get-involved"
+          className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-white text-[var(--kenya-green)] font-semibold hover:bg-green-50 transition-colors"
+        >
+          View Status
+        </Link>
       </div>
 
       {/* Assignments Section */}

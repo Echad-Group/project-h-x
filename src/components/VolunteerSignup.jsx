@@ -22,8 +22,24 @@ export default function VolunteerSignup({ onSubmit }) {
   const [error, setError] = useState(null);
   const [checkingStatus, setCheckingStatus] = useState(false);
   const [volunteerStatus, setVolunteerStatus] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { t } = useTranslation();
+
+  const mapVolunteerToForm = (volunteer) => ({
+    name: volunteer?.name || '',
+    email: volunteer?.email || user?.email || '',
+    phone: volunteer?.phone || '',
+    city: volunteer?.city || '',
+    region: volunteer?.region || '',
+    availabilityZones: volunteer?.availabilityZones ? volunteer.availabilityZones.split(',').map(item => item.trim()).filter(Boolean) : [],
+    skills: volunteer?.skills ? volunteer.skills.split(',').map(item => item.trim()).filter(Boolean) : [],
+    hoursPerWeek: volunteer?.hoursPerWeek ?? 5,
+    availableWeekends: Boolean(volunteer?.availableWeekends),
+    availableEvenings: Boolean(volunteer?.availableEvenings),
+    interests: volunteer?.interests || ''
+  });
 
   // Check volunteer status if user is authenticated
   useEffect(() => {
@@ -33,6 +49,10 @@ export default function VolunteerSignup({ onSubmit }) {
         try {
           const status = await volunteerService.checkStatus();
           setVolunteerStatus(status);
+
+          if (status.isVolunteer && status.volunteer) {
+            setForm(mapVolunteerToForm(status.volunteer));
+          }
           
           // Pre-fill form with user data if not already a volunteer
           if (!status.isVolunteer && user) {
@@ -90,7 +110,18 @@ export default function VolunteerSignup({ onSubmit }) {
         skills: form.skills.join(','),
         availabilityZones: form.availabilityZones.join(',')
       };
-      
+
+      if (isAuthenticated && volunteerStatus?.isVolunteer && editMode) {
+        await volunteerService.updateMyProfile(submitData);
+        const status = await volunteerService.checkStatus();
+        setVolunteerStatus(status);
+        if (status?.volunteer) {
+          setForm(mapVolunteerToForm(status.volunteer));
+        }
+        setEditMode(false);
+        return;
+      }
+
       const response = await volunteerService.create(submitData);
       
       // Check if it's a linking response (existing volunteer account linked to user)
@@ -131,6 +162,33 @@ export default function VolunteerSignup({ onSubmit }) {
     }
   };
 
+  const handleLeaveVolunteer = async () => {
+    const confirmed = window.confirm('Are you sure you want to stop volunteering? You can always join again later.');
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLeaving(true);
+      await volunteerService.leaveMyVolunteerRole();
+      setVolunteerStatus({ isVolunteer: false });
+      setEditMode(false);
+      setSubmitted(false);
+      setForm(prev => ({
+        ...prev,
+        name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : prev.name,
+        email: user?.email || prev.email,
+        skills: [],
+        availabilityZones: [],
+        interests: ''
+      }));
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Unable to update volunteer status right now.');
+    } finally {
+      setLeaving(false);
+    }
+  };
+
   // Show loading state while checking volunteer status
   if (checkingStatus) {
     return (
@@ -141,7 +199,7 @@ export default function VolunteerSignup({ onSubmit }) {
   }
 
   // Show different content if user is already a volunteer
-  if (isAuthenticated && volunteerStatus?.isVolunteer) {
+  if (isAuthenticated && volunteerStatus?.isVolunteer && !editMode) {
     return (
       <div className="fluent-card p-6 bg-gradient-to-br from-green-50 to-emerald-50">
         <div className="text-center">
@@ -187,6 +245,23 @@ export default function VolunteerSignup({ onSubmit }) {
           <p className="text-sm text-gray-600 mt-4">
             {t('volunteer.alreadyRegistered.stay_tuned') || 'Stay tuned for volunteer opportunities and updates!'}
           </p>
+          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+            <button
+              type="button"
+              className="fluent-btn fluent-btn-primary"
+              onClick={() => setEditMode(true)}
+            >
+              Edit Status
+            </button>
+            <button
+              type="button"
+              className="fluent-btn border border-red-300 text-red-600 hover:bg-red-50"
+              onClick={handleLeaveVolunteer}
+              disabled={leaving}
+            >
+              {leaving ? 'Updating...' : 'Stop Volunteering'}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -474,8 +549,25 @@ export default function VolunteerSignup({ onSubmit }) {
         disabled={loading}
         className="fluent-btn fluent-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? t('volunteer.form.submitting') || 'Submitting...' : t('volunteer.form.submit')}
+        {loading
+          ? t('volunteer.form.submitting') || 'Submitting...'
+          : (isAuthenticated && volunteerStatus?.isVolunteer && editMode
+            ? 'Save Status Changes'
+            : t('volunteer.form.submit'))}
       </button>
+
+      {isAuthenticated && volunteerStatus?.isVolunteer && editMode && (
+        <button
+          type="button"
+          onClick={() => {
+            setEditMode(false);
+            setForm(mapVolunteerToForm(volunteerStatus.volunteer));
+          }}
+          className="fluent-btn w-full justify-center border border-gray-300 text-gray-700 hover:bg-gray-50"
+        >
+          Cancel
+        </button>
+      )}
     </form>
   );
 }
