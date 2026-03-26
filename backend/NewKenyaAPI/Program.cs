@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,6 +23,7 @@ builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddScoped<CampaignBootstrapService>();
 builder.Services.AddScoped<FaceMatchService>();
 builder.Services.AddScoped<AuditLogService>();
+builder.Services.AddSingleton<WarRoomMongoStore>();
 builder.Services.AddSingleton<WarRoomCommandService>();
 builder.Services.AddSingleton<VerificationReviewService>();
 builder.Services.AddHttpClient("twilio-whatsapp");
@@ -100,6 +102,18 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure HTTP logging (similar to EF Core logging for database operations)
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+    logging.RequestHeaders.Add("Authorization");
+    logging.ResponseHeaders.Add("Content-Type");
+    logging.ResponseHeaders.Add("Content-Length");
+    logging.MediaTypeOptions.AddText("application/json");
+    logging.RequestBodyLogLimit = 4096;
+    logging.ResponseBodyLogLimit = 4096;
+});
+
 var app = builder.Build();
 
 // Initialize roles
@@ -123,8 +137,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
+    // Add HTTP logging middleware (logs all endpoint hits with request/response details)
+    app.UseHttpLogging();
+}
 app.UseHttpsRedirection();
 
 app.UseStaticFiles(); // Enable serving static files from wwwroot

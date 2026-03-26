@@ -5,6 +5,7 @@ namespace NewKenyaAPI.Services
 {
     public class WarRoomCommandService
     {
+        private readonly WarRoomMongoStore _mongoStore;
         private readonly ConcurrentDictionary<string, WarRoomCommandLane> _lanes = new();
         private readonly ConcurrentDictionary<string, WarRoomCommandPodItem> _pods = new();
         private readonly ConcurrentDictionary<int, WarRoomIncidentItem> _incidents = new();
@@ -21,14 +22,17 @@ namespace NewKenyaAPI.Services
         private int _nextPodId = 0;
         private int _nextCoalitionId = 0;
 
-        public WarRoomCommandService()
+        public WarRoomCommandService(WarRoomMongoStore mongoStore)
         {
+            _mongoStore = mongoStore;
             SeedDefaultLanes();
             SeedDefaultPods();
             SeedDefaultCommandGrid();
             SeedDefaultCoalitionCommands();
             SeedDefaultMobilizationRoles();
             SeedDefaultCampaignPhases();
+            RestoreStateFromPersistence();
+            PersistSnapshot();
         }
 
         public WarRoomStateResponse GetState()
@@ -78,6 +82,7 @@ namespace NewKenyaAPI.Services
             };
 
             _pods[id] = pod;
+            PersistSnapshot();
             return pod;
         }
 
@@ -114,6 +119,7 @@ namespace NewKenyaAPI.Services
             }
 
             pod.UpdatedAt = DateTime.UtcNow;
+            PersistSnapshot();
             return pod;
         }
 
@@ -263,6 +269,7 @@ namespace NewKenyaAPI.Services
                 _redZoneState.NextCheckpointAt = null;
             }
 
+            PersistSnapshot();
             return _redZoneState;
         }
 
@@ -294,6 +301,7 @@ namespace NewKenyaAPI.Services
                 _redZoneState.Decisions = _redZoneState.Decisions.Take(300).ToList();
             }
 
+            PersistSnapshot();
             return item;
         }
 
@@ -334,6 +342,7 @@ namespace NewKenyaAPI.Services
 
             node.LastHeartbeatAt = DateTime.UtcNow;
             node.UpdatedAt = DateTime.UtcNow;
+            PersistSnapshot();
             return node;
         }
 
@@ -358,6 +367,7 @@ namespace NewKenyaAPI.Services
             };
 
             _coalitionCommands[id] = item;
+            PersistSnapshot();
             return item;
         }
 
@@ -388,6 +398,7 @@ namespace NewKenyaAPI.Services
 
             targetModule.LastEngagementAt = DateTime.UtcNow;
             coalition.UpdatedAt = DateTime.UtcNow;
+            PersistSnapshot();
             return coalition;
         }
 
@@ -425,6 +436,7 @@ namespace NewKenyaAPI.Services
                 role.OperationalNotes = request.OperationalNotes.Trim();
             }
 
+            PersistSnapshot();
             return role;
         }
 
@@ -444,6 +456,7 @@ namespace NewKenyaAPI.Services
             _campaignPhaseState.ActivePhase = normalizedPhase;
             _campaignPhaseState.ActiveSince = DateTime.UtcNow;
             _campaignPhaseState.UpdatedByUserId = currentUserId;
+            PersistSnapshot();
             return _campaignPhaseState;
         }
 
@@ -474,6 +487,7 @@ namespace NewKenyaAPI.Services
             item.AttendanceCount = request.AttendanceCount;
             item.CompletionNotes = request.CompletionNotes?.Trim();
 
+            PersistSnapshot();
             return item;
         }
 
@@ -512,6 +526,7 @@ namespace NewKenyaAPI.Services
                 lane.UpdatedAt = now;
             }
 
+            PersistSnapshot();
             return incident;
         }
 
@@ -546,6 +561,7 @@ namespace NewKenyaAPI.Services
                 lane.UpdatedAt = DateTime.UtcNow;
             }
 
+            PersistSnapshot();
             return incident;
         }
 
@@ -567,6 +583,7 @@ namespace NewKenyaAPI.Services
             }
 
             incident.UpdatedAt = DateTime.UtcNow;
+            PersistSnapshot();
             return incident;
         }
 
@@ -597,6 +614,7 @@ namespace NewKenyaAPI.Services
             };
 
             _legalCases[caseId] = legalCase;
+            PersistSnapshot();
             return legalCase;
         }
 
@@ -623,7 +641,149 @@ namespace NewKenyaAPI.Services
             }
 
             legalCase.UpdatedAt = DateTime.UtcNow;
+            PersistSnapshot();
             return legalCase;
+        }
+
+        private void RestoreStateFromPersistence()
+        {
+            try
+            {
+                var snapshot = _mongoStore.LoadSnapshot();
+                if (snapshot == null)
+                {
+                    return;
+                }
+
+                ApplySnapshot(snapshot);
+            }
+            catch
+            {
+                // Fall back to seeded in-memory defaults if persisted state is unavailable.
+            }
+        }
+
+        private void PersistSnapshot()
+        {
+            try
+            {
+                _mongoStore.SaveSnapshot(BuildSnapshot());
+            }
+            catch
+            {
+                // Persistence issues should not block war-room command operations.
+            }
+        }
+
+        private WarRoomPersistenceSnapshot BuildSnapshot()
+        {
+            return new WarRoomPersistenceSnapshot
+            {
+                Lanes = _lanes.Values.ToList(),
+                Pods = _pods.Values.ToList(),
+                Incidents = _incidents.Values.ToList(),
+                BattleRhythm = _battleRhythm.Values.ToList(),
+                LegalCases = _legalCases.Values.ToList(),
+                CommandGrid = _commandGrid.Values.ToList(),
+                CoalitionCommands = _coalitionCommands.Values.ToList(),
+                MobilizationRoles = _mobilizationRoles.Values.ToList(),
+                RedZoneState = _redZoneState,
+                CampaignPhaseState = _campaignPhaseState,
+                NextIncidentId = _nextIncidentId,
+                NextLegalCaseId = _nextLegalCaseId,
+                NextRedZoneDecisionId = _nextRedZoneDecisionId,
+                NextPodId = _nextPodId,
+                NextCoalitionId = _nextCoalitionId
+            };
+        }
+
+        private void ApplySnapshot(WarRoomPersistenceSnapshot snapshot)
+        {
+            _lanes.Clear();
+            foreach (var item in snapshot.Lanes)
+            {
+                _lanes[item.Id] = item;
+            }
+
+            _pods.Clear();
+            foreach (var item in snapshot.Pods)
+            {
+                _pods[item.Id] = item;
+            }
+
+            _incidents.Clear();
+            foreach (var item in snapshot.Incidents)
+            {
+                _incidents[item.Id] = item;
+            }
+
+            _battleRhythm.Clear();
+            foreach (var item in snapshot.BattleRhythm)
+            {
+                _battleRhythm[item.Id] = item;
+            }
+
+            _legalCases.Clear();
+            foreach (var item in snapshot.LegalCases)
+            {
+                _legalCases[item.Id] = item;
+            }
+
+            _commandGrid.Clear();
+            foreach (var item in snapshot.CommandGrid)
+            {
+                _commandGrid[item.Id] = item;
+            }
+
+            _coalitionCommands.Clear();
+            foreach (var item in snapshot.CoalitionCommands)
+            {
+                _coalitionCommands[item.Id] = item;
+            }
+
+            _mobilizationRoles.Clear();
+            foreach (var item in snapshot.MobilizationRoles)
+            {
+                _mobilizationRoles[item.RoleCode] = item;
+            }
+
+            _redZoneState.IsElectionWeekModeEnabled = snapshot.RedZoneState.IsElectionWeekModeEnabled;
+            _redZoneState.ActivatedAt = snapshot.RedZoneState.ActivatedAt;
+            _redZoneState.ActivatedByUserId = snapshot.RedZoneState.ActivatedByUserId;
+            _redZoneState.DecisionIntervalMinutes = snapshot.RedZoneState.DecisionIntervalMinutes;
+            _redZoneState.LastDecisionAt = snapshot.RedZoneState.LastDecisionAt;
+            _redZoneState.NextCheckpointAt = snapshot.RedZoneState.NextCheckpointAt;
+            _redZoneState.Decisions = snapshot.RedZoneState.Decisions;
+
+            _campaignPhaseState.ActivePhase = snapshot.CampaignPhaseState.ActivePhase;
+            _campaignPhaseState.ActiveSince = snapshot.CampaignPhaseState.ActiveSince;
+            _campaignPhaseState.UpdatedByUserId = snapshot.CampaignPhaseState.UpdatedByUserId;
+            _campaignPhaseState.Phases = snapshot.CampaignPhaseState.Phases;
+
+            _nextIncidentId = Math.Max(snapshot.NextIncidentId, _incidents.Keys.DefaultIfEmpty(0).Max());
+            _nextLegalCaseId = Math.Max(snapshot.NextLegalCaseId, _legalCases.Keys.DefaultIfEmpty(0).Max());
+            _nextRedZoneDecisionId = Math.Max(snapshot.NextRedZoneDecisionId, _redZoneState.Decisions.Select(item => item.Id).DefaultIfEmpty(0).Max());
+            _nextPodId = Math.Max(snapshot.NextPodId, ResolveHighestSequence(_pods.Keys, "pod-"));
+            _nextCoalitionId = Math.Max(snapshot.NextCoalitionId, ResolveHighestSequence(_coalitionCommands.Keys, "coalition-"));
+        }
+
+        private static int ResolveHighestSequence(IEnumerable<string> ids, string prefix)
+        {
+            var max = 0;
+            foreach (var id in ids)
+            {
+                if (!id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (int.TryParse(id[prefix.Length..], out var value) && value > max)
+                {
+                    max = value;
+                }
+            }
+
+            return max;
         }
 
         private void SeedDefaultLanes()
@@ -1014,10 +1174,11 @@ namespace NewKenyaAPI.Services
                 (Time: "19:00", Name: "Performance Review", Purpose: "Assess media coverage, engagement analytics, risk monitoring, and crisis planning.")
             };
 
+            var addedAny = false;
             foreach (var slot in dailyTemplate)
             {
                 var id = $"{date:yyyy-MM-dd}:{slot.Time}";
-                _battleRhythm.TryAdd(id, new WarRoomBattleRhythmItem
+                addedAny = _battleRhythm.TryAdd(id, new WarRoomBattleRhythmItem
                 {
                     Id = id,
                     Date = date,
@@ -1026,8 +1187,14 @@ namespace NewKenyaAPI.Services
                     Purpose = slot.Purpose,
                     Completed = false,
                     AttendanceCount = 0
-                });
+                }) || addedAny;
+            }
+
+            if (addedAny)
+            {
+                PersistSnapshot();
             }
         }
+
     }
 }
