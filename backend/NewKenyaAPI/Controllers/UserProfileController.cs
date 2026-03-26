@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NewKenyaAPI.Models;
 using NewKenyaAPI.Models.DTOs;
 using System.Security.Claims;
@@ -51,6 +52,13 @@ namespace NewKenyaAPI.Controllers
                 Facebook = user.Facebook,
                 LinkedIn = user.LinkedIn,
                 ProfilePhotoUrl = user.ProfilePhotoUrl,
+                NationalIdNumber = user.NationalIdNumber,
+                VoterCardNumber = user.VoterCardNumber,
+                IdImageUrl = user.IdImageUrl,
+                SelfieImageUrl = user.SelfieImageUrl,
+                VoterCardImageUrl = user.VoterCardImageUrl,
+                VerificationStatus = user.VerificationStatus,
+                VoterCardStatus = user.VoterCardStatus,
                 CreatedAt = user.CreatedAt,
                 LastLoginAt = user.LastLoginAt,
                 EmailConfirmed = user.EmailConfirmed,
@@ -83,6 +91,27 @@ namespace NewKenyaAPI.Controllers
                 dto.Website = null;
             }
 
+            var normalizedNationalId = string.IsNullOrWhiteSpace(dto.NationalIdNumber) ? null : dto.NationalIdNumber.Trim();
+            var normalizedVoterCard = string.IsNullOrWhiteSpace(dto.VoterCardNumber) ? null : dto.VoterCardNumber.Trim();
+
+            if (!string.IsNullOrWhiteSpace(normalizedNationalId))
+            {
+                var duplicateNationalId = await _userManager.Users.AnyAsync(u => u.Id != user.Id && u.NationalIdNumber == normalizedNationalId);
+                if (duplicateNationalId)
+                {
+                    return Conflict(new { message = "An account with this National ID number already exists." });
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(normalizedVoterCard))
+            {
+                var duplicateVoterCard = await _userManager.Users.AnyAsync(u => u.Id != user.Id && u.VoterCardNumber == normalizedVoterCard);
+                if (duplicateVoterCard)
+                {
+                    return Conflict(new { message = "An account with this voter card number already exists." });
+                }
+            }
+
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;
             user.PhoneNumber = dto.PhoneNumber;
@@ -93,6 +122,8 @@ namespace NewKenyaAPI.Controllers
             user.Facebook = dto.Facebook;
             user.LinkedIn = dto.LinkedIn;
             user.ProfilePhotoUrl = dto.ProfilePhotoUrl;
+            user.NationalIdNumber = normalizedNationalId;
+            user.VoterCardNumber = normalizedVoterCard;
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -102,6 +133,126 @@ namespace NewKenyaAPI.Controllers
             }
 
             return NoContent();
+        }
+
+        // POST: api/UserProfile/upload-verification-document
+        [HttpPost("upload-verification-document")]
+        public async Task<IActionResult> UploadVerificationDocument([FromForm] IFormFile file, [FromForm] string documentType)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "No file uploaded" });
+            }
+
+            var normalizedType = documentType?.Trim().ToLowerInvariant();
+            var validTypes = new[] { "nida", "voter-card", "selfie" };
+            if (string.IsNullOrWhiteSpace(normalizedType) || !validTypes.Contains(normalizedType))
+            {
+                return BadRequest(new { message = "Invalid document type. Allowed values: nida, voter-card, selfie." });
+            }
+
+            if (file.Length > 10 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "File size must be less than 10MB" });
+            }
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var allowedExtensions = normalizedType == "selfie"
+                ? new[] { ".jpg", ".jpeg", ".png", ".webp" }
+                : new[] { ".jpg", ".jpeg", ".png", ".webp", ".pdf" };
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest(new { message = "Invalid file type for selected document" });
+            }
+
+            try
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "verification-docs");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                string? currentUrl = normalizedType switch
+                {
+                    "nida" => user.IdImageUrl,
+                    "voter-card" => user.VoterCardImageUrl,
+                    "selfie" => user.SelfieImageUrl,
+                    _ => null
+                };
+
+                if (!string.IsNullOrWhiteSpace(currentUrl))
+                {
+                    var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", currentUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldPath))
+                    {
+                        System.IO.File.Delete(oldPath);
+                    }
+                }
+
+                var fileName = $"{userId}_{normalizedType}_{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                await using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var fileUrl = $"/uploads/verification-docs/{fileName}";
+
+                switch (normalizedType)
+                {
+                    case "nida":
+                        user.IdImageUrl = fileUrl;
+                        break;
+                    case "voter-card":
+                        user.VoterCardImageUrl = fileUrl;
+                        user.VoterCardStatus = CampaignVoterCardStatuses.Pending;
+                        break;
+                    case "selfie":
+                        user.SelfieImageUrl = fileUrl;
+                        break;
+                }
+
+                user.VerificationStatus = CampaignVerificationStatuses.Pending;
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+
+                    return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+                }
+
+                return Ok(new
+                {
+                    message = "Verification document uploaded successfully",
+                    documentType = normalizedType,
+                    fileUrl,
+                    verificationStatus = user.VerificationStatus,
+                    voterCardStatus = user.VoterCardStatus
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error uploading verification document", error = ex.Message });
+            }
         }
 
         // PUT: api/UserProfile/password

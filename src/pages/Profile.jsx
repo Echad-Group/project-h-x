@@ -8,6 +8,7 @@ export default function Profile() {
   const { t } = useTranslation();
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
+  const apiOrigin = (import.meta.env.VITE_API_URL || 'http://localhost:5065/api').replace(/\/api\/?$/, '');
   
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,9 @@ export default function Profile() {
     website: '',
     twitter: '',
     facebook: '',
-    linkedIn: ''
+    linkedIn: '',
+    nationalIdNumber: '',
+    voterCardNumber: ''
   });
   
   // Password state
@@ -49,6 +52,7 @@ export default function Profile() {
   // Photo upload state
   const [uploading, setUploading] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [uploadingVerificationType, setUploadingVerificationType] = useState('');
 
   useEffect(() => {
     loadProfile();
@@ -67,11 +71,15 @@ export default function Profile() {
         website: data.website || '',
         twitter: data.twitter || '',
         facebook: data.facebook || '',
-        linkedIn: data.linkedIn || ''
+        linkedIn: data.linkedIn || '',
+        nationalIdNumber: data.nationalIdNumber || '',
+        voterCardNumber: data.voterCardNumber || ''
       });
       // Set photo preview from existing profile photo
       if (data.profilePhotoUrl) {
-        setPhotoPreview(`http://localhost:5065${data.profilePhotoUrl}`);
+        setPhotoPreview(`${apiOrigin}${data.profilePhotoUrl}`);
+      } else {
+        setPhotoPreview(null);
       }
     } catch (err) {
       setError('Failed to load profile');
@@ -102,7 +110,7 @@ export default function Profile() {
 
     try {
       const result = await userProfileService.uploadProfilePhoto(file);
-      setPhotoPreview(`http://localhost:5065${result.photoUrl}`);
+      setPhotoPreview(`${apiOrigin}${result.photoUrl}`);
       setSuccess('Profile photo updated successfully');
       updateUser({ profilePhotoUrl: result.photoUrl }); // Update context
       await loadProfile();
@@ -110,6 +118,26 @@ export default function Profile() {
       setError(err.response?.data?.message || 'Failed to upload photo');
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handleVerificationDocumentUpload(documentType, e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setError(null);
+    setSuccess(null);
+    setUploadingVerificationType(documentType);
+
+    try {
+      await userProfileService.uploadVerificationDocument(documentType, file);
+      setSuccess(`${documentType} document uploaded successfully`);
+      await loadProfile();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to upload verification document');
+    } finally {
+      setUploadingVerificationType('');
+      e.target.value = '';
     }
   }
 
@@ -238,6 +266,22 @@ export default function Profile() {
     );
   }
 
+  const completionItems = [
+    { label: 'First name', complete: Boolean(profileData.firstName?.trim()) },
+    { label: 'Last name', complete: Boolean(profileData.lastName?.trim()) },
+    { label: 'Phone number', complete: Boolean(profileData.phoneNumber?.trim()) },
+    { label: 'Location', complete: Boolean(profileData.location?.trim()) },
+    { label: 'National ID number', complete: Boolean(profileData.nationalIdNumber?.trim()) },
+    { label: 'Voter card number', complete: Boolean(profileData.voterCardNumber?.trim()) },
+    { label: 'NIDA document', complete: Boolean(profile.idImageUrl) },
+    { label: 'Voter card document', complete: Boolean(profile.voterCardImageUrl) },
+    { label: 'Selfie', complete: Boolean(profile.selfieImageUrl) }
+  ];
+
+  const completedItems = completionItems.filter((item) => item.complete).length;
+  const completionPercentage = Math.round((completedItems / completionItems.length) * 100);
+  const missingItems = completionItems.filter((item) => !item.complete);
+
   const tabs = [
     { id: 'profile', label: 'Profile Information', icon: '👤' },
     { id: 'security', label: 'Security', icon: '🔒' },
@@ -311,6 +355,36 @@ export default function Profile() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="bg-white rounded-lg card-shadow p-6 mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <h2 className="text-lg font-semibold text-gray-900">Profile Completeness</h2>
+            <span className="text-sm font-semibold text-[var(--kenya-green)]">{completionPercentage}% complete</span>
+          </div>
+
+          <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden mb-3">
+            <div
+              className="h-3 bg-[var(--kenya-green)] transition-all duration-500"
+              style={{ width: `${completionPercentage}%` }}
+            />
+          </div>
+
+          {missingItems.length > 0 ? (
+            <div>
+              <p className="text-sm text-gray-700 mb-2">Missing items:</p>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
+                {missingItems.map((item) => (
+                  <li key={item.label} className="flex items-center gap-2">
+                    <span className="text-orange-600">•</span>
+                    <span>{item.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="text-sm text-green-700">Your profile is complete. Great work.</p>
+          )}
         </div>
 
         {/* Alerts */}
@@ -423,6 +497,128 @@ export default function Profile() {
                     placeholder="Nairobi, Kenya"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--kenya-green)] focus:border-transparent"
                   />
+                </div>
+
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-4">Identity & Verification</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Complete these details here now that signup is streamlined.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        National ID Number
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.nationalIdNumber}
+                        onChange={(e) => setProfileData({...profileData, nationalIdNumber: e.target.value})}
+                        placeholder="Enter your National ID"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--kenya-green)] focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Voter Card Number
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.voterCardNumber}
+                        onChange={(e) => setProfileData({...profileData, voterCardNumber: e.target.value})}
+                        placeholder="Enter your voter card number"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--kenya-green)] focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="rounded-lg border border-gray-200 p-4">
+                      <p className="text-sm font-semibold text-gray-900 mb-2">NIDA Document</p>
+                      <p className="text-xs mb-3 text-gray-600">
+                        Status: {profile.idImageUrl ? 'Uploaded' : 'Missing'}
+                      </p>
+                      {profile.idImageUrl && (
+                        <a
+                          href={`${apiOrigin}${profile.idImageUrl}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-block text-xs text-[var(--kenya-green)] hover:underline mb-3"
+                        >
+                          View current file
+                        </a>
+                      )}
+                      <label className="inline-block px-3 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200 cursor-pointer">
+                        {uploadingVerificationType === 'nida' ? 'Uploading...' : 'Upload NIDA'}
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*,.pdf"
+                          disabled={uploadingVerificationType !== ''}
+                          onChange={(e) => handleVerificationDocumentUpload('nida', e)}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="rounded-lg border border-gray-200 p-4">
+                      <p className="text-sm font-semibold text-gray-900 mb-2">Voter Card Document</p>
+                      <p className="text-xs mb-3 text-gray-600">
+                        Status: {profile.voterCardImageUrl ? 'Uploaded' : 'Missing'}
+                      </p>
+                      {profile.voterCardImageUrl && (
+                        <a
+                          href={`${apiOrigin}${profile.voterCardImageUrl}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-block text-xs text-[var(--kenya-green)] hover:underline mb-3"
+                        >
+                          View current file
+                        </a>
+                      )}
+                      <label className="inline-block px-3 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200 cursor-pointer">
+                        {uploadingVerificationType === 'voter-card' ? 'Uploading...' : 'Upload Voter Card'}
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*,.pdf"
+                          disabled={uploadingVerificationType !== ''}
+                          onChange={(e) => handleVerificationDocumentUpload('voter-card', e)}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="rounded-lg border border-gray-200 p-4">
+                      <p className="text-sm font-semibold text-gray-900 mb-2">Selfie</p>
+                      <p className="text-xs mb-3 text-gray-600">
+                        Status: {profile.selfieImageUrl ? 'Uploaded' : 'Missing'}
+                      </p>
+                      {profile.selfieImageUrl && (
+                        <a
+                          href={`${apiOrigin}${profile.selfieImageUrl}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-block text-xs text-[var(--kenya-green)] hover:underline mb-3"
+                        >
+                          View current file
+                        </a>
+                      )}
+                      <label className="inline-block px-3 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200 cursor-pointer">
+                        {uploadingVerificationType === 'selfie' ? 'Uploading...' : 'Upload Selfie'}
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          disabled={uploadingVerificationType !== ''}
+                          onChange={(e) => handleVerificationDocumentUpload('selfie', e)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 text-sm text-gray-600">
+                    Verification status: <span className="font-medium">{profile.verificationStatus || 'pending'}</span>
+                  </div>
                 </div>
 
                 <div>

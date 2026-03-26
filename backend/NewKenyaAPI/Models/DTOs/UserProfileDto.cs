@@ -36,6 +36,12 @@ namespace NewKenyaAPI.Models.DTOs
         
         [MaxLength(500)]
         public string? ProfilePhotoUrl { get; set; }
+
+        [MaxLength(50)]
+        public string? NationalIdNumber { get; set; }
+
+        [MaxLength(50)]
+        public string? VoterCardNumber { get; set; }
     }
     
     public class ChangePasswordDto
@@ -76,6 +82,13 @@ namespace NewKenyaAPI.Models.DTOs
         public string? Facebook { get; set; }
         public string? LinkedIn { get; set; }
         public string? ProfilePhotoUrl { get; set; }
+        public string? NationalIdNumber { get; set; }
+        public string? VoterCardNumber { get; set; }
+        public string? IdImageUrl { get; set; }
+        public string? SelfieImageUrl { get; set; }
+        public string? VoterCardImageUrl { get; set; }
+        public string VerificationStatus { get; set; } = string.Empty;
+        public string VoterCardStatus { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
         public bool EmailConfirmed { get; set; }

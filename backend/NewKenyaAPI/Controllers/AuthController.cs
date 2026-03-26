@@ -50,35 +50,40 @@ namespace NewKenyaAPI.Controllers
             IFormFile? voterCardDocument,
             IFormFile? selfieDocument)
         {
-            if (nidaDocument == null || voterCardDocument == null || selfieDocument == null)
+            if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
             {
-                return BadRequest(new { message = "NIDA document, voter card document, and selfie are required." });
+                return BadRequest(new { message = "First name and last name are required." });
             }
 
-            if (string.IsNullOrWhiteSpace(request.NationalIdNumber) || string.IsNullOrWhiteSpace(request.VoterCardNumber))
+            var normalizedNida = string.IsNullOrWhiteSpace(request.NationalIdNumber) ? null : request.NationalIdNumber.Trim();
+            var normalizedVoterCard = string.IsNullOrWhiteSpace(request.VoterCardNumber) ? null : request.VoterCardNumber.Trim();
+
+            if (!string.IsNullOrWhiteSpace(normalizedNida))
             {
-                return BadRequest(new { message = "National ID number and voter card number are required." });
+                var duplicateNida = await _userManager.Users.AnyAsync(user => user.NationalIdNumber == normalizedNida);
+                if (duplicateNida)
+                {
+                    return Conflict(new { message = "An account with this National ID number already exists." });
+                }
             }
 
-            var normalizedNida = request.NationalIdNumber.Trim();
-            var normalizedVoterCard = request.VoterCardNumber.Trim();
-
-            var duplicateNida = await _userManager.Users.AnyAsync(user => user.NationalIdNumber == normalizedNida);
-            if (duplicateNida)
+            if (!string.IsNullOrWhiteSpace(normalizedVoterCard))
             {
-                return Conflict(new { message = "An account with this National ID number already exists." });
+                var duplicateVoterCard = await _userManager.Users.AnyAsync(user => user.VoterCardNumber == normalizedVoterCard);
+                if (duplicateVoterCard)
+                {
+                    return Conflict(new { message = "An account with this voter card number already exists." });
+                }
             }
 
-            var duplicateVoterCard = await _userManager.Users.AnyAsync(user => user.VoterCardNumber == normalizedVoterCard);
-            if (duplicateVoterCard)
+            string? selfieHash = null;
+            if (selfieDocument != null)
             {
-                return Conflict(new { message = "An account with this voter card number already exists." });
-            }
-
-            var selfieHash = await ComputeHashAsync(selfieDocument.OpenReadStream());
-            if (await IsDuplicateSelfieAsync(selfieHash))
-            {
-                return Conflict(new { message = "Duplicate selfie detected. This identity appears to be already registered." });
+                selfieHash = await ComputeHashAsync(selfieDocument.OpenReadStream());
+                if (await IsDuplicateSelfieAsync(selfieHash))
+                {
+                    return Conflict(new { message = "Duplicate selfie detected. This identity appears to be already registered." });
+                }
             }
 
             var campaignRole = ResolveSelfRegisterRole(request.CampaignRole);
@@ -99,6 +104,8 @@ namespace NewKenyaAPI.Controllers
                 Constituency = request.Constituency,
                 Ward = request.Ward,
                 PollingStation = request.PollingStation,
+                VerificationStatus = CampaignVerificationStatuses.Pending,
+                VoterCardStatus = CampaignVoterCardStatuses.Missing,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -113,24 +120,37 @@ namespace NewKenyaAPI.Controllers
 
             try
             {
-                user.IdImageUrl = await SaveRegistrationDocumentAsync(user.Id, nidaDocument, "nida");
-                user.VoterCardImageUrl = await SaveRegistrationDocumentAsync(user.Id, voterCardDocument, "voter-card");
-                user.SelfieImageUrl = await SaveRegistrationDocumentAsync(user.Id, selfieDocument, "selfie", selfieHash);
-                user.VoterCardStatus = CampaignVoterCardStatuses.Pending;
-
-                var faceMatch = await _faceMatchService.CompareAsync(nidaDocument, selfieDocument);
-                user.FaceMatchScore = faceMatch.Score;
-                user.VerificationStatus = CampaignVerificationStatuses.Pending;
-
-                _verificationReviewService.AddEvent(user.Id, new VerificationTimelineEvent
+                if (nidaDocument != null)
                 {
-                    Timestamp = DateTime.UtcNow,
-                    Action = faceMatch.Passed ? "FaceMatchPassed" : "FaceMatchFailed",
-                    ReviewerName = "AI Verification Pipeline",
-                    Notes = faceMatch.Passed
-                        ? $"Automated face-match passed with score {faceMatch.Score}."
-                        : $"Automated face-match below threshold with score {faceMatch.Score}; routed to manual review."
-                });
+                    user.IdImageUrl = await SaveRegistrationDocumentAsync(user.Id, nidaDocument, "nida");
+                }
+
+                if (voterCardDocument != null)
+                {
+                    user.VoterCardImageUrl = await SaveRegistrationDocumentAsync(user.Id, voterCardDocument, "voter-card");
+                    user.VoterCardStatus = CampaignVoterCardStatuses.Pending;
+                }
+
+                if (selfieDocument != null)
+                {
+                    user.SelfieImageUrl = await SaveRegistrationDocumentAsync(user.Id, selfieDocument, "selfie", selfieHash);
+                }
+
+                if (nidaDocument != null && selfieDocument != null)
+                {
+                    var faceMatch = await _faceMatchService.CompareAsync(nidaDocument, selfieDocument);
+                    user.FaceMatchScore = faceMatch.Score;
+
+                    _verificationReviewService.AddEvent(user.Id, new VerificationTimelineEvent
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        Action = faceMatch.Passed ? "FaceMatchPassed" : "FaceMatchFailed",
+                        ReviewerName = "AI Verification Pipeline",
+                        Notes = faceMatch.Passed
+                            ? $"Automated face-match passed with score {faceMatch.Score}."
+                            : $"Automated face-match below threshold with score {faceMatch.Score}; routed to manual review."
+                    });
+                }
 
                 await _userManager.UpdateAsync(user);
             }

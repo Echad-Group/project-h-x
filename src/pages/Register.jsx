@@ -10,14 +10,7 @@ export default function Register() {
     password: '',
     confirmPassword: '',
     firstName: '',
-    lastName: '',
-    nationalIdNumber: '',
-    voterCardNumber: ''
-  });
-  const [documents, setDocuments] = useState({
-    nidaDocument: null,
-    voterCardDocument: null,
-    selfieDocument: null
+    lastName: ''
   });
   const [otpCode, setOtpCode] = useState('');
   const [otpStage, setOtpStage] = useState(false);
@@ -34,14 +27,6 @@ export default function Register() {
       ...formData,
       [e.target.name]: e.target.value
     });
-  };
-
-  const handleDocumentChange = (event) => {
-    const { name, files } = event.target;
-    setDocuments((current) => ({
-      ...current,
-      [name]: files && files[0] ? files[0] : null
-    }));
   };
 
   const handleSubmit = async (e) => {
@@ -61,11 +46,6 @@ export default function Register() {
       return;
     }
 
-    if (!documents.nidaDocument || !documents.voterCardDocument || !documents.selfieDocument) {
-      setError('NIDA document, voter card document, and selfie are required.');
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -74,11 +54,6 @@ export default function Register() {
       payload.append('password', formData.password);
       payload.append('firstName', formData.firstName);
       payload.append('lastName', formData.lastName);
-      payload.append('nationalIdNumber', formData.nationalIdNumber);
-      payload.append('voterCardNumber', formData.voterCardNumber);
-      payload.append('nidaDocument', documents.nidaDocument);
-      payload.append('voterCardDocument', documents.voterCardDocument);
-      payload.append('selfieDocument', documents.selfieDocument);
 
       const response = await register(payload, true);
 
@@ -225,53 +200,8 @@ export default function Register() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              National ID Number
-            </label>
-            <input
-              type="text"
-              name="nationalIdNumber"
-              value={formData.nationalIdNumber}
-              onChange={handleChange}
-              required
-              className="fluent-input"
-              placeholder="NIDA Number"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Voter Card Number
-            </label>
-            <input
-              type="text"
-              name="voterCardNumber"
-              value={formData.voterCardNumber}
-              onChange={handleChange}
-              required
-              className="fluent-input"
-              placeholder="Voter Card Number"
-            />
-          </div>
-
-          <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <p className="text-sm font-semibold text-gray-800">Verification Upload Pack (Required)</p>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">NIDA Document</label>
-              <input type="file" name="nidaDocument" accept="image/*,.pdf" onChange={handleDocumentChange} required className="block w-full text-sm text-gray-700" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Voter Card Document</label>
-              <input type="file" name="voterCardDocument" accept="image/*,.pdf" onChange={handleDocumentChange} required className="block w-full text-sm text-gray-700" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Live Selfie</label>
-              <input type="file" name="selfieDocument" accept="image/*" onChange={handleDocumentChange} required className="block w-full text-sm text-gray-700" />
-            </div>
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            You can complete additional profile and verification details after signup from Profile &amp; Settings.
           </div>
 
           <div>

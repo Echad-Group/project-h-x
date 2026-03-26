@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import { MetaProvider } from './components/MetaTags'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import PWADebugPanel from './components/PWADebugPanel'
 import NotificationButton from './components/NotificationButton'
@@ -35,6 +35,76 @@ import VolunteerDashboard from './components/VolunteerDashboard'
 import UnitsTeamsVisualization from './components/UnitsTeamsVisualization'
 import AdminPanel from './pages/AdminPanel'
 import AdminNewsEditor from './components/admin/AdminNewsEditor'
+import { userProfileService } from './services/userProfileService'
+
+function ProfileCompletionReminder() {
+  const { user, isAuthenticated } = useAuth();
+  const location = useLocation();
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function evaluateReminder() {
+      if (!isAuthenticated || location.pathname === '/profile') {
+        if (isMounted) setShow(false);
+        return;
+      }
+
+      const identityKey = user?.email || 'anonymous';
+      const dismissKey = `profileReminderDismissedAt:${identityKey}`;
+      const dismissedAt = Number(localStorage.getItem(dismissKey) || 0);
+      const reminderCooldown = 24 * 60 * 60 * 1000;
+
+      if (dismissedAt && Date.now() - dismissedAt < reminderCooldown) {
+        if (isMounted) setShow(false);
+        return;
+      }
+
+      try {
+        const profile = await userProfileService.getProfile();
+        if (!isMounted) return;
+
+        const missingCoreProfile = !profile?.phoneNumber || !profile?.location;
+        setShow(Boolean(missingCoreProfile));
+      } catch {
+        if (isMounted) setShow(false);
+      }
+    }
+
+    evaluateReminder();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated, user?.email, location.pathname]);
+
+  if (!show) return null;
+
+  return (
+    <div className="w-full px-[5%] py-2 bg-amber-50 border-b border-amber-200 flex flex-wrap items-center justify-between gap-2 text-sm">
+      <p className="text-amber-900">
+        Complete your profile in Profile &amp; Settings to personalize your account and receive better recommendations.
+      </p>
+      <div className="flex items-center gap-2">
+        <Link to="/profile" className="px-3 py-1 rounded bg-amber-600 text-white hover:bg-amber-700">
+          Complete Now
+        </Link>
+        <button
+          type="button"
+          onClick={() => {
+            const identityKey = user?.email || 'anonymous';
+            localStorage.setItem(`profileReminderDismissedAt:${identityKey}`, String(Date.now()));
+            setShow(false);
+          }}
+          className="px-3 py-1 rounded border border-amber-300 text-amber-800 hover:bg-amber-100"
+        >
+          Remind Me Later
+        </button>
+      </div>
+    </div>
+  );
+}
 
 
 export default function App() {
@@ -53,6 +123,7 @@ export default function App() {
           {/* Skip link for accessibility */}
           <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white p-2 rounded">Skip to main content</a>
           <Navbar onOpenDonate={() => { setDonateOpen(true); }} />
+          <ProfileCompletionReminder />
           <main className="flex-1" id="main">
             <Routes>
               <Route path="/" element={<Home onOpenDonate={() => setDonateOpen(true)} />} />
