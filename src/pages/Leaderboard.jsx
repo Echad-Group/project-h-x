@@ -43,7 +43,7 @@ export default function Leaderboard() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 p-8 space-y-6">
+    <div className="min-h-screen bg-stone-50 p-[5%] space-y-6">
       <section className="rounded-2xl bg-gradient-to-r from-amber-700 via-orange-600 to-rose-600 p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold">Campaign Leaderboard</h1>
         <p className="mt-2 text-sm text-amber-100">Track national/regional performance, badge tiers, and your rank journey.</p>

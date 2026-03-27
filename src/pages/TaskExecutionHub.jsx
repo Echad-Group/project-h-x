@@ -137,7 +137,7 @@ export default function TaskExecutionHub() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 p-8 space-y-6">
+    <div className="min-h-screen bg-stone-50 p-[5%] space-y-6">
       <section className="rounded-2xl bg-gradient-to-r from-emerald-900 via-emerald-700 to-amber-600 p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold">Daily Execution Hub</h1>
         <p className="mt-2 text-sm text-emerald-100">Unified task action surface with compliance reminder controls.</p>
