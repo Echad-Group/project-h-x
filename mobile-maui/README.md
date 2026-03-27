@@ -1,25 +1,40 @@
-# Project H X MAUI Native Skeleton
+# Project H X MAUI Client
 
-This folder contains a .NET MAUI Native scaffold aligned to the campaign field operations architecture.
+Last updated: March 27, 2026
 
-## Included
+## Purpose
 
-- Shell navigation with mobile-first tabs
-- Login + OTP challenge pages and viewmodels
+This folder contains a .NET MAUI scaffold aligned with the platform's field-operations and campaign-command direction.
+
+## Current Status
+
+The MAUI client is an architectural starter rather than a deployed product.
+
+## Included Today
+
+- shell navigation with mobile-first tabs
+- login and OTP challenge pages and view models
 - API auth service contracts and baseline implementation
-- SecureStorage session service
-- Offline outbox contracts and in-memory placeholder processor
-- Placeholder pages for tasks, submission, inbox, leaderboard, profile
+- secure storage session service
+- offline outbox contracts and in-memory placeholder processor
+- placeholder pages for tasks, submission, inbox, leaderboard, and profile
 
-## Next Build Steps
+## Intended Direction
 
-1. Add real API DTOs for tasks, messages, and election submissions.
-2. Add SQLite persistence for outbox and cached read models.
-3. Implement push registration and deep-link routing.
-4. Add geolocation and camera upload capabilities.
-5. Connect SubmitResultPage to outbox-backed submit workflow.
+The MAUI client is positioned for eventual support of:
+- native authentication
+- offline-first submission patterns
+- task execution and message inbox workflows
+- push registration and deep links
+- geolocation and camera-assisted evidence capture
 
 ## Notes
 
-- Base API in MauiProgram is set to https://localhost:5065/api/
-- Update platform-specific localhost mapping for Android emulator (10.0.2.2)
+- base API reference in the scaffold points at the local backend API
+- emulator-specific localhost mapping still needs to be handled per platform
+- persistent offline storage and production-grade sync behavior are not yet complete
+
+## Current Constraints
+
+- this folder should be treated as a scaffold
+- the web app remains the primary implemented client surface in the repository today
