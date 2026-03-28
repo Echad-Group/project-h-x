@@ -9,6 +9,7 @@ public partial class LoginViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
     private readonly ISessionService _sessionService;
+    private readonly IAuthFlowStateService _authFlowStateService;
 
     [ObservableProperty]
     private string email = string.Empty;
@@ -16,10 +17,11 @@ public partial class LoginViewModel : BaseViewModel
     [ObservableProperty]
     private string password = string.Empty;
 
-    public LoginViewModel(IAuthApiService authApiService, ISessionService sessionService)
+    public LoginViewModel(IAuthApiService authApiService, ISessionService sessionService, IAuthFlowStateService authFlowStateService)
     {
         _authApiService = authApiService;
         _sessionService = sessionService;
+        _authFlowStateService = authFlowStateService;
     }
 
     [RelayCommand]
@@ -44,14 +46,16 @@ public partial class LoginViewModel : BaseViewModel
 
             if (response.OtpRequired)
             {
-                await Shell.Current.GoToAsync($"{nameof(Pages.OtpChallengePage)}?email={Uri.EscapeDataString(Email)}");
+                _authFlowStateService.SetPendingLogin(Email, Password);
+                await Shell.Current.GoToAsync($"{nameof(Pages.OtpChallengePage)}?email={Uri.EscapeDataString(Email)}&purpose=Login");
                 return;
             }
 
             if (!string.IsNullOrWhiteSpace(response.Token))
             {
                 await _sessionService.SaveTokenAsync(response.Token);
-                await Shell.Current.GoToAsync("//main/tasks");
+                _authFlowStateService.ClearPendingLogin();
+                await Shell.Current.GoToAsync("//main");
                 return;
             }
 
@@ -65,5 +69,11 @@ public partial class LoginViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task GoToRegisterAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(Pages.RegisterPage));
     }
 }

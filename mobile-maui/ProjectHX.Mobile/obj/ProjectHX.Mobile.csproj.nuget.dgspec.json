@@ -61,6 +61,14 @@
               "target": "Package",
               "version": "[8.2.2, )"
             },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[9.0.14, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[9.0.14, )"
+            },
             "Microsoft.Extensions.Logging.Debug": {
               "target": "Package",
               "version": "[9.0.0, )"
@@ -121,6 +129,14 @@
             "CommunityToolkit.Mvvm": {
               "target": "Package",
               "version": "[8.2.2, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[9.0.14, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[9.0.14, )"
             },
             "Microsoft.Extensions.Logging.Debug": {
               "target": "Package",

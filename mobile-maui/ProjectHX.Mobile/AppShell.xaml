@@ -12,19 +12,19 @@
         ContentTemplate="{DataTemplate pages:LoginPage}" />
 
     <TabBar Route="main">
-        <Tab Title="Tasks">
+        <Tab Title="Tasks" Route="tasks-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:TasksPage}" Route="tasks" />
         </Tab>
-        <Tab Title="Submit">
+        <Tab Title="Submit" Route="submit-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:SubmitResultPage}" Route="submit" />
         </Tab>
-        <Tab Title="Inbox">
+        <Tab Title="Inbox" Route="inbox-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:InboxPage}" Route="inbox" />
         </Tab>
-        <Tab Title="Leaderboard">
+        <Tab Title="Leaderboard" Route="leaderboard-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:LeaderboardPage}" Route="leaderboard" />
         </Tab>
-        <Tab Title="Profile">
+        <Tab Title="Profile" Route="profile-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:ProfilePage}" Route="profile" />
         </Tab>
     </TabBar>

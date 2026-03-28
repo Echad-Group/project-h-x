@@ -12,6 +12,8 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        return new Window(_shell);
+        var window = new Window(_shell);
+        _ = MainThread.InvokeOnMainThreadAsync(_shell.InitializeSessionNavigationAsync);
+        return window;
     }
 }

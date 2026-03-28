@@ -6,10 +6,12 @@ using ProjectHX.Mobile.Services.Interfaces;
 namespace ProjectHX.Mobile.ViewModels;
 
 [QueryProperty(nameof(Email), "email")]
+[QueryProperty(nameof(Purpose), "purpose")]
 public partial class OtpChallengeViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
     private readonly ISessionService _sessionService;
+    private readonly IAuthFlowStateService _authFlowStateService;
 
     [ObservableProperty]
     private string email = string.Empty;
@@ -17,10 +19,14 @@ public partial class OtpChallengeViewModel : BaseViewModel
     [ObservableProperty]
     private string code = string.Empty;
 
-    public OtpChallengeViewModel(IAuthApiService authApiService, ISessionService sessionService)
+    [ObservableProperty]
+    private string purpose = "Login";
+
+    public OtpChallengeViewModel(IAuthApiService authApiService, ISessionService sessionService, IAuthFlowStateService authFlowStateService)
     {
         _authApiService = authApiService;
         _sessionService = sessionService;
+        _authFlowStateService = authFlowStateService;
     }
 
     [RelayCommand]
@@ -40,18 +46,72 @@ public partial class OtpChallengeViewModel : BaseViewModel
             var response = await _authApiService.VerifyOtpAsync(new VerifyOtpRequest
             {
                 Email = Email,
-                Purpose = "Login",
+                Purpose = Purpose,
                 Code = Code
             });
 
-            if (!string.IsNullOrWhiteSpace(response.Token))
+            if (string.Equals(Purpose, "Login", StringComparison.OrdinalIgnoreCase))
             {
-                await _sessionService.SaveTokenAsync(response.Token);
-                await Shell.Current.GoToAsync("//main/tasks");
+                var pendingLogin = _authFlowStateService.GetPendingLogin();
+                if (pendingLogin is null)
+                {
+                    ErrorMessage = "OTP verified. Please sign in again.";
+                    await Shell.Current.GoToAsync("//login");
+                    return;
+                }
+
+                var loginResponse = await _authApiService.LoginAsync(new LoginRequest
+                {
+                    Email = pendingLogin.Value.Email,
+                    Password = pendingLogin.Value.Password
+                });
+
+                if (string.IsNullOrWhiteSpace(loginResponse.Token))
+                {
+                    ErrorMessage = loginResponse.Message ?? "Could not complete sign in after OTP verification.";
+                    return;
+                }
+
+                await _sessionService.SaveTokenAsync(loginResponse.Token);
+                _authFlowStateService.ClearPendingLogin();
+                await Shell.Current.GoToAsync("//main");
                 return;
             }
 
-            ErrorMessage = response.Message ?? "OTP verification did not return a token.";
+            InfoMessage = response.Message ?? "OTP verified. You can now sign in.";
+            await Shell.Current.GoToAsync("//login");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ResendOtpAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        ErrorMessage = null;
+        InfoMessage = null;
+        IsBusy = true;
+
+        try
+        {
+            var message = await _authApiService.SendOtpAsync(new SendOtpRequest
+            {
+                Email = Email,
+                Purpose = Purpose
+            });
+
+            InfoMessage = message;
         }
         catch (Exception ex)
         {

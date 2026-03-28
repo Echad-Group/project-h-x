@@ -21,4 +21,10 @@ public sealed class SessionService : ISessionService
         SecureStorage.Remove(TokenKey);
         return Task.CompletedTask;
     }
+
+    public async Task<bool> HasActiveSessionAsync()
+    {
+        var token = await GetTokenAsync();
+        return !string.IsNullOrWhiteSpace(token);
+    }
 }

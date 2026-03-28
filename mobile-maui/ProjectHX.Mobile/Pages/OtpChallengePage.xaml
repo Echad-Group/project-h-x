@@ -6,11 +6,14 @@
     <VerticalStackLayout Padding="24" Spacing="12">
         <Label Text="Verify OTP" FontSize="24" FontAttributes="Bold" />
         <Label Text="Enter the 6-digit code sent to your email." TextColor="#6B7280" />
+        <Label Text="{Binding Purpose}" TextColor="#374151" FontAttributes="Bold" />
 
         <Entry Placeholder="Email" Text="{Binding Email}" IsReadOnly="True" />
         <Entry Placeholder="OTP Code" Text="{Binding Code}" Keyboard="Numeric" MaxLength="6" />
 
         <Label Text="{Binding ErrorMessage}" TextColor="#B91C1C" />
+        <Label Text="{Binding InfoMessage}" TextColor="#065F46" />
         <Button Text="Verify" Command="{Binding VerifyCommand}" />
+        <Button Text="Resend OTP" Command="{Binding ResendOtpCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" />
     </VerticalStackLayout>
 </ContentPage>
