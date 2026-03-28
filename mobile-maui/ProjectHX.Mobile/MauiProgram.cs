@@ -40,17 +40,23 @@ public static class MauiProgram
             serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("ProjectHxApi"));
 
         builder.Services.AddSingleton<IAuthApiService, AuthApiService>();
+        builder.Services.AddSingleton<IUserProfileApiService, UserProfileApiService>();
         builder.Services.AddSingleton<ISyncOutboxService, SyncOutboxService>();
 
         builder.Services.AddSingleton<AppShell>();
 
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<RegisterViewModel>();
+        builder.Services.AddTransient<ForgotPasswordViewModel>();
         builder.Services.AddTransient<OtpChallengeViewModel>();
+        builder.Services.AddTransient<ProfileViewModel>();
+        builder.Services.AddTransient<ResetPasswordViewModel>();
 
         builder.Services.AddTransient<Pages.LoginPage>();
         builder.Services.AddTransient<Pages.RegisterPage>();
+        builder.Services.AddTransient<Pages.ForgotPasswordPage>();
         builder.Services.AddTransient<Pages.OtpChallengePage>();
+        builder.Services.AddTransient<Pages.ResetPasswordPage>();
         builder.Services.AddTransient<Pages.TasksPage>();
         builder.Services.AddTransient<Pages.SubmitResultPage>();
         builder.Services.AddTransient<Pages.InboxPage>();

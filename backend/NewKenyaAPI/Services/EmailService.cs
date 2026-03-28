@@ -22,8 +22,9 @@ namespace NewKenyaAPI.Services
 
         public async Task SendVolunteerWelcomeEmailAsync(string email, string name, string resetToken)
         {
-            var resetUrl = $"{_configuration["AppSettings:FrontendUrl"]}/reset-password?token={Uri.EscapeDataString(resetToken)}&email={Uri.EscapeDataString(email)}";
-            
+            var webResetUrl = BuildWebResetUrl(email, resetToken);
+            var mobileResetUrl = BuildMobileLink("reset-password", ("token", resetToken), ("email", email));
+
             var subject = "Welcome to New Kenya Movement - Set Your Password";
             var htmlBody = $@"
 <!DOCTYPE html>
@@ -43,44 +44,32 @@ namespace NewKenyaAPI.Services
             border-radius: 5px;
             margin: 20px 0;
         }}
+        .button-secondary {{
+            background-color: #1F2937;
+        }}
         .footer {{ text-align: center; padding: 20px; font-size: 12px; color: #666; }}
     </style>
 </head>
 <body>
     <div class='container'>
         <div class='header'>
-            <h1>🇰🇪 Welcome to New Kenya Movement!</h1>
+            <h1>Welcome to New Kenya Movement</h1>
         </div>
         <div class='content'>
-            <h2>Hello {name},</h2>
-            <p>Thank you for registering as a volunteer! We're excited to have you join our movement to build a better Kenya.</p>
-            
-            <p>We've created an account for you so you can access your volunteer dashboard, view your assignments, and connect with your team.</p>
-            
-            <p><strong>Next Step:</strong> Set your password to activate your account.</p>
-            
+            <h2>Hello {WebUtility.HtmlEncode(name)},</h2>
+            <p>Thank you for registering as a volunteer. We have created your account and you can activate it from the mobile app or the web portal.</p>
+            <p><strong>Next step:</strong> set your password to activate your account.</p>
             <p style='text-align: center;'>
-                <a href='{resetUrl}' class='button'>Set Your Password</a>
+                <a href='{mobileResetUrl}' class='button'>Open In Mobile App</a>
             </p>
-            
-            <p>Or copy and paste this link into your browser:<br>
-            <a href='{resetUrl}'>{resetUrl}</a></p>
-            
+            <p style='text-align: center;'>
+                <a href='{webResetUrl}' class='button button-secondary'>Use Web Browser Instead</a>
+            </p>
+            <p>Mobile deep link:<br><a href='{mobileResetUrl}'>{mobileResetUrl}</a></p>
+            <p>Web fallback:<br><a href='{webResetUrl}'>{webResetUrl}</a></p>
             <p>This link will expire in 24 hours for security reasons.</p>
-            
-            <p><strong>What's Next?</strong></p>
-            <ul>
-                <li>Set your password using the link above</li>
-                <li>Log in to your volunteer dashboard</li>
-                <li>View your unit and team assignments</li>
-                <li>Join communication channels (WhatsApp/Telegram)</li>
-                <li>Start making a difference!</li>
-            </ul>
-            
-            <p>If you didn't sign up to be a volunteer, please ignore this email.</p>
-            
-            <p>Asante sana!<br>
-            The New Kenya Team</p>
+            <p>If you did not sign up to be a volunteer, you can ignore this email.</p>
+            <p>Asante sana,<br>The New Kenya Team</p>
         </div>
         <div class='footer'>
             <p>New Kenya Movement | Building a Better Future Together</p>
@@ -94,8 +83,9 @@ namespace NewKenyaAPI.Services
 
         public async Task SendPasswordResetEmailAsync(string email, string resetToken)
         {
-            var resetUrl = $"{_configuration["AppSettings:FrontendUrl"]}/reset-password?token={Uri.EscapeDataString(resetToken)}&email={Uri.EscapeDataString(email)}";
-            
+            var webResetUrl = BuildWebResetUrl(email, resetToken);
+            var mobileResetUrl = BuildMobileLink("reset-password", ("token", resetToken), ("email", email));
+
             var subject = "Reset Your Password - New Kenya Movement";
             var htmlBody = $@"
 <!DOCTYPE html>
@@ -103,15 +93,47 @@ namespace NewKenyaAPI.Services
 <body style='font-family: Arial, sans-serif;'>
     <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
         <h2>Password Reset Request</h2>
-        <p>You requested to reset your password. Click the button below to set a new password:</p>
+        <p>You requested to reset your password. Open the mobile app directly or use the browser fallback below.</p>
         <p style='text-align: center; margin: 30px 0;'>
-            <a href='{resetUrl}' style='background-color: #16A34A; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;'>
-                Reset Password
+            <a href='{mobileResetUrl}' style='background-color: #16A34A; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;'>
+                Open In Mobile App
             </a>
         </p>
-        <p>Or copy this link: <a href='{resetUrl}'>{resetUrl}</a></p>
+        <p style='text-align: center; margin: 20px 0;'>
+            <a href='{webResetUrl}' style='background-color: #1F2937; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;'>
+                Use Web Browser Instead
+            </a>
+        </p>
+        <p>Mobile deep link: <a href='{mobileResetUrl}'>{mobileResetUrl}</a></p>
+        <p>Web fallback: <a href='{webResetUrl}'>{webResetUrl}</a></p>
         <p>This link will expire in 24 hours.</p>
-        <p>If you didn't request this, please ignore this email.</p>
+        <p>If you did not request this, please ignore this email.</p>
+    </div>
+</body>
+</html>";
+
+            await SendEmailAsync(email, subject, htmlBody);
+        }
+
+        public async Task SendOtpEmailAsync(string email, string purpose, string code)
+        {
+            var mobileOtpUrl = BuildMobileLink("otp", ("email", email), ("purpose", purpose), ("code", code));
+            var subject = "Your New Kenya OTP Code";
+            var htmlBody = $@"
+<!DOCTYPE html>
+<html>
+<body style='font-family: Arial, sans-serif;'>
+    <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+        <h2>Your One-Time Password</h2>
+        <p>Use the following code to continue your {WebUtility.HtmlEncode(purpose)} flow:</p>
+        <p style='font-size: 30px; font-weight: bold; letter-spacing: 6px; color: #111827;'>{WebUtility.HtmlEncode(code)}</p>
+        <p style='text-align: center; margin: 30px 0;'>
+            <a href='{mobileOtpUrl}' style='background-color: #16A34A; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;'>
+                Open In Mobile App
+            </a>
+        </p>
+        <p>Mobile deep link: <a href='{mobileOtpUrl}'>{mobileOtpUrl}</a></p>
+        <p>This code expires in 10 minutes.</p>
     </div>
 </body>
 </html>";
@@ -182,6 +204,27 @@ namespace NewKenyaAPI.Services
                 _logger.LogError(ex, "Failed to send email to: {Email}", to);
                 // Don't throw - email failure shouldn't break the registration flow
             }
+        }
+
+        private string BuildWebResetUrl(string email, string resetToken)
+        {
+            var frontendUrl = (_configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5173").TrimEnd('/');
+            return $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(resetToken)}&email={Uri.EscapeDataString(email)}";
+        }
+
+        private string BuildMobileLink(string path, params (string Key, string Value)[] queryParameters)
+        {
+            var linkBase = _configuration["AppSettings:MobileDeepLinkBase"] ?? "projecthx://";
+            if (!linkBase.EndsWith('/') && !linkBase.EndsWith("://", StringComparison.Ordinal))
+            {
+                linkBase += "/";
+            }
+
+            var query = string.Join("&", queryParameters.Select(parameter => $"{Uri.EscapeDataString(parameter.Key)}={Uri.EscapeDataString(parameter.Value)}"));
+            var basePath = $"{linkBase}{path}";
+            return string.IsNullOrWhiteSpace(query)
+                ? basePath
+                : $"{basePath}?{query}";
         }
 
         private async Task AppendToArchiveAsync(ArchivedEmailRecord record)

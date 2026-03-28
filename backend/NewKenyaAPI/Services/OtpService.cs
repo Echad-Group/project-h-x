@@ -48,10 +48,7 @@ namespace NewKenyaAPI.Services
             await _context.SaveChangesAsync();
 
             var recipient = user.Email ?? user.UserName ?? string.Empty;
-            await _emailService.SendEmailAsync(
-                recipient,
-                "Your New Kenya OTP Code",
-                $"<p>Your OTP code is <strong>{code}</strong>.</p><p>It expires in 10 minutes.</p>");
+            await _emailService.SendOtpEmailAsync(recipient, purpose, code);
 
             _logger.LogInformation("OTP generated for user {UserId} with purpose {Purpose}", user.Id, purpose);
             return (true, "OTP sent successfully.");

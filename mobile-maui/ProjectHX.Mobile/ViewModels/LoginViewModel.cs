@@ -76,4 +76,10 @@ public partial class LoginViewModel : BaseViewModel
     {
         await Shell.Current.GoToAsync(nameof(Pages.RegisterPage));
     }
+
+    [RelayCommand]
+    private async Task GoToForgotPasswordAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(Pages.ForgotPasswordPage));
+    }
 }

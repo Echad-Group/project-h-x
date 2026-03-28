@@ -34,14 +34,14 @@ public sealed class ApiBaseUrlProvider : IApiBaseUrlProvider
     {
 #if DEBUG
 #if ANDROID
-        return _configuration["ApiSettings:DebugDefaultBaseUrl"];
+        return _configuration["ApiSettings:DebugAndroidBaseUrl"];
 #elif IOS
-        return _configuration["ApiSettings:DebugDefaultBaseUrl"];
+        return _configuration["ApiSettings:DebugIosBaseUrl"];
 #else
         return _configuration["ApiSettings:DebugDefaultBaseUrl"];
 #endif
 #else
-        return _configuration["ApiSettings:DebugDefaultBaseUrl"];
+        return _configuration["ApiSettings:ProductionBaseUrl"];
 #endif
     }
 

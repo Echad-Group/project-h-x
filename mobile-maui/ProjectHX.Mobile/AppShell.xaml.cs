@@ -15,6 +15,8 @@ public partial class AppShell : Shell
 
         Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
         Routing.RegisterRoute(nameof(RegisterPage), typeof(RegisterPage));
+        Routing.RegisterRoute(nameof(ForgotPasswordPage), typeof(ForgotPasswordPage));
+        Routing.RegisterRoute(nameof(ResetPasswordPage), typeof(ResetPasswordPage));
         Routing.RegisterRoute(nameof(OtpChallengePage), typeof(OtpChallengePage));
         Routing.RegisterRoute(nameof(TasksPage), typeof(TasksPage));
         Routing.RegisterRoute(nameof(SubmitResultPage), typeof(SubmitResultPage));
@@ -45,6 +47,10 @@ public partial class AppShell : Shell
         var hasSession = await _sessionService.HasActiveSessionAsync();
         var isMainRoute = target.StartsWith("//main", StringComparison.OrdinalIgnoreCase);
         var isLoginRoute = target.StartsWith("//login", StringComparison.OrdinalIgnoreCase);
+        var isAuthAuxRoute = target.Contains(nameof(RegisterPage), StringComparison.OrdinalIgnoreCase) ||
+            target.Contains(nameof(ForgotPasswordPage), StringComparison.OrdinalIgnoreCase) ||
+            target.Contains(nameof(ResetPasswordPage), StringComparison.OrdinalIgnoreCase) ||
+            target.Contains(nameof(OtpChallengePage), StringComparison.OrdinalIgnoreCase);
 
         if (isMainRoute && !hasSession)
         {
@@ -53,7 +59,7 @@ public partial class AppShell : Shell
             return;
         }
 
-        if (isLoginRoute && hasSession)
+        if ((isLoginRoute || isAuthAuxRoute) && hasSession)
         {
             e.Cancel();
             _ = MainThread.InvokeOnMainThreadAsync(async () => await GoToAsync("//main"));

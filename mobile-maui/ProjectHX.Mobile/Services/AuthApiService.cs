@@ -73,24 +73,91 @@ public sealed class AuthApiService : IAuthApiService
     public async Task<string> SendOtpAsync(SendOtpRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("auth/send-otp", request, cancellationToken);
+        return await ReadMessageResponseAsync(response, "OTP sent.", "Failed to send OTP.", cancellationToken);
+    }
+
+    public async Task<string> ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.PostAsJsonAsync("auth/forgot-password", request, cancellationToken);
+        return await ReadMessageResponseAsync(
+            response,
+            "Password reset instructions have been sent to your email.",
+            "Failed to start password reset.",
+            cancellationToken);
+    }
+
+    public async Task<string> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.PostAsJsonAsync("auth/reset-password", request, cancellationToken);
+        return await ReadMessageResponseAsync(
+            response,
+            "Password has been reset successfully.",
+            "Failed to reset password.",
+            cancellationToken);
+    }
+
+    public async Task LogoutAsync(CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.PostAsync("auth/logout", content: null, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(await ReadErrorMessageAsync(response, "Failed to log out.", cancellationToken));
+        }
+    }
+
+    private static async Task<string> ReadMessageResponseAsync(
+        HttpResponseMessage response,
+        string successFallback,
+        string failureFallback,
+        CancellationToken cancellationToken)
+    {
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new InvalidOperationException("Failed to send OTP.");
+            if (!string.IsNullOrWhiteSpace(json))
+            {
+                using var errorDoc = JsonDocument.Parse(json);
+                if (errorDoc.RootElement.TryGetProperty("message", out var errorMessage))
+                {
+                    throw new InvalidOperationException(errorMessage.GetString() ?? failureFallback);
+                }
+            }
+
+            throw new InvalidOperationException(failureFallback);
         }
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            return "OTP sent.";
+            return successFallback;
         }
 
         using var doc = JsonDocument.Parse(json);
         if (doc.RootElement.TryGetProperty("message", out var message))
         {
-            return message.GetString() ?? "OTP sent.";
+            return message.GetString() ?? successFallback;
         }
 
-        return "OTP sent.";
+        return successFallback;
+    }
+
+    private static async Task<string> ReadErrorMessageAsync(
+        HttpResponseMessage response,
+        string fallback,
+        CancellationToken cancellationToken)
+    {
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return fallback;
+        }
+
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.TryGetProperty("message", out var message))
+        {
+            return message.GetString() ?? fallback;
+        }
+
+        return fallback;
     }
 }

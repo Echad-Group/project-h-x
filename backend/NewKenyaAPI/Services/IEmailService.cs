@@ -4,6 +4,7 @@ namespace NewKenyaAPI.Services
     {
         Task SendVolunteerWelcomeEmailAsync(string email, string name, string resetToken);
         Task SendPasswordResetEmailAsync(string email, string resetToken);
+        Task SendOtpEmailAsync(string email, string purpose, string code);
         Task SendEmailAsync(string to, string subject, string htmlBody);
     }
 }

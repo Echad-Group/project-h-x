@@ -7,6 +7,7 @@ namespace ProjectHX.Mobile.ViewModels;
 
 [QueryProperty(nameof(Email), "email")]
 [QueryProperty(nameof(Purpose), "purpose")]
+[QueryProperty(nameof(Code), "code")]
 public partial class OtpChallengeViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
