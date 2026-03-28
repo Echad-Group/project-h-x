@@ -4,8 +4,94 @@
              x:Class="ProjectHX.Mobile.App">
     <Application.Resources>
         <ResourceDictionary>
+            <Color x:Key="PageBackground">#F3F4F6</Color>
+            <Color x:Key="CardBackground">#FFFFFF</Color>
+            <Color x:Key="CardBorder">#E5E7EB</Color>
+            <Color x:Key="MutedText">#6B7280</Color>
+            <Color x:Key="BodyText">#111827</Color>
+            <Color x:Key="BrandGreen">#067647</Color>
+            <Color x:Key="BrandGreenDark">#065F46</Color>
+            <Color x:Key="BrandOrange">#C35B00</Color>
+            <Color x:Key="DangerRed">#C81E1E</Color>
+
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource PageBackground}" />
+                <Setter Property="Padding" Value="0" />
+            </Style>
+
             <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource BodyText}" />
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+
+            <Style x:Key="PageTitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="30" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="#0F172A" />
+            </Style>
+
+            <Style x:Key="SectionTitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="#0F172A" />
+            </Style>
+
+            <Style x:Key="MutedLabelStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource MutedText}" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
+                <Setter Property="Stroke" Value="{StaticResource CardBorder}" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="Padding" Value="16" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="14" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#FFFFFF" />
                 <Setter Property="TextColor" Value="#111827" />
+                <Setter Property="PlaceholderColor" Value="#9CA3AF" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style TargetType="Editor">
+                <Setter Property="BackgroundColor" Value="#FFFFFF" />
+                <Setter Property="TextColor" Value="#111827" />
+                <Setter Property="PlaceholderColor" Value="#9CA3AF" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource BrandGreen}" />
+                <Setter Property="TextColor" Value="#FFFFFF" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#F3F4F6" />
+                <Setter Property="TextColor" Value="#111827" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style x:Key="DangerButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource DangerRed}" />
+                <Setter Property="TextColor" Value="#FFFFFF" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="Margin" Value="0,0,0,8" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>

@@ -4,9 +4,19 @@
              x:Class="ProjectHX.Mobile.Pages.ProfilePage"
              Title="Profile">
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="14">
-            <Label Text="Profile &amp; Security" FontSize="24" FontAttributes="Bold" />
-            <Label Text="Manage your member profile, account security, and sign-in state." TextColor="#6B7280" />
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Border Style="{StaticResource CardStyle}" StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="1,0">
+                        <GradientStop Color="#067647" Offset="0" />
+                        <GradientStop Color="#C35B00" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Member Profile Hub" FontSize="30" FontAttributes="Bold" TextColor="#FFFFFF" />
+                    <Label Text="Keep identity, security, and verification data up to date." TextColor="#ECFDF5" />
+                </VerticalStackLayout>
+            </Border>
 
             <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
                 <Label Text="{Binding ErrorMessage}" TextColor="#B91C1C" />
@@ -16,11 +26,11 @@
             </Border>
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
-            <Border Stroke="#E5E7EB" StrokeThickness="1" Padding="16">
+            <Border Style="{StaticResource CardStyle}">
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="Profile Completion" FontAttributes="Bold" />
+                    <Label Text="Profile Completion" Style="{StaticResource SectionTitleStyle}" />
                     <ProgressBar Progress="{Binding CompletionProgress}" />
-                    <Label Text="{Binding CompletionSummary}" TextColor="#6B7280" />
+                    <Label Text="{Binding CompletionSummary}" Style="{StaticResource MutedLabelStyle}" />
                     <Label Text="Verification Status" FontAttributes="Bold" />
                     <Label Text="{Binding VerificationStatus}" />
                     <Label Text="Voter Card Status" FontAttributes="Bold" />
@@ -30,53 +40,65 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Label Text="Identity" FontSize="18" FontAttributes="Bold" />
-            <Border Stroke="#E5E7EB" StrokeThickness="1" Padding="16">
+            <Label Text="Identity &amp; Verification" Style="{StaticResource SectionTitleStyle}" />
+            <Border Style="{StaticResource CardStyle}">
                 <VerticalStackLayout Spacing="10">
                     <Image Source="{Binding ProfilePhotoUrl}" HeightRequest="120" WidthRequest="120" Aspect="AspectFill" IsVisible="{Binding HasProfilePhoto}" HorizontalOptions="Start" />
-                    <Label Text="Upload a current profile photo and the verification documents used for deferred review." TextColor="#6B7280" />
+                    <Label Text="Upload your profile photo and verification documents to match web onboarding requirements." Style="{StaticResource MutedLabelStyle}" />
                     <Button Text="Upload Profile Photo" Command="{Binding UploadProfilePhotoCommand}" IsEnabled="{Binding IsNotBusy}" />
-                    <Button Text="Delete Profile Photo" Command="{Binding DeleteProfilePhotoCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Delete Profile Photo" Command="{Binding DeleteProfilePhotoCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
                     <Label Text="{Binding NidaDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload NIDA Document" Command="{Binding UploadNidaDocumentCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Upload NIDA Document" Command="{Binding UploadNidaDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
                     <Label Text="{Binding VoterCardDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload Voter Card" Command="{Binding UploadVoterCardDocumentCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Upload Voter Card" Command="{Binding UploadVoterCardDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
                     <Label Text="{Binding SelfieDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload Verification Selfie" Command="{Binding UploadSelfieDocumentCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Upload Verification Selfie" Command="{Binding UploadSelfieDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
                 </VerticalStackLayout>
             </Border>
 
-            <Label Text="Profile Details" FontSize="18" FontAttributes="Bold" />
-            <Entry Placeholder="Email" Text="{Binding Email}" IsReadOnly="True" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="First Name" Text="{Binding FirstName}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Last Name" Text="{Binding LastName}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Phone Number" Text="{Binding PhoneNumber}" Keyboard="Telephone" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Location" Text="{Binding Location}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Website" Text="{Binding Website}" Keyboard="Url" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Twitter" Text="{Binding Twitter}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Facebook" Text="{Binding Facebook}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="LinkedIn" Text="{Binding LinkedIn}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="National ID Number" Text="{Binding NationalIdNumber}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Voter Card Number" Text="{Binding VoterCardNumber}" IsEnabled="{Binding IsNotBusy}" />
-            <Editor Placeholder="Bio" Text="{Binding Bio}" AutoSize="TextChanges" HeightRequest="120" IsEnabled="{Binding IsNotBusy}" />
-            <Button Text="Save Profile" Command="{Binding SaveProfileCommand}" IsEnabled="{Binding IsNotBusy}" />
+            <Label Text="Profile Details" Style="{StaticResource SectionTitleStyle}" />
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Entry Placeholder="Email" Text="{Binding Email}" IsReadOnly="True" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="First Name" Text="{Binding FirstName}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Last Name" Text="{Binding LastName}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Phone Number" Text="{Binding PhoneNumber}" Keyboard="Telephone" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Location" Text="{Binding Location}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Website" Text="{Binding Website}" Keyboard="Url" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Twitter" Text="{Binding Twitter}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Facebook" Text="{Binding Facebook}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="LinkedIn" Text="{Binding LinkedIn}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="National ID Number" Text="{Binding NationalIdNumber}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Voter Card Number" Text="{Binding VoterCardNumber}" IsEnabled="{Binding IsNotBusy}" />
+                    <Editor Placeholder="Bio" Text="{Binding Bio}" AutoSize="TextChanges" HeightRequest="120" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Save Profile" Command="{Binding SaveProfileCommand}" IsEnabled="{Binding IsNotBusy}" />
+                </VerticalStackLayout>
+            </Border>
 
-            <Label Text="Account Security" FontSize="18" FontAttributes="Bold" />
-            <Entry Placeholder="New Email" Text="{Binding NewEmail}" Keyboard="Email" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Current Password For Email Change" Text="{Binding EmailPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-            <Button Text="Update Email" Command="{Binding UpdateEmailCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" IsEnabled="{Binding IsNotBusy}" />
+            <Label Text="Account Security" Style="{StaticResource SectionTitleStyle}" />
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Entry Placeholder="New Email" Text="{Binding NewEmail}" Keyboard="Email" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Current Password For Email Change" Text="{Binding EmailPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Update Email" Command="{Binding UpdateEmailCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
 
-            <Entry Placeholder="Current Password" Text="{Binding CurrentPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="New Password" Text="{Binding NewPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Confirm New Password" Text="{Binding ConfirmPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-            <Button Text="Change Password" Command="{Binding ChangePasswordCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Current Password" Text="{Binding CurrentPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="New Password" Text="{Binding NewPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Confirm New Password" Text="{Binding ConfirmPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Change Password" Command="{Binding ChangePasswordCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                </VerticalStackLayout>
+            </Border>
 
-            <Label Text="Session" FontSize="18" FontAttributes="Bold" />
-            <Button Text="Log Out" Command="{Binding LogoutCommand}" BackgroundColor="#1F2937" TextColor="White" IsEnabled="{Binding IsNotBusy}" />
+            <Label Text="Session" Style="{StaticResource SectionTitleStyle}" />
+            <Button Text="Log Out" Command="{Binding LogoutCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
 
-            <Label Text="Danger Zone" FontSize="18" FontAttributes="Bold" TextColor="#991B1B" />
-            <Entry Placeholder="Password To Delete Account" Text="{Binding DeletePassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-            <Button Text="Delete Account" Command="{Binding DeleteAccountCommand}" BackgroundColor="#B91C1C" TextColor="White" IsEnabled="{Binding IsNotBusy}" />
+            <Label Text="Danger Zone" Style="{StaticResource SectionTitleStyle}" TextColor="#991B1B" />
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Entry Placeholder="Password To Delete Account" Text="{Binding DeletePassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Delete Account" Command="{Binding DeleteAccountCommand}" Style="{StaticResource DangerButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                </VerticalStackLayout>
+            </Border>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

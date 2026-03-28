@@ -3,8 +3,37 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectHX.Mobile.Pages.TasksPage"
              Title="Tasks">
-    <VerticalStackLayout Padding="24" Spacing="10">
-        <Label Text="Tasks" FontSize="24" FontAttributes="Bold" />
-        <Label Text="Scaffold page: task list and completion workflow." TextColor="#6B7280" />
-    </VerticalStackLayout>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Border Style="{StaticResource CardStyle}" StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="1,0">
+                        <GradientStop Color="#0369A1" Offset="0" />
+                        <GradientStop Color="#065F46" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Daily Execution Hub" FontSize="28" FontAttributes="Bold" TextColor="#FFFFFF" />
+                    <Label Text="Track tasks and command priorities across your wards." TextColor="#E0F2FE" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="My Tasks" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="Field briefing sync" FontAttributes="Bold" />
+                    <Label Text="Due today at 17:00 • Ward HQ" Style="{StaticResource MutedLabelStyle}" />
+                    <Button Text="Open Task" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Message Inbox" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="Weekly command update ready for review." />
+                    <Button Text="Review Inbox" Style="{StaticResource SecondaryButtonStyle}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

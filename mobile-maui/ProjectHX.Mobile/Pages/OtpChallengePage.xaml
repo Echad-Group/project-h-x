@@ -4,24 +4,41 @@
              x:Class="ProjectHX.Mobile.Pages.OtpChallengePage"
              Title="OTP Verification">
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="12">
-            <Label Text="Verify OTP" FontSize="24" FontAttributes="Bold" />
-            <Label Text="Enter the 6-digit code sent to your email." TextColor="#6B7280" />
-            <Label Text="{Binding Purpose}" TextColor="#374151" FontAttributes="Bold" />
-
-            <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
-                <Label Text="{Binding ErrorMessage}" TextColor="#B91C1C" />
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Border Style="{StaticResource CardStyle}" StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="1,0">
+                        <GradientStop Color="#065F46" Offset="0" />
+                        <GradientStop Color="#047857" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="OTP Verification" FontSize="28" FontAttributes="Bold" TextColor="#FFFFFF" />
+                    <Label Text="Complete verification to continue." TextColor="#D1FAE5" />
+                </VerticalStackLayout>
             </Border>
-            <Border IsVisible="{Binding HasInfoMessage}" BackgroundColor="#ECFDF5" Stroke="#6EE7B7" StrokeThickness="1" Padding="12">
-                <Label Text="{Binding InfoMessage}" TextColor="#065F46" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Verification Details" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="Enter the six-digit code sent to your email." Style="{StaticResource MutedLabelStyle}" />
+                    <Label Text="{Binding Purpose}" TextColor="#374151" FontAttributes="Bold" />
+
+                    <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
+                        <Label Text="{Binding ErrorMessage}" TextColor="#B91C1C" />
+                    </Border>
+                    <Border IsVisible="{Binding HasInfoMessage}" BackgroundColor="#ECFDF5" Stroke="#6EE7B7" StrokeThickness="1" Padding="12">
+                        <Label Text="{Binding InfoMessage}" TextColor="#065F46" />
+                    </Border>
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+                    <Entry Placeholder="Email" Text="{Binding Email}" IsReadOnly="True" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="OTP Code" Text="{Binding Code}" Keyboard="Numeric" MaxLength="6" IsEnabled="{Binding IsNotBusy}" />
+
+                    <Button Text="Verify" Command="{Binding VerifyCommand}" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Resend OTP" Command="{Binding ResendOtpCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                </VerticalStackLayout>
             </Border>
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
-
-            <Entry Placeholder="Email" Text="{Binding Email}" IsReadOnly="True" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="OTP Code" Text="{Binding Code}" Keyboard="Numeric" MaxLength="6" IsEnabled="{Binding IsNotBusy}" />
-
-            <Button Text="Verify" Command="{Binding VerifyCommand}" IsEnabled="{Binding IsNotBusy}" />
-            <Button Text="Resend OTP" Command="{Binding ResendOtpCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" IsEnabled="{Binding IsNotBusy}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

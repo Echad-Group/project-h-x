@@ -3,8 +3,31 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectHX.Mobile.Pages.SubmitResultPage"
              Title="Submit Result">
-    <VerticalStackLayout Padding="24" Spacing="10">
-        <Label Text="Result Submission" FontSize="24" FontAttributes="Bold" />
-        <Label Text="Scaffold page: polling station result, geo capture, and offline outbox submit." TextColor="#6B7280" />
-    </VerticalStackLayout>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Border Style="{StaticResource CardStyle}" StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="1,0">
+                        <GradientStop Color="#065F46" Offset="0" />
+                        <GradientStop Color="#0EA5E9" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Result Submission" FontSize="28" FontAttributes="Bold" TextColor="#FFFFFF" />
+                    <Label Text="Capture and sync polling station evidence with confidence." TextColor="#DBEAFE" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Station Snapshot" Style="{StaticResource SectionTitleStyle}" />
+                    <Entry Placeholder="County" />
+                    <Entry Placeholder="Constituency" />
+                    <Entry Placeholder="Polling Station" />
+                    <Entry Placeholder="Votes Counted" Keyboard="Numeric" />
+                    <Button Text="Submit Draft" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

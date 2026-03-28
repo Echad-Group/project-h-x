@@ -3,8 +3,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectHX.Mobile.Pages.InboxPage"
              Title="Inbox">
-    <VerticalStackLayout Padding="24" Spacing="10">
-        <Label Text="Inbox" FontSize="24" FontAttributes="Bold" />
-        <Label Text="Scaffold page: message list and read acknowledgments." TextColor="#6B7280" />
-    </VerticalStackLayout>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Label Text="Message Inbox" Style="{StaticResource PageTitleStyle}" />
+            <Label Text="Command updates and field notices from your coordination team." Style="{StaticResource MutedLabelStyle}" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Weekly Command Report" FontAttributes="Bold" />
+                    <Label Text="Route: Ward 5 • Source: Field Team" Style="{StaticResource MutedLabelStyle}" />
+                    <Label Text="Completed tasks: 8 • Compliance issues: 0" />
+                    <Button Text="Mark Read" Style="{StaticResource SecondaryButtonStyle}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Campaign Message" FontAttributes="Bold" />
+                    <Label Text="Submitted 09:15" Style="{StaticResource MutedLabelStyle}" />
+                    <Label Text="Volunteer check-in numbers are due at end of day." />
+                    <Button Text="Mark Read" Style="{StaticResource SecondaryButtonStyle}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

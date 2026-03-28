@@ -4,26 +4,43 @@
              x:Class="ProjectHX.Mobile.Pages.RegisterPage"
              Title="Create Account">
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="12">
-            <Label Text="Create Account" FontSize="26" FontAttributes="Bold" />
-            <Label Text="Register and verify OTP to activate your account." TextColor="#6B7280" />
-
-            <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
-                <Label Text="{Binding ErrorMessage}" TextColor="#B91C1C" />
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Border Style="{StaticResource CardStyle}" StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="1,0">
+                        <GradientStop Color="#067647" Offset="0" />
+                        <GradientStop Color="#C35B00" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Join The Movement" FontSize="28" FontAttributes="Bold" TextColor="#FFFFFF" />
+                    <Label Text="Create your member profile and verify your account." TextColor="#ECFDF5" />
+                </VerticalStackLayout>
             </Border>
-            <Border IsVisible="{Binding HasInfoMessage}" BackgroundColor="#ECFDF5" Stroke="#6EE7B7" StrokeThickness="1" Padding="12">
-                <Label Text="{Binding InfoMessage}" TextColor="#065F46" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Account Details" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="These details are used for onboarding and profile setup." Style="{StaticResource MutedLabelStyle}" />
+
+                    <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
+                        <Label Text="{Binding ErrorMessage}" TextColor="#B91C1C" />
+                    </Border>
+                    <Border IsVisible="{Binding HasInfoMessage}" BackgroundColor="#ECFDF5" Stroke="#6EE7B7" StrokeThickness="1" Padding="12">
+                        <Label Text="{Binding InfoMessage}" TextColor="#065F46" />
+                    </Border>
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+                    <Entry Placeholder="First Name" Text="{Binding FirstName}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Last Name" Text="{Binding LastName}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Email" Text="{Binding Email}" Keyboard="Email" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Password" Text="{Binding Password}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Confirm Password" Text="{Binding ConfirmPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
+
+                    <Button Text="Register" Command="{Binding RegisterCommand}" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Back to Sign In" Command="{Binding GoToLoginCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                </VerticalStackLayout>
             </Border>
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
-
-            <Entry Placeholder="First Name" Text="{Binding FirstName}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Last Name" Text="{Binding LastName}" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Email" Text="{Binding Email}" Keyboard="Email" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Password" Text="{Binding Password}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-            <Entry Placeholder="Confirm Password" Text="{Binding ConfirmPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-
-            <Button Text="Register" Command="{Binding RegisterCommand}" IsEnabled="{Binding IsNotBusy}" />
-            <Button Text="Back to Sign In" Command="{Binding GoToLoginCommand}" BackgroundColor="#E5E7EB" TextColor="#111827" IsEnabled="{Binding IsNotBusy}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
