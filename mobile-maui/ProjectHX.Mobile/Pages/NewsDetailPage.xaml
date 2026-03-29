@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectHX.Mobile.Pages.NewsDetailPage"
+             Title="News Detail">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource BrandGreen}" />
+            <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
+                <Label Text="{Binding ErrorMessage}" TextColor="#991B1B" />
+            </Border>
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasArticle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding Article.Title}" FontSize="24" FontAttributes="Bold" />
+                    <Label Text="{Binding Article.PublishedDisplay}" Style="{StaticResource MutedLabelStyle}" />
+                    <Label Text="{Binding Article.Excerpt}" FontAttributes="Italic" />
+                    <Label Text="{Binding Article.Content}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -32,6 +32,9 @@
         <Tab Title="Leaderboard" Route="leaderboard-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:LeaderboardPage}" Route="leaderboard" />
         </Tab>
+        <Tab Title="Explore" Route="explore-tab">
+            <ShellContent ContentTemplate="{DataTemplate pages:ContentHubPage}" Route="explore" />
+        </Tab>
         <Tab Title="Profile" Route="profile-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:ProfilePage}" Route="profile" />
         </Tab>

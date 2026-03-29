@@ -43,10 +43,15 @@ public static class MauiProgram
         builder.Services.AddSingleton<IUserProfileApiService, UserProfileApiService>();
         builder.Services.AddSingleton<IVolunteerApiService, VolunteerApiService>();
         builder.Services.AddSingleton<ISyncOutboxService, SyncOutboxService>();
-    builder.Services.AddSingleton<ITasksApiService, TasksApiService>();
-    builder.Services.AddSingleton<IInboxApiService, InboxApiService>();
-    builder.Services.AddSingleton<ILeaderboardApiService, LeaderboardApiService>();
+        builder.Services.AddSingleton<ITasksApiService, TasksApiService>();
+        builder.Services.AddSingleton<IInboxApiService, InboxApiService>();
+        builder.Services.AddSingleton<ILeaderboardApiService, LeaderboardApiService>();
         builder.Services.AddSingleton<IResultsApiService, ResultsApiService>();
+        builder.Services.AddSingleton<INewsApiService, NewsApiService>();
+        builder.Services.AddSingleton<IEventsApiService, EventsApiService>();
+        builder.Services.AddSingleton<IIssuesApiService, IssuesApiService>();
+        builder.Services.AddSingleton<ICampaignTeamApiService, CampaignTeamApiService>();
+        builder.Services.AddSingleton<IPushApiService, PushApiService>();
 
         builder.Services.AddTransient<AppShell>();
 
@@ -56,10 +61,14 @@ public static class MauiProgram
         builder.Services.AddTransient<OtpChallengeViewModel>();
         builder.Services.AddTransient<ProfileViewModel>();
         builder.Services.AddTransient<ResetPasswordViewModel>();
-    builder.Services.AddTransient<TasksViewModel>();
-    builder.Services.AddTransient<InboxViewModel>();
-    builder.Services.AddTransient<LeaderboardViewModel>();
+        builder.Services.AddTransient<TasksViewModel>();
+        builder.Services.AddTransient<InboxViewModel>();
+        builder.Services.AddTransient<LeaderboardViewModel>();
         builder.Services.AddTransient<SubmitResultViewModel>();
+        builder.Services.AddTransient<ContentHubViewModel>();
+        builder.Services.AddTransient<NewsDetailViewModel>();
+        builder.Services.AddTransient<EventDetailViewModel>();
+        builder.Services.AddTransient<IssueDetailViewModel>();
 
         builder.Services.AddTransient<Pages.LoginPage>();
         builder.Services.AddTransient<Pages.RegisterPage>();
@@ -70,6 +79,10 @@ public static class MauiProgram
         builder.Services.AddTransient<Pages.SubmitResultPage>();
         builder.Services.AddTransient<Pages.InboxPage>();
         builder.Services.AddTransient<Pages.LeaderboardPage>();
+        builder.Services.AddTransient<Pages.ContentHubPage>();
+        builder.Services.AddTransient<Pages.NewsDetailPage>();
+        builder.Services.AddTransient<Pages.EventDetailPage>();
+        builder.Services.AddTransient<Pages.IssueDetailPage>();
         builder.Services.AddTransient<Pages.ProfilePage>();
 
         return builder.Build();

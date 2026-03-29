@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Devices;
+using ProjectHX.Mobile.Models.PublicContent;
 using ProjectHX.Mobile.Models.Profile;
 using ProjectHX.Mobile.Models.Volunteer;
 using ProjectHX.Mobile.Services.Interfaces;
@@ -13,6 +15,7 @@ public partial class ProfileViewModel : BaseViewModel
     private readonly IAuthApiService _authApiService;
     private readonly ISessionService _sessionService;
     private readonly IApiBaseUrlProvider _apiBaseUrlProvider;
+    private readonly IPushApiService _pushApiService;
 
     [ObservableProperty]
     private string email = string.Empty;
@@ -134,6 +137,12 @@ public partial class ProfileViewModel : BaseViewModel
     [ObservableProperty]
     private bool volunteerAvailableEvenings;
 
+    [ObservableProperty]
+    private bool isPushSubscribed;
+
+    [ObservableProperty]
+    private string pushStatusSummary = "Push status not loaded.";
+
     public bool HasProfilePhoto => !string.IsNullOrWhiteSpace(ProfilePhotoUrl);
 
     public ProfileViewModel(
@@ -141,13 +150,15 @@ public partial class ProfileViewModel : BaseViewModel
         IVolunteerApiService volunteerApiService,
         IAuthApiService authApiService,
         ISessionService sessionService,
-        IApiBaseUrlProvider apiBaseUrlProvider)
+        IApiBaseUrlProvider apiBaseUrlProvider,
+        IPushApiService pushApiService)
     {
         _userProfileApiService = userProfileApiService;
         _volunteerApiService = volunteerApiService;
         _authApiService = authApiService;
         _sessionService = sessionService;
         _apiBaseUrlProvider = apiBaseUrlProvider;
+        _pushApiService = pushApiService;
     }
 
     partial void OnIsVolunteerChanged(bool value)
@@ -414,6 +425,76 @@ public partial class ProfileViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    private async Task EnablePushAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        ErrorMessage = null;
+        InfoMessage = null;
+
+        try
+        {
+            var endpoint = ResolvePushEndpoint();
+            InfoMessage = await _pushApiService.SubscribeAsync(new PushSubscriptionRequestModel
+            {
+                Endpoint = endpoint,
+                Keys = new PushKeysModel
+                {
+                    P256dh = Convert.ToBase64String(Guid.NewGuid().ToByteArray()),
+                    Auth = Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+                }
+            });
+
+            await LoadPushStatusAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DisablePushAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        ErrorMessage = null;
+        InfoMessage = null;
+
+        try
+        {
+            InfoMessage = await _pushApiService.UnsubscribeAsync(ResolvePushEndpoint());
+            await LoadPushStatusAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RefreshPushStatusAsync()
+    {
+        await LoadPushStatusAsync();
+    }
+
+    [RelayCommand]
     private async Task DeleteAccountAsync()
     {
         if (IsBusy)
@@ -580,6 +661,24 @@ public partial class ProfileViewModel : BaseViewModel
         var profile = await _userProfileApiService.GetProfileAsync();
         ApplyProfile(profile);
         await LoadVolunteerDataAsync();
+        await LoadPushStatusAsync();
+    }
+
+    private async Task LoadPushStatusAsync()
+    {
+        try
+        {
+            var status = await _pushApiService.GetStatusAsync();
+            IsPushSubscribed = status.IsSubscribed;
+            PushStatusSummary = status.IsSubscribed
+                ? $"Subscribed since {status.SubscriptionDate?.ToLocalTime():d MMM yyyy HH:mm}"
+                : "Push notifications are disabled on this device.";
+        }
+        catch
+        {
+            IsPushSubscribed = false;
+            PushStatusSummary = "Unable to read push status right now.";
+        }
     }
 
     private async Task LoadVolunteerDataAsync()
@@ -749,4 +848,7 @@ public partial class ProfileViewModel : BaseViewModel
         VolunteerAvailableWeekends = false;
         VolunteerAvailableEvenings = false;
     }
+
+    private static string ResolvePushEndpoint()
+        => $"maui://device/{DeviceInfo.Platform}/{DeviceInfo.Model}/{DeviceInfo.Name}";
 }

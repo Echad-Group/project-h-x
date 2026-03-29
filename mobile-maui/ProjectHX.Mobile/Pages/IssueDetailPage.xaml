@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectHX.Mobile.Pages.IssueDetailPage"
+             Title="Issue Detail">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource BrandGreen}" />
+            <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
+                <Label Text="{Binding ErrorMessage}" TextColor="#991B1B" />
+            </Border>
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasIssue}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding Issue.Title}" FontSize="24" FontAttributes="Bold" />
+                    <Label Text="{Binding Issue.Summary}" />
+
+                    <Label Text="Initiatives" Style="{StaticResource SectionTitleStyle}" />
+                    <CollectionView ItemsSource="{Binding Issue.Initiatives}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="8" Margin="0,0,0,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" StrokeThickness="1">
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Description}" Style="{StaticResource MutedLabelStyle}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label Text="FAQs" Style="{StaticResource SectionTitleStyle}" />
+                    <CollectionView ItemsSource="{Binding Issue.Questions}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="8" Margin="0,0,0,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" StrokeThickness="1">
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding Question}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Answer}" Style="{StaticResource MutedLabelStyle}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

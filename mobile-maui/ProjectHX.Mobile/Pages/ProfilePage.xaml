@@ -122,6 +122,18 @@
                 </VerticalStackLayout>
             </Border>
 
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Push Notifications" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="{Binding PushStatusSummary}" Style="{StaticResource MutedLabelStyle}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="Enable Push" Command="{Binding EnablePushCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                        <Button Grid.Column="1" Text="Disable Push" Command="{Binding DisablePushCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    </Grid>
+                    <Button Text="Refresh Push Status" Command="{Binding RefreshPushStatusCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                </VerticalStackLayout>
+            </Border>
+
             <Label Text="Session" Style="{StaticResource SectionTitleStyle}" />
             <Button Text="Log Out" Command="{Binding LogoutCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
 

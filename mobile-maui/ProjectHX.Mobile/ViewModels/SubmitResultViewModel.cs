@@ -100,6 +100,13 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
 
         try
         {
+            var permission = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+            if (permission != PermissionStatus.Granted)
+            {
+                ErrorMessage = "Location permission is required to capture coordinates.";
+                return;
+            }
+
             var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
             var location = await Geolocation.Default.GetLocationAsync(request) ?? await Geolocation.Default.GetLastKnownLocationAsync();
             if (location == null)
@@ -260,6 +267,14 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
 
         try
         {
+            var cameraPermission = await Permissions.RequestAsync<Permissions.Camera>();
+            var photosPermission = await Permissions.RequestAsync<Permissions.Photos>();
+            if (cameraPermission != PermissionStatus.Granted && photosPermission != PermissionStatus.Granted)
+            {
+                ErrorMessage = "Camera or photos permission is required to attach evidence.";
+                return;
+            }
+
             var file = await acquireFileAsync();
             if (file == null)
             {

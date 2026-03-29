@@ -1,0 +1,112 @@
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ProjectHX.Mobile.Models.PublicContent;
+using ProjectHX.Mobile.Services.Interfaces;
+
+namespace ProjectHX.Mobile.ViewModels;
+
+public sealed partial class ContentHubViewModel : BaseViewModel
+{
+    private readonly INewsApiService _newsApiService;
+    private readonly IEventsApiService _eventsApiService;
+    private readonly IIssuesApiService _issuesApiService;
+    private readonly ICampaignTeamApiService _campaignTeamApiService;
+
+    [ObservableProperty]
+    private ObservableCollection<NewsArticleListItemModel> featuredNews = [];
+
+    [ObservableProperty]
+    private ObservableCollection<CampaignEventModel> upcomingEvents = [];
+
+    [ObservableProperty]
+    private ObservableCollection<IssueModel> issues = [];
+
+    [ObservableProperty]
+    private ObservableCollection<CampaignTeamMemberModel> teamMembers = [];
+
+    public ContentHubViewModel(
+        INewsApiService newsApiService,
+        IEventsApiService eventsApiService,
+        IIssuesApiService issuesApiService,
+        ICampaignTeamApiService campaignTeamApiService)
+    {
+        _newsApiService = newsApiService;
+        _eventsApiService = eventsApiService;
+        _issuesApiService = issuesApiService;
+        _campaignTeamApiService = campaignTeamApiService;
+    }
+
+    public async Task LoadAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        ErrorMessage = null;
+
+        try
+        {
+            var featuredTask = _newsApiService.GetFeaturedNewsAsync();
+            var eventsTask = _eventsApiService.GetEventsAsync();
+            var issuesTask = _issuesApiService.GetIssuesAsync();
+            var teamTask = _campaignTeamApiService.GetTeamAsync();
+
+            await Task.WhenAll(featuredTask, eventsTask, issuesTask, teamTask);
+
+            FeaturedNews = new ObservableCollection<NewsArticleListItemModel>((await featuredTask).Take(6));
+            UpcomingEvents = new ObservableCollection<CampaignEventModel>((await eventsTask).OrderBy(item => item.Date).Take(6));
+            Issues = new ObservableCollection<IssueModel>((await issuesTask).Take(6));
+            TeamMembers = new ObservableCollection<CampaignTeamMemberModel>((await teamTask).Take(8));
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RefreshAsync()
+    {
+        await LoadAsync();
+    }
+
+    [RelayCommand]
+    private async Task OpenNewsAsync(NewsArticleListItemModel article)
+    {
+        if (article == null || string.IsNullOrWhiteSpace(article.Slug))
+        {
+            return;
+        }
+
+        await Shell.Current.GoToAsync($"{nameof(Pages.NewsDetailPage)}?slug={Uri.EscapeDataString(article.Slug)}");
+    }
+
+    [RelayCommand]
+    private async Task OpenEventAsync(CampaignEventModel eventItem)
+    {
+        if (eventItem == null)
+        {
+            return;
+        }
+
+        await Shell.Current.GoToAsync($"{nameof(Pages.EventDetailPage)}?id={eventItem.Id}");
+    }
+
+    [RelayCommand]
+    private async Task OpenIssueAsync(IssueModel issue)
+    {
+        if (issue == null)
+        {
+            return;
+        }
+
+        await Shell.Current.GoToAsync($"{nameof(Pages.IssueDetailPage)}?id={issue.Id}");
+    }
+}
