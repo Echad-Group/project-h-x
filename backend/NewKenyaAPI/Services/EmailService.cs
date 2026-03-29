@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mail;
 using System.Text.Json;
+using ThirdPartyServices.Interfaces;
 
 namespace NewKenyaAPI.Services
 {
@@ -12,21 +13,51 @@ namespace NewKenyaAPI.Services
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<EmailService> _logger;
+        private readonly IMailerSendService _mailerSendService;
 
-        public EmailService(IConfiguration configuration, IWebHostEnvironment environment, ILogger<EmailService> logger)
+        public EmailService(IConfiguration configuration, IWebHostEnvironment environment, ILogger<EmailService> logger, IMailerSendService mailerSendService)
         {
             _configuration = configuration;
             _environment = environment;
             _logger = logger;
+            _mailerSendService = mailerSendService;
         }
 
         public async Task SendVolunteerWelcomeEmailAsync(string email, string name, string resetToken)
         {
-            var webResetUrl = BuildWebResetUrl(email, resetToken);
-            var mobileResetUrl = BuildMobileLink("reset-password", ("token", resetToken), ("email", email));
+            try
+            {
+                var webResetUrl = BuildWebResetUrl(email, resetToken);
+                var mobileResetUrl = BuildMobileLink("reset-password", ("token", resetToken), ("email", email));
+                var templateId = _configuration["MailerSendTemplateIds:WelcomeEmail"] ?? "v69oxl5996rg785k";
+                var fromEmail = _configuration["EmailSettings:FromEmail"] ?? "noreply@newkenya.org";
+                var fromName = _configuration["EmailSettings:FromName"] ?? "New Kenya Movement";
+                var supportEmail = _configuration["EmailSettings:FromEmail"] ?? "support@newkenya.org";
 
-            var subject = "Welcome to New Kenya Movement - Set Your Password";
-            var htmlBody = $@"
+                var variables = new Dictionary<string, string>
+                {
+                    { "name", name },
+                    { "mobile_action_url", mobileResetUrl },
+                    { "web_action_url", webResetUrl },
+                    { "support_email", supportEmail }
+                };
+
+                await _mailerSendService.SendEmail(
+                    templateId,
+                    fromName,
+                    fromEmail,
+                    new[] { email },
+                    "Welcome to New Kenya Movement - Set Your Password",
+                    Array.Empty<MailerSendNetCore.Emails.Dtos.MailerSendEmailAttachment>(),
+                    variables
+                );
+
+                _logger.LogInformation("Welcome email sent successfully to: {Email}", email);
+
+
+
+                var subject = "Welcome to New Kenya Movement - Set Your Password";
+                var htmlBody = $@"
 <!DOCTYPE html>
 <html>
 <head>
@@ -78,16 +109,53 @@ namespace NewKenyaAPI.Services
 </body>
 </html>";
 
-            await SendEmailAsync(email, subject, htmlBody);
+                await SendEmailAsync(email, subject, htmlBody);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send welcome email to: {Email}", email);
+                throw;
+            }
         }
 
         public async Task SendPasswordResetEmailAsync(string email, string resetToken)
         {
-            var webResetUrl = BuildWebResetUrl(email, resetToken);
-            var mobileResetUrl = BuildMobileLink("reset-password", ("token", resetToken), ("email", email));
+            try
+            {
+                var webResetUrl = BuildWebResetUrl(email, resetToken);
+                var mobileResetUrl = BuildMobileLink("reset-password", ("token", resetToken), ("email", email));
+                var templateId = _configuration["MailerSendTemplateIds:PasswordReset"] ?? "jpzkmgq006m4059v";
+                var fromEmail = _configuration["EmailSettings:FromEmail"] ?? "noreply@newkenya.org";
+                var fromName = _configuration["EmailSettings:FromName"] ?? "New Kenya Movement";
+                var supportEmail = _configuration["EmailSettings:FromEmail"] ?? "support@newkenya.org";
+                
+                // Extract name from email if available, otherwise use generic greeting
+                var name = email.Split('@')[0];
 
-            var subject = "Reset Your Password - New Kenya Movement";
-            var htmlBody = $@"
+                var variables = new Dictionary<string, string>
+                {
+                    { "name", name },
+                    { "mobile_action_url", mobileResetUrl },
+                    { "web_action_url", webResetUrl },
+                    { "support_email", supportEmail }
+                };
+
+                await _mailerSendService.SendEmail(
+                    templateId,
+                    fromName,
+                    fromEmail,
+                    new[] { email },
+                    "Reset Your Password - New Kenya Movement",
+                    Array.Empty<MailerSendNetCore.Emails.Dtos.MailerSendEmailAttachment>(),
+                    variables
+                );
+
+                _logger.LogInformation("Password reset email sent successfully to: {Email}", email);
+
+
+                var subject = "Reset Your Password - New Kenya Movement";
+                var htmlBody = $@"
 <!DOCTYPE html>
 <html>
 <body style='font-family: Arial, sans-serif;'>
@@ -112,14 +180,60 @@ namespace NewKenyaAPI.Services
 </body>
 </html>";
 
-            await SendEmailAsync(email, subject, htmlBody);
+                await SendEmailAsync(email, subject, htmlBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send password reset email to: {Email}", email);
+                throw;
+            }
         }
 
         public async Task SendOtpEmailAsync(string email, string purpose, string code)
         {
-            var mobileOtpUrl = BuildMobileLink("otp", ("email", email), ("purpose", purpose), ("code", code));
-            var subject = "Your New Kenya OTP Code";
-            var htmlBody = $@"
+            try
+            {
+                var mobileOtpUrl = BuildMobileLink("otp", ("email", email), ("purpose", purpose), ("code", code));
+                var templateId = _configuration["MailerSendTemplateIds:OtpVerification"] ?? "ynrw7gy00d2l2k8e";
+                var fromEmail = _configuration["EmailSettings:FromEmail"] ?? "noreply@newkenya.org";
+                var fromName = _configuration["EmailSettings:FromName"] ?? "New Kenya Movement";
+                var supportEmail = _configuration["EmailSettings:FromEmail"] ?? "support@newkenya.org";
+                
+                // Extract name from email if available, otherwise use generic greeting
+                var name = email.Split('@')[0];
+                
+                // Map purpose to display label
+                var purposeLabel = purpose?.ToLower() switch
+                {
+                    "registration" => "registration",
+                    "login" => "login",
+                    _ => "verification"
+                };
+
+                var variables = new Dictionary<string, string>
+                {
+                    { "name", name },
+                    { "otp_purpose_label", purposeLabel },
+                    { "otp_code", code },
+                    { "mobile_action_url", mobileOtpUrl },
+                    { "support_email", supportEmail }
+                };
+
+                await _mailerSendService.SendEmail(
+                    templateId,
+                    fromName,
+                    fromEmail,
+                    new[] { email },
+                    "Your New Kenya OTP Code",
+                    Array.Empty<MailerSendNetCore.Emails.Dtos.MailerSendEmailAttachment>(),
+                    variables
+                );
+
+                _logger.LogInformation("OTP email sent successfully to: {Email}", email);
+
+
+                var subject = "Your New Kenya OTP Code";
+                var htmlBody = $@"
 <!DOCTYPE html>
 <html>
 <body style='font-family: Arial, sans-serif;'>
@@ -138,7 +252,13 @@ namespace NewKenyaAPI.Services
 </body>
 </html>";
 
-            await SendEmailAsync(email, subject, htmlBody);
+                await SendEmailAsync(email, subject, htmlBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send OTP email to: {Email}", email);
+                throw;
+            }
         }
 
         public async Task SendEmailAsync(string to, string subject, string htmlBody)
@@ -164,10 +284,6 @@ namespace NewKenyaAPI.Services
             // If email is not configured, log instead of sending
             if (string.IsNullOrEmpty(smtpHost) || string.IsNullOrEmpty(smtpUsername))
             {
-                archiveRecord.DeliveryStatus = "skipped";
-                archiveRecord.Error = "SMTP not configured";
-                await AppendToArchiveAsync(archiveRecord);
-
                 _logger.LogWarning("Email service not configured. Email would be sent to: {Email}", to);
                 _logger.LogInformation("Subject: {Subject}", subject);
                 _logger.LogInformation("Body (first 200 chars): {Body}", htmlBody.Substring(0, Math.Min(200, htmlBody.Length)));
@@ -176,6 +292,10 @@ namespace NewKenyaAPI.Services
 
             try
             {
+                archiveRecord.DeliveryStatus = "skipped";
+                archiveRecord.Error = "SMTP not configured";
+                await AppendToArchiveAsync(archiveRecord);
+                
                 using var client = new SmtpClient(smtpHost, smtpPort)
                 {
                     EnableSsl = true,

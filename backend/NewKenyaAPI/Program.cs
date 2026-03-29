@@ -8,6 +8,9 @@ using NewKenyaAPI.Models;
 using NewKenyaAPI.Services;
 using System.Text;
 using AspNetCoreRateLimit;
+using ThirdPartyServices.Interfaces;
+using ThirdPartyServices;
+using ThirdPartyServices.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,9 @@ builder.Services.AddControllers();
 
 // Add Email Service
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Register third-party services (MailerSend, Twilio, etc.)
+builder.Services.RegisterThridParties(builder.Configuration);
 builder.Services.AddScoped<CampaignHierarchyService>();
 builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<CampaignMessagingService>();
