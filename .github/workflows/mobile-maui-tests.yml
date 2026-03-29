@@ -1,0 +1,35 @@
+name: mobile-maui-tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - mobile-maui/**
+      - .github/workflows/mobile-maui-tests.yml
+  pull_request:
+    branches: [ main ]
+    paths:
+      - mobile-maui/**
+      - .github/workflows/mobile-maui-tests.yml
+
+jobs:
+  maui-test-baseline:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore test project
+        run: dotnet restore mobile-maui/ProjectHX.Mobile.Tests/ProjectHX.Mobile.Tests.csproj
+
+      - name: Run MAUI Sprint 6 test baseline
+        run: dotnet test mobile-maui/ProjectHX.Mobile.Tests/ProjectHX.Mobile.Tests.csproj --configuration Release --logger "trx;LogFileName=maui-tests.trx"

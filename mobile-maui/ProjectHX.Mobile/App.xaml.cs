@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using ProjectHX.Mobile.Infrastructure.Diagnostics;
 using ProjectHX.Mobile.Services;
 using ProjectHX.Mobile.Infrastructure.Outbox;
 
@@ -7,12 +9,20 @@ public partial class App : Application
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ISyncOutboxService _outboxService;
+    private readonly IAppDiagnosticsService _diagnosticsService;
+    private readonly ILogger<App> _logger;
 
-    public App(IServiceProvider serviceProvider, ISyncOutboxService outboxService)
+    public App(
+        IServiceProvider serviceProvider,
+        ISyncOutboxService outboxService,
+        IAppDiagnosticsService diagnosticsService,
+        ILogger<App> logger)
     {
         InitializeComponent();
         _serviceProvider = serviceProvider;
         _outboxService = outboxService;
+        _diagnosticsService = diagnosticsService;
+        _logger = logger;
         DeepLinkDispatcher.DeepLinkReceived += HandleDeepLinkAsync;
     }
 
@@ -23,8 +33,21 @@ public partial class App : Application
         _ = MainThread.InvokeOnMainThreadAsync(shell.InitializeSessionNavigationAsync);
         _ = Task.Run(async () =>
         {
-            await _outboxService.InitializeAsync();
-            await _outboxService.ProcessAsync();
+            try
+            {
+                await _outboxService.InitializeAsync();
+                await _outboxService.ProcessAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "App startup outbox initialization failed.");
+                await _diagnosticsService.RecordEventAsync(
+                    category: "app",
+                    eventName: "startup_outbox_failed",
+                    severity: "Error",
+                    message: ex.Message,
+                    context: new { exception = ex.GetType().Name });
+            }
         });
         return window;
     }
@@ -32,7 +55,23 @@ public partial class App : Application
     protected override void OnResume()
     {
         base.OnResume();
-        _ = Task.Run(() => _outboxService.ProcessAsync());
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _outboxService.ProcessAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Outbox processing failed on app resume.");
+                await _diagnosticsService.RecordEventAsync(
+                    category: "app",
+                    eventName: "resume_outbox_failed",
+                    severity: "Error",
+                    message: ex.Message,
+                    context: new { exception = ex.GetType().Name });
+            }
+        });
     }
 
     protected override async void OnAppLinkRequestReceived(Uri uri)
@@ -51,10 +90,35 @@ public partial class App : Application
         var route = ResolveDeepLinkRoute(uri);
         if (string.IsNullOrWhiteSpace(route))
         {
+            await _diagnosticsService.RecordEventAsync(
+                category: "deeplink",
+                eventName: "unmapped_link",
+                severity: "Warning",
+                message: "Received unsupported deep link.",
+                context: new { uri = uri.ToString() });
             return;
         }
 
-        await MainThread.InvokeOnMainThreadAsync(async () => await Shell.Current.GoToAsync(route));
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () => await Shell.Current.GoToAsync(route));
+            await _diagnosticsService.RecordEventAsync(
+                category: "deeplink",
+                eventName: "route_navigation",
+                severity: "Info",
+                message: "Deep link route navigation succeeded.",
+                context: new { route, uri = uri.ToString() });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Deep link navigation failed for route {Route}.", route);
+            await _diagnosticsService.RecordEventAsync(
+                category: "deeplink",
+                eventName: "route_navigation_failed",
+                severity: "Error",
+                message: ex.Message,
+                context: new { route, uri = uri.ToString(), exception = ex.GetType().Name });
+        }
     }
 
     private static string? ResolveDeepLinkRoute(Uri uri)

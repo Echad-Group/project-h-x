@@ -1,5 +1,7 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Networking;
+using ProjectHX.Mobile.Infrastructure.Diagnostics;
 using ProjectHX.Mobile.Models.Results;
 using ProjectHX.Mobile.Services.Interfaces;
 using SQLite;
@@ -15,6 +17,8 @@ public sealed class SyncOutboxService : ISyncOutboxService
     private const string StatusDeadLetter = "DeadLetter";
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly IAppDiagnosticsService _diagnosticsService;
+    private readonly ILogger<SyncOutboxService> _logger;
     private readonly SQLiteAsyncConnection _database;
     private readonly SemaphoreSlim _initializeLock = new(1, 1);
     private readonly SemaphoreSlim _processLock = new(1, 1);
@@ -24,9 +28,14 @@ public sealed class SyncOutboxService : ISyncOutboxService
 
     public event EventHandler? StatusChanged;
 
-    public SyncOutboxService(IServiceProvider serviceProvider)
+    public SyncOutboxService(
+        IServiceProvider serviceProvider,
+        IAppDiagnosticsService diagnosticsService,
+        ILogger<SyncOutboxService> logger)
     {
         _serviceProvider = serviceProvider;
+        _diagnosticsService = diagnosticsService;
+        _logger = logger;
 
         var dbPath = Path.Combine(FileSystem.AppDataDirectory, "projecthx-mobile-outbox.db3");
         _database = new SQLiteAsyncConnection(dbPath,
@@ -114,6 +123,7 @@ public sealed class SyncOutboxService : ISyncOutboxService
     {
         if (!HasInternet())
         {
+            _logger.LogDebug("Outbox processing skipped because network access is unavailable.");
             return;
         }
 
@@ -127,6 +137,7 @@ public sealed class SyncOutboxService : ISyncOutboxService
         try
         {
             var pending = await GetPendingAsync(cancellationToken);
+            _logger.LogInformation("Outbox processing started with {PendingCount} pending items.", pending.Count);
             foreach (var item in pending)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -147,26 +158,50 @@ public sealed class SyncOutboxService : ISyncOutboxService
                     item.UpdatedAtUtc = DateTime.UtcNow;
                     _lastProcessedAtUtc = item.CompletedAtUtc;
                     _lastError = null;
+                    _logger.LogInformation("Outbox item {ItemId} ({ItemType}) processed successfully.", item.Id, item.Type);
                 }
                 catch (HttpRequestException ex)
                 {
                     ScheduleRetry(item, ex.Message);
                     _lastError = ex.Message;
+                    _logger.LogWarning(ex, "Outbox item {ItemId} ({ItemType}) scheduled for retry #{RetryCount}.", item.Id, item.Type, item.RetryCount);
+                    await _diagnosticsService.RecordEventAsync(
+                        category: "sync",
+                        eventName: "retry_scheduled",
+                        severity: "Warning",
+                        message: ex.Message,
+                        context: new { item.Id, item.Type, item.RetryCount, item.NextAttemptAtUtc });
                 }
                 catch (InvalidOperationException ex)
                 {
                     MoveToDeadLetter(item, ex.Message);
                     _lastError = ex.Message;
+                    _logger.LogError(ex, "Outbox item {ItemId} ({ItemType}) moved to dead letter.", item.Id, item.Type);
+                    await _diagnosticsService.RecordEventAsync(
+                        category: "sync",
+                        eventName: "dead_letter",
+                        severity: "Error",
+                        message: ex.Message,
+                        context: new { item.Id, item.Type, item.RetryCount, item.DeadLetterReason });
                 }
                 catch (Exception ex)
                 {
                     ScheduleRetry(item, ex.Message);
                     _lastError = ex.Message;
+                    _logger.LogWarning(ex, "Outbox item {ItemId} ({ItemType}) failed unexpectedly and was queued for retry #{RetryCount}.", item.Id, item.Type, item.RetryCount);
+                    await _diagnosticsService.RecordEventAsync(
+                        category: "sync",
+                        eventName: "unexpected_retry",
+                        severity: "Warning",
+                        message: ex.Message,
+                        context: new { item.Id, item.Type, item.RetryCount, item.NextAttemptAtUtc, exception = ex.GetType().Name });
                 }
 
                 await _database.UpdateAsync(item);
                 await NotifyStatusChangedAsync(cancellationToken);
             }
+
+            _logger.LogInformation("Outbox processing completed.");
         }
         finally
         {

@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using ProjectHX.Mobile.Infrastructure.Diagnostics;
 using ProjectHX.Mobile.Infrastructure.Outbox;
 using ProjectHX.Mobile.Services;
 using ProjectHX.Mobile.Services.Interfaces;
@@ -24,9 +26,13 @@ public static class MauiProgram
             builder.Configuration.AddJsonStream(appSettingsStream);
         }
 
+        builder.Logging.SetMinimumLevel(LogLevel.Information);
+        builder.Logging.AddDebug();
+
         builder.Services.AddSingleton<IApiBaseUrlProvider, ApiBaseUrlProvider>();
         builder.Services.AddSingleton<ISessionService, SessionService>();
         builder.Services.AddSingleton<IAuthFlowStateService, AuthFlowStateService>();
+        builder.Services.AddSingleton<IAppDiagnosticsService, AppDiagnosticsService>();
         builder.Services.AddTransient<AuthTokenHandler>();
 
         builder.Services
