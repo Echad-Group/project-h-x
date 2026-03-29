@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using System.Text.Json;
 using ProjectHX.Mobile.Models.Results;
 using ProjectHX.Mobile.Services.Interfaces;
 
@@ -23,34 +22,6 @@ public sealed class ResultsApiService : IResultsApiService
     public async Task<string> SubmitAsync(ResultSubmissionRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("results/submit", request, cancellationToken);
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new InvalidOperationException(await ReadErrorMessageAsync(response, "Failed to submit result.", cancellationToken));
-        }
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return "Result submitted.";
-        }
-
-        using var doc = JsonDocument.Parse(content);
-        return doc.RootElement.TryGetProperty("message", out var message)
-            ? message.GetString() ?? "Result submitted."
-            : "Result submitted.";
-    }
-
-    private static async Task<string> ReadErrorMessageAsync(HttpResponseMessage response, string fallback, CancellationToken cancellationToken)
-    {
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return fallback;
-        }
-
-        using var doc = JsonDocument.Parse(content);
-        return doc.RootElement.TryGetProperty("message", out var message)
-            ? message.GetString() ?? fallback
-            : fallback;
+        return await ApiResponseReader.ReadMessageResponseAsync(response, "Result submitted.", "Failed to submit result.", cancellationToken);
     }
 }

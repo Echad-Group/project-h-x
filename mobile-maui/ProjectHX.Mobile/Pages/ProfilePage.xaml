@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectHX.Mobile.Pages.ProfilePage"
+             x:Name="RootPage"
              Title="Profile">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="14">
@@ -26,7 +27,7 @@
             </Border>
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Identity}">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Profile Completion" Style="{StaticResource SectionTitleStyle}" />
                     <ProgressBar Progress="{Binding CompletionProgress}" />
@@ -41,42 +42,42 @@
             </Border>
 
             <Label Text="Identity &amp; Verification" Style="{StaticResource SectionTitleStyle}" />
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Identity}">
                 <VerticalStackLayout Spacing="10">
                     <Image Source="{Binding ProfilePhotoUrl}" HeightRequest="120" WidthRequest="120" Aspect="AspectFill" IsVisible="{Binding HasProfilePhoto}" HorizontalOptions="Start" />
                     <Label Text="Upload your profile photo and verification documents to match web onboarding requirements." Style="{StaticResource MutedLabelStyle}" />
-                    <Button Text="Upload Profile Photo" Command="{Binding UploadProfilePhotoCommand}" IsEnabled="{Binding IsNotBusy}" />
-                    <Button Text="Delete Profile Photo" Command="{Binding DeleteProfilePhotoCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Upload Profile Photo" Command="{Binding UploadProfilePhotoCommand}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Button Text="Delete Profile Photo" Command="{Binding DeleteProfilePhotoCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                     <Label Text="{Binding NidaDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload NIDA Document" Command="{Binding UploadNidaDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Upload NIDA Document" Command="{Binding UploadNidaDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                     <Label Text="{Binding VoterCardDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload Voter Card" Command="{Binding UploadVoterCardDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Upload Voter Card" Command="{Binding UploadVoterCardDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                     <Label Text="{Binding SelfieDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload Verification Selfie" Command="{Binding UploadSelfieDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Upload Verification Selfie" Command="{Binding UploadSelfieDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                 </VerticalStackLayout>
             </Border>
 
             <Label Text="Profile Details" Style="{StaticResource SectionTitleStyle}" />
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Details}">
                 <VerticalStackLayout Spacing="8">
-                    <Entry Placeholder="Email" Text="{Binding Email}" IsReadOnly="True" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="First Name" Text="{Binding FirstName}" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Last Name" Text="{Binding LastName}" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Phone Number" Text="{Binding PhoneNumber}" Keyboard="Telephone" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Location" Text="{Binding Location}" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Website" Text="{Binding Website}" Keyboard="Url" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Twitter" Text="{Binding Twitter}" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Facebook" Text="{Binding Facebook}" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="LinkedIn" Text="{Binding LinkedIn}" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="National ID Number" Text="{Binding NationalIdNumber}" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Voter Card Number" Text="{Binding VoterCardNumber}" IsEnabled="{Binding IsNotBusy}" />
-                    <Editor Placeholder="Bio" Text="{Binding Bio}" AutoSize="TextChanges" HeightRequest="120" IsEnabled="{Binding IsNotBusy}" />
-                    <Button Text="Save Profile" Command="{Binding SaveProfileCommand}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Email" Text="{Binding Email}" IsReadOnly="True" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="First Name" Text="{Binding FirstName}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Last Name" Text="{Binding LastName}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Phone Number" Text="{Binding PhoneNumber}" Keyboard="Telephone" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Location" Text="{Binding Location}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Website" Text="{Binding Website}" Keyboard="Url" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Twitter" Text="{Binding Twitter}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Facebook" Text="{Binding Facebook}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="LinkedIn" Text="{Binding LinkedIn}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="National ID Number" Text="{Binding NationalIdNumber}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Voter Card Number" Text="{Binding VoterCardNumber}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Editor Placeholder="Bio" Text="{Binding Bio}" AutoSize="TextChanges" HeightRequest="120" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Button Text="Save Profile" Command="{Binding SaveProfileCommand}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                 </VerticalStackLayout>
             </Border>
 
             <Label Text="Volunteer Self-Service" Style="{StaticResource SectionTitleStyle}" />
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Volunteer}">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="{Binding VolunteerStatusSummary}" Style="{StaticResource MutedLabelStyle}" />
                     <Label Text="You can update your volunteer profile details and leave the volunteer role from here." Style="{StaticResource MutedLabelStyle}" />
@@ -109,39 +110,39 @@
             </Border>
 
             <Label Text="Account Security" Style="{StaticResource SectionTitleStyle}" />
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Account}">
                 <VerticalStackLayout Spacing="8">
-                    <Entry Placeholder="New Email" Text="{Binding NewEmail}" Keyboard="Email" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Current Password For Email Change" Text="{Binding EmailPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-                    <Button Text="Update Email" Command="{Binding UpdateEmailCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="New Email" Text="{Binding NewEmail}" Keyboard="Email" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Current Password For Email Change" Text="{Binding EmailPassword}" IsPassword="True" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Button Text="Update Email" Command="{Binding UpdateEmailCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
 
-                    <Entry Placeholder="Current Password" Text="{Binding CurrentPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="New Password" Text="{Binding NewPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-                    <Entry Placeholder="Confirm New Password" Text="{Binding ConfirmPassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-                    <Button Text="Change Password" Command="{Binding ChangePasswordCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Current Password" Text="{Binding CurrentPassword}" IsPassword="True" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="New Password" Text="{Binding NewPassword}" IsPassword="True" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Entry Placeholder="Confirm New Password" Text="{Binding ConfirmPassword}" IsPassword="True" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Button Text="Change Password" Command="{Binding ChangePasswordCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                 </VerticalStackLayout>
             </Border>
 
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Account}">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Push Notifications" Style="{StaticResource SectionTitleStyle}" />
                     <Label Text="{Binding PushStatusSummary}" Style="{StaticResource MutedLabelStyle}" />
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="Enable Push" Command="{Binding EnablePushCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
-                        <Button Grid.Column="1" Text="Disable Push" Command="{Binding DisablePushCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                        <Button Grid.Column="0" Text="Enable Push" Command="{Binding EnablePushCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                        <Button Grid.Column="1" Text="Disable Push" Command="{Binding DisablePushCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                     </Grid>
-                    <Button Text="Refresh Push Status" Command="{Binding RefreshPushStatusCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    <Button Text="Refresh Push Status" Command="{Binding RefreshPushStatusCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                 </VerticalStackLayout>
             </Border>
 
             <Label Text="Session" Style="{StaticResource SectionTitleStyle}" />
-            <Button Text="Log Out" Command="{Binding LogoutCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+            <Button Text="Log Out" BindingContext="{Binding Account}" Command="{Binding LogoutCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
 
             <Label Text="Danger Zone" Style="{StaticResource SectionTitleStyle}" TextColor="#991B1B" />
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Account}">
                 <VerticalStackLayout Spacing="8">
-                    <Entry Placeholder="Password To Delete Account" Text="{Binding DeletePassword}" IsPassword="True" IsEnabled="{Binding IsNotBusy}" />
-                    <Button Text="Delete Account" Command="{Binding DeleteAccountCommand}" Style="{StaticResource DangerButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Placeholder="Password To Delete Account" Text="{Binding DeletePassword}" IsPassword="True" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Button Text="Delete Account" Command="{Binding DeleteAccountCommand}" Style="{StaticResource DangerButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>

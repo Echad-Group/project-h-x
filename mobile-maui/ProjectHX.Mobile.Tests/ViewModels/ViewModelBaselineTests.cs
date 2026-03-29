@@ -83,12 +83,12 @@ public class ViewModelBaselineTests
 
         await vm.LoadAsync();
 
-        Assert.Equal("member@example.com", vm.Email);
-        Assert.Equal("Ada", vm.FirstName);
-        Assert.Equal("Volunteer", vm.RolesSummary);
-        Assert.True(vm.IsVolunteer);
-        Assert.True(vm.IsPushSubscribed);
-        Assert.Contains("Subscribed since", vm.PushStatusSummary);
+        Assert.Equal("member@example.com", vm.Details.Email);
+        Assert.Equal("Ada", vm.Details.FirstName);
+        Assert.Equal("Volunteer", vm.Identity.RolesSummary);
+        Assert.True(vm.Volunteer.IsVolunteer);
+        Assert.True(vm.Account.IsPushSubscribed);
+        Assert.Contains("Subscribed since", vm.Account.PushStatusSummary);
         Assert.False(vm.IsBusy);
     }
 

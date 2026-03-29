@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="colorPrimary">#25472c</color>
-	<color name="colorPrimaryDark">#437F4F</color>
-	<color name="colorAccent">#2b823b</color>
+	<!-- MAUI splash screen color (white background) -->
+	<color name="maui_splash_color">#FFFFFF</color>
+
+	<!-- Brand colors matching your App.xaml -->
+	<color name="colorPrimary">#067647</color>
+	<color name="colorPrimaryDark">#065F46</color>
+	<color name="colorAccent">#067647</color>
+	<color name="pageBackground">#F3F4F6</color>
 </resources>
