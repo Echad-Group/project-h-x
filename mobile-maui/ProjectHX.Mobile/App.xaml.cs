@@ -4,19 +4,20 @@ namespace ProjectHX.Mobile;
 
 public partial class App : Application
 {
-    private readonly AppShell _shell;
+    private readonly IServiceProvider _serviceProvider;
 
-    public App(AppShell shell)
+    public App(IServiceProvider serviceProvider)
     {
         InitializeComponent();
-        _shell = shell;
+        _serviceProvider = serviceProvider;
         DeepLinkDispatcher.DeepLinkReceived += HandleDeepLinkAsync;
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        var window = new Window(_shell);
-        _ = MainThread.InvokeOnMainThreadAsync(_shell.InitializeSessionNavigationAsync);
+        var shell = _serviceProvider.GetRequiredService<AppShell>();
+        var window = new Window(shell);
+        _ = MainThread.InvokeOnMainThreadAsync(shell.InitializeSessionNavigationAsync);
         return window;
     }
 

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectHX.Mobile.Models.Profile;
+using ProjectHX.Mobile.Models.Volunteer;
 using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
@@ -8,6 +9,7 @@ namespace ProjectHX.Mobile.ViewModels;
 public partial class ProfileViewModel : BaseViewModel
 {
     private readonly IUserProfileApiService _userProfileApiService;
+    private readonly IVolunteerApiService _volunteerApiService;
     private readonly IAuthApiService _authApiService;
     private readonly ISessionService _sessionService;
     private readonly IApiBaseUrlProvider _apiBaseUrlProvider;
@@ -93,14 +95,64 @@ public partial class ProfileViewModel : BaseViewModel
     [ObservableProperty]
     private string deletePassword = string.Empty;
 
+    [ObservableProperty]
+    private bool isVolunteer;
+
+    [ObservableProperty]
+    private string volunteerStatusSummary = "Not registered as a volunteer.";
+
+    [ObservableProperty]
+    private string volunteerName = string.Empty;
+
+    [ObservableProperty]
+    private string volunteerEmail = string.Empty;
+
+    [ObservableProperty]
+    private string volunteerPhone = string.Empty;
+
+    [ObservableProperty]
+    private string volunteerCity = string.Empty;
+
+    [ObservableProperty]
+    private string volunteerRegion = string.Empty;
+
+    [ObservableProperty]
+    private string volunteerAvailabilityZones = string.Empty;
+
+    [ObservableProperty]
+    private string volunteerSkills = string.Empty;
+
+    [ObservableProperty]
+    private string volunteerInterests = string.Empty;
+
+    [ObservableProperty]
+    private string volunteerHoursPerWeek = string.Empty;
+
+    [ObservableProperty]
+    private bool volunteerAvailableWeekends;
+
+    [ObservableProperty]
+    private bool volunteerAvailableEvenings;
+
     public bool HasProfilePhoto => !string.IsNullOrWhiteSpace(ProfilePhotoUrl);
 
-    public ProfileViewModel(IUserProfileApiService userProfileApiService, IAuthApiService authApiService, ISessionService sessionService, IApiBaseUrlProvider apiBaseUrlProvider)
+    public ProfileViewModel(
+        IUserProfileApiService userProfileApiService,
+        IVolunteerApiService volunteerApiService,
+        IAuthApiService authApiService,
+        ISessionService sessionService,
+        IApiBaseUrlProvider apiBaseUrlProvider)
     {
         _userProfileApiService = userProfileApiService;
+        _volunteerApiService = volunteerApiService;
         _authApiService = authApiService;
         _sessionService = sessionService;
         _apiBaseUrlProvider = apiBaseUrlProvider;
+    }
+
+    partial void OnIsVolunteerChanged(bool value)
+    {
+        VolunteerStatusSummary = value ? "Active volunteer profile" : "Not registered as a volunteer.";
     }
 
     partial void OnProfilePhotoUrlChanged(string? value)
@@ -397,6 +449,107 @@ public partial class ProfileViewModel : BaseViewModel
         }
     }
 
+    [RelayCommand]
+    private async Task SaveVolunteerProfileAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        ErrorMessage = null;
+        InfoMessage = null;
+
+        if (!IsVolunteer)
+        {
+            ErrorMessage = "Volunteer profile was not found for your account.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(VolunteerName) || string.IsNullOrWhiteSpace(VolunteerEmail))
+        {
+            ErrorMessage = "Volunteer name and email are required.";
+            return;
+        }
+
+        int? hoursPerWeek = null;
+        if (!string.IsNullOrWhiteSpace(VolunteerHoursPerWeek))
+        {
+            if (!int.TryParse(VolunteerHoursPerWeek.Trim(), out var parsedHours) || parsedHours < 0)
+            {
+                ErrorMessage = "Hours per week must be a valid non-negative number.";
+                return;
+            }
+
+            hoursPerWeek = parsedHours;
+        }
+
+        IsBusy = true;
+
+        try
+        {
+            InfoMessage = await _volunteerApiService.UpdateMyVolunteerProfileAsync(new UpdateVolunteerRequest
+            {
+                Name = VolunteerName.Trim(),
+                Email = VolunteerEmail.Trim(),
+                Phone = NormalizeOptional(VolunteerPhone),
+                City = NormalizeOptional(VolunteerCity),
+                Region = NormalizeOptional(VolunteerRegion),
+                AvailabilityZones = NormalizeOptional(VolunteerAvailabilityZones),
+                Skills = NormalizeOptional(VolunteerSkills),
+                HoursPerWeek = hoursPerWeek,
+                AvailableWeekends = VolunteerAvailableWeekends,
+                AvailableEvenings = VolunteerAvailableEvenings,
+                Interests = NormalizeOptional(VolunteerInterests)
+            });
+
+            await LoadVolunteerDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task LeaveVolunteerRoleAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        ErrorMessage = null;
+        InfoMessage = null;
+
+        if (!IsVolunteer)
+        {
+            InfoMessage = "You are currently not registered as a volunteer.";
+            return;
+        }
+
+        IsBusy = true;
+
+        try
+        {
+            InfoMessage = await _volunteerApiService.LeaveVolunteerRoleAsync();
+            IsVolunteer = false;
+            ClearVolunteerFields();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private void ApplyProfile(UserProfileModel profile)
     {
         Email = profile.Email;
@@ -426,6 +579,21 @@ public partial class ProfileViewModel : BaseViewModel
     {
         var profile = await _userProfileApiService.GetProfileAsync();
         ApplyProfile(profile);
+        await LoadVolunteerDataAsync();
+    }
+
+    private async Task LoadVolunteerDataAsync()
+    {
+        var volunteerStatus = await _volunteerApiService.GetMyVolunteerStatusAsync();
+        IsVolunteer = volunteerStatus.IsVolunteer;
+
+        if (volunteerStatus.IsVolunteer && volunteerStatus.Volunteer is not null)
+        {
+            ApplyVolunteer(volunteerStatus.Volunteer);
+            return;
+        }
+
+        ClearVolunteerFields();
     }
 
     private async Task UploadVerificationDocumentInternalAsync(string documentType, string pickerTitle)
@@ -549,5 +717,36 @@ public partial class ProfileViewModel : BaseViewModel
     private static string? NormalizeOptional(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    private void ApplyVolunteer(VolunteerProfileModel volunteer)
+    {
+        VolunteerName = volunteer.Name;
+        VolunteerEmail = volunteer.Email;
+        VolunteerPhone = volunteer.Phone ?? string.Empty;
+        VolunteerCity = volunteer.City ?? string.Empty;
+        VolunteerRegion = volunteer.Region ?? string.Empty;
+        VolunteerAvailabilityZones = volunteer.AvailabilityZones ?? string.Empty;
+        VolunteerSkills = volunteer.Skills ?? string.Empty;
+        VolunteerInterests = volunteer.Interests ?? string.Empty;
+        VolunteerHoursPerWeek = volunteer.HoursPerWeek?.ToString() ?? string.Empty;
+        VolunteerAvailableWeekends = volunteer.AvailableWeekends;
+        VolunteerAvailableEvenings = volunteer.AvailableEvenings;
+        VolunteerStatusSummary = $"Active volunteer since {volunteer.CreatedAt:yyyy-MM-dd}";
+    }
+
+    private void ClearVolunteerFields()
+    {
+        VolunteerName = string.Empty;
+        VolunteerEmail = string.Empty;
+        VolunteerPhone = string.Empty;
+        VolunteerCity = string.Empty;
+        VolunteerRegion = string.Empty;
+        VolunteerAvailabilityZones = string.Empty;
+        VolunteerSkills = string.Empty;
+        VolunteerInterests = string.Empty;
+        VolunteerHoursPerWeek = string.Empty;
+        VolunteerAvailableWeekends = false;
+        VolunteerAvailableEvenings = false;
     }
 }

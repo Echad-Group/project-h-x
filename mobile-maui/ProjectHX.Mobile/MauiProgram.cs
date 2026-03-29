@@ -41,9 +41,10 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<IAuthApiService, AuthApiService>();
         builder.Services.AddSingleton<IUserProfileApiService, UserProfileApiService>();
+        builder.Services.AddSingleton<IVolunteerApiService, VolunteerApiService>();
         builder.Services.AddSingleton<ISyncOutboxService, SyncOutboxService>();
 
-        builder.Services.AddSingleton<AppShell>();
+        builder.Services.AddTransient<AppShell>();
 
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<RegisterViewModel>();
