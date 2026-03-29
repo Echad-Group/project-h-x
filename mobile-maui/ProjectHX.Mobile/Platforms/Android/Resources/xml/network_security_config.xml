@@ -1,0 +1,27 @@
+﻿<network-security-config>
+  <!--d<domain-config>
+	  <domain-config cleartextTrafficPermitted="true">
+		<domain includeSubdomains="true">ctempurl.com</domain>
+		<domain includeSubdomains="true">marie27-001-site1.ctempurl.com/</domain>
+	  </domain-config>
+  </domain-config>
+  <base-config cleartextTrafficPermitted="true">
+	<trust-anchors>
+	  <certificates src="user" />
+	  <certificates src="system" />
+	</trust-anchors>
+  </base-config>
+  ebug-overrides>
+	<domain-config>
+	  <domain includeSubdomains="true">visualcrossing.com</domain>
+	  <domain-config cleartextTrafficPermitted="false">
+		<domain includeSubdomains="true">weather.visualcrossing.com</domain>
+	  </domain-config>
+	</domain-config>
+	<trust-anchors>
+	  <certificates src="user" />
+	  <certificates src="system" />
+	</trust-anchors>
+  </debug-overrides>-->
+  <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

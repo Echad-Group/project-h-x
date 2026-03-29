@@ -12,6 +12,12 @@ public sealed class ResultsApiService : IResultsApiService
     public ResultsApiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
+
+        if (_httpClient.BaseAddress?.Host.Contains("ngrok", StringComparison.OrdinalIgnoreCase) == true &&
+            !_httpClient.DefaultRequestHeaders.Contains("ngrok-skip-browser-warning"))
+        {
+            _httpClient.DefaultRequestHeaders.Add("ngrok-skip-browser-warning", "69420");
+        }
     }
 
     public async Task<string> SubmitAsync(ResultSubmissionRequest request, CancellationToken cancellationToken = default)

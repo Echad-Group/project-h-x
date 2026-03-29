@@ -12,6 +12,12 @@ public sealed class InboxApiService : IInboxApiService
     public InboxApiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
+
+        if (_httpClient.BaseAddress?.Host.Contains("ngrok", StringComparison.OrdinalIgnoreCase) == true &&
+            !_httpClient.DefaultRequestHeaders.Contains("ngrok-skip-browser-warning"))
+        {
+            _httpClient.DefaultRequestHeaders.Add("ngrok-skip-browser-warning", "69420");
+        }
     }
 
     public async Task<List<InboxMessage>> GetInboxAsync(CancellationToken cancellationToken = default)

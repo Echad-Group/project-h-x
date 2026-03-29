@@ -12,6 +12,12 @@ public sealed class VolunteerApiService : IVolunteerApiService
     public VolunteerApiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
+
+        if (_httpClient.BaseAddress?.Host.Contains("ngrok", StringComparison.OrdinalIgnoreCase) == true &&
+            !_httpClient.DefaultRequestHeaders.Contains("ngrok-skip-browser-warning"))
+        {
+            _httpClient.DefaultRequestHeaders.Add("ngrok-skip-browser-warning", "69420");
+        }
     }
 
     public async Task<VolunteerStatusResponse> GetMyVolunteerStatusAsync(CancellationToken cancellationToken = default)
