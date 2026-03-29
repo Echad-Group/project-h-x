@@ -20,12 +20,76 @@
 
             <Border Style="{StaticResource CardStyle}">
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="Station Snapshot" Style="{StaticResource SectionTitleStyle}" />
-                    <Entry Placeholder="County" />
-                    <Entry Placeholder="Constituency" />
-                    <Entry Placeholder="Polling Station" />
-                    <Entry Placeholder="Votes Counted" Keyboard="Numeric" />
-                    <Button Text="Submit Draft" />
+                    <Label Text="Sync Status" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="{Binding SyncSummary}" Style="{StaticResource MutedLabelStyle}" />
+                    <Label Text="Warning: some items are in dead-letter and need review."
+                           TextColor="#991B1B"
+                           IsVisible="{Binding HasDeadLetters}" />
+                    <Button Text="Sync Now"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding SyncNowCommand}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource BrandGreen}" HorizontalOptions="Center" />
+
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasErrorMessage}"
+                    BackgroundColor="#FEF2F2" StrokeThickness="1" Stroke="#FCA5A5">
+                <Label Text="{Binding ErrorMessage}" TextColor="#991B1B" />
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasInfoMessage}"
+                    BackgroundColor="#F0FDF4" StrokeThickness="1" Stroke="#86EFAC">
+                <Label Text="{Binding InfoMessage}" TextColor="#166534" />
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Polling Station Result" Style="{StaticResource SectionTitleStyle}" />
+                    <Entry Placeholder="Polling station code" Text="{Binding PollingStationCode}" />
+                    <Entry Placeholder="Region" Text="{Binding Region}" />
+                    <Entry Placeholder="County" Text="{Binding County}" />
+                    <Entry Placeholder="Constituency" Text="{Binding Constituency}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Entry Grid.Column="0" Placeholder="Candidate A" Keyboard="Numeric" Text="{Binding CandidateA}" />
+                        <Entry Grid.Column="1" Placeholder="Candidate B" Keyboard="Numeric" Text="{Binding CandidateB}" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Entry Grid.Column="0" Placeholder="Candidate C" Keyboard="Numeric" Text="{Binding CandidateC}" />
+                        <Entry Grid.Column="1" Placeholder="Rejected votes" Keyboard="Numeric" Text="{Binding RejectedVotes}" />
+                    </Grid>
+
+                    <Entry Placeholder="Registered voters" Keyboard="Numeric" Text="{Binding RegisteredVoters}" />
+
+                    <BoxView HeightRequest="1" BackgroundColor="{StaticResource CardBorder}" Margin="0,4,0,4" />
+
+                    <Label Text="Metadata" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="{Binding LocationSummary}" Style="{StaticResource MutedLabelStyle}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="Capture Location"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding CaptureLocationCommand}" />
+                    </HorizontalStackLayout>
+
+                    <Label Text="{Binding EvidenceSummary}" Style="{StaticResource MutedLabelStyle}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="Capture Photo"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding CapturePhotoCommand}" />
+                        <Button Text="Pick Photo"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding PickPhotoCommand}" />
+                    </HorizontalStackLayout>
+                    <Button Text="Clear Evidence"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding ClearEvidenceCommand}" />
+
+                    <BoxView HeightRequest="1" BackgroundColor="{StaticResource CardBorder}" Margin="0,4,0,4" />
+                    <Button Text="Submit Result"
+                            Command="{Binding SubmitCommand}" />
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>

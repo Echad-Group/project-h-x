@@ -46,6 +46,7 @@ public static class MauiProgram
     builder.Services.AddSingleton<ITasksApiService, TasksApiService>();
     builder.Services.AddSingleton<IInboxApiService, InboxApiService>();
     builder.Services.AddSingleton<ILeaderboardApiService, LeaderboardApiService>();
+        builder.Services.AddSingleton<IResultsApiService, ResultsApiService>();
 
         builder.Services.AddTransient<AppShell>();
 
@@ -58,6 +59,7 @@ public static class MauiProgram
     builder.Services.AddTransient<TasksViewModel>();
     builder.Services.AddTransient<InboxViewModel>();
     builder.Services.AddTransient<LeaderboardViewModel>();
+        builder.Services.AddTransient<SubmitResultViewModel>();
 
         builder.Services.AddTransient<Pages.LoginPage>();
         builder.Services.AddTransient<Pages.RegisterPage>();

@@ -1,15 +1,18 @@
 using ProjectHX.Mobile.Services;
+using ProjectHX.Mobile.Infrastructure.Outbox;
 
 namespace ProjectHX.Mobile;
 
 public partial class App : Application
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ISyncOutboxService _outboxService;
 
-    public App(IServiceProvider serviceProvider)
+    public App(IServiceProvider serviceProvider, ISyncOutboxService outboxService)
     {
         InitializeComponent();
         _serviceProvider = serviceProvider;
+        _outboxService = outboxService;
         DeepLinkDispatcher.DeepLinkReceived += HandleDeepLinkAsync;
     }
 
@@ -18,7 +21,18 @@ public partial class App : Application
         var shell = _serviceProvider.GetRequiredService<AppShell>();
         var window = new Window(shell);
         _ = MainThread.InvokeOnMainThreadAsync(shell.InitializeSessionNavigationAsync);
+        _ = Task.Run(async () =>
+        {
+            await _outboxService.InitializeAsync();
+            await _outboxService.ProcessAsync();
+        });
         return window;
+    }
+
+    protected override void OnResume()
+    {
+        base.OnResume();
+        _ = Task.Run(() => _outboxService.ProcessAsync());
     }
 
     protected override async void OnAppLinkRequestReceived(Uri uri)
