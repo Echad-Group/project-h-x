@@ -12,6 +12,7 @@ public sealed partial class ContentHubViewModel : BaseViewModel
     private readonly IEventsApiService _eventsApiService;
     private readonly IIssuesApiService _issuesApiService;
     private readonly ICampaignTeamApiService _campaignTeamApiService;
+    private readonly IAppNavigator _appNavigator;
 
     [ObservableProperty]
     private ObservableCollection<NewsArticleListItemModel> featuredNews = [];
@@ -29,12 +30,14 @@ public sealed partial class ContentHubViewModel : BaseViewModel
         INewsApiService newsApiService,
         IEventsApiService eventsApiService,
         IIssuesApiService issuesApiService,
-        ICampaignTeamApiService campaignTeamApiService)
+        ICampaignTeamApiService campaignTeamApiService,
+        IAppNavigator appNavigator)
     {
         _newsApiService = newsApiService;
         _eventsApiService = eventsApiService;
         _issuesApiService = issuesApiService;
         _campaignTeamApiService = campaignTeamApiService;
+        _appNavigator = appNavigator;
     }
 
     public async Task LoadAsync()
@@ -85,7 +88,7 @@ public sealed partial class ContentHubViewModel : BaseViewModel
             return;
         }
 
-        await Shell.Current.GoToAsync($"{nameof(Pages.NewsDetailPage)}?slug={Uri.EscapeDataString(article.Slug)}");
+        await _appNavigator.GoToNewsDetailAsync(article.Slug);
     }
 
     [RelayCommand]
@@ -96,7 +99,7 @@ public sealed partial class ContentHubViewModel : BaseViewModel
             return;
         }
 
-        await Shell.Current.GoToAsync($"{nameof(Pages.EventDetailPage)}?id={eventItem.Id}");
+        await _appNavigator.GoToEventDetailAsync(eventItem.Id);
     }
 
     [RelayCommand]
@@ -107,6 +110,6 @@ public sealed partial class ContentHubViewModel : BaseViewModel
             return;
         }
 
-        await Shell.Current.GoToAsync($"{nameof(Pages.IssueDetailPage)}?id={issue.Id}");
+        await _appNavigator.GoToIssueDetailAsync(issue.Id);
     }
 }

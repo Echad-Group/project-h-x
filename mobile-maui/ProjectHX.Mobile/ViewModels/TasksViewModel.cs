@@ -16,6 +16,8 @@ public sealed partial class TasksViewModel : BaseViewModel
     private List<TaskModel> _allTasks = [];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasTasks))]
+    [NotifyPropertyChangedFor(nameof(HasNoTasks))]
     private ObservableCollection<TaskModel> tasks = [];
 
     [ObservableProperty]
@@ -34,6 +36,8 @@ public sealed partial class TasksViewModel : BaseViewModel
 
     public bool HasSelectedTask => SelectedTask != null;
     public bool IsCompletionFormNotVisible => !IsCompletionFormVisible;
+    public bool HasTasks => Tasks.Count > 0;
+    public bool HasNoTasks => !HasTasks;
 
     public TasksViewModel(ITasksApiService tasksApiService, ISyncOutboxService outboxService)
     {
@@ -171,6 +175,8 @@ public sealed partial class TasksViewModel : BaseViewModel
         };
 
         Tasks = new ObservableCollection<TaskModel>(filtered);
+        OnPropertyChanged(nameof(HasTasks));
+        OnPropertyChanged(nameof(HasNoTasks));
     }
 
     private static bool IsNetworkError(Exception ex)

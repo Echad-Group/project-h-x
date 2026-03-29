@@ -30,6 +30,7 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 
         builder.Services.AddSingleton<IApiBaseUrlProvider, ApiBaseUrlProvider>();
+        builder.Services.AddSingleton<IAppNavigator, AppNavigator>();
         builder.Services.AddSingleton<ISessionService, SessionService>();
         builder.Services.AddSingleton<IAuthFlowStateService, AuthFlowStateService>();
         builder.Services.AddSingleton<IAppDiagnosticsService, AppDiagnosticsService>();

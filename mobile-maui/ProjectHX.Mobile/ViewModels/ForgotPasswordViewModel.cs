@@ -8,13 +8,15 @@ namespace ProjectHX.Mobile.ViewModels;
 public partial class ForgotPasswordViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
+    private readonly IAppNavigator _appNavigator;
 
     [ObservableProperty]
     private string email = string.Empty;
 
-    public ForgotPasswordViewModel(IAuthApiService authApiService)
+    public ForgotPasswordViewModel(IAuthApiService authApiService, IAppNavigator appNavigator)
     {
         _authApiService = authApiService;
+        _appNavigator = appNavigator;
     }
 
     [RelayCommand]
@@ -56,12 +58,12 @@ public partial class ForgotPasswordViewModel : BaseViewModel
     [RelayCommand]
     private async Task GoToResetAsync()
     {
-        await Shell.Current.GoToAsync($"{nameof(Pages.ResetPasswordPage)}?email={Uri.EscapeDataString(Email ?? string.Empty)}");
+        await _appNavigator.GoToResetPasswordAsync(Email ?? string.Empty);
     }
 
     [RelayCommand]
     private async Task GoToLoginAsync()
     {
-        await Shell.Current.GoToAsync("//login");
+        await _appNavigator.GoToLoginAsync();
     }
 }

@@ -11,6 +11,7 @@ namespace ProjectHX.Mobile.ViewModels;
 public partial class OtpChallengeViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
+    private readonly IAppNavigator _appNavigator;
     private readonly ISessionService _sessionService;
     private readonly IAuthFlowStateService _authFlowStateService;
 
@@ -23,9 +24,10 @@ public partial class OtpChallengeViewModel : BaseViewModel
     [ObservableProperty]
     private string purpose = "Login";
 
-    public OtpChallengeViewModel(IAuthApiService authApiService, ISessionService sessionService, IAuthFlowStateService authFlowStateService)
+    public OtpChallengeViewModel(IAuthApiService authApiService, IAppNavigator appNavigator, ISessionService sessionService, IAuthFlowStateService authFlowStateService)
     {
         _authApiService = authApiService;
+        _appNavigator = appNavigator;
         _sessionService = sessionService;
         _authFlowStateService = authFlowStateService;
     }
@@ -57,7 +59,7 @@ public partial class OtpChallengeViewModel : BaseViewModel
                 if (pendingLogin is null)
                 {
                     ErrorMessage = "OTP verified. Please sign in again.";
-                    await Shell.Current.GoToAsync("//login");
+                    await _appNavigator.GoToLoginAsync();
                     return;
                 }
 
@@ -75,12 +77,12 @@ public partial class OtpChallengeViewModel : BaseViewModel
 
                 await _sessionService.SaveTokenAsync(loginResponse.Token);
                 _authFlowStateService.ClearPendingLogin();
-                await Shell.Current.GoToAsync("//main");
+                await _appNavigator.GoToMainAsync();
                 return;
             }
 
             InfoMessage = response.Message ?? "OTP verified. You can now sign in.";
-            await Shell.Current.GoToAsync("//login");
+            await _appNavigator.GoToLoginAsync();
         }
         catch (Exception ex)
         {

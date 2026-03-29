@@ -8,6 +8,7 @@ namespace ProjectHX.Mobile.ViewModels;
 public partial class LoginViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
+    private readonly IAppNavigator _appNavigator;
     private readonly ISessionService _sessionService;
     private readonly IAuthFlowStateService _authFlowStateService;
 
@@ -17,9 +18,10 @@ public partial class LoginViewModel : BaseViewModel
     [ObservableProperty]
     private string password = string.Empty;
 
-    public LoginViewModel(IAuthApiService authApiService, ISessionService sessionService, IAuthFlowStateService authFlowStateService)
+    public LoginViewModel(IAuthApiService authApiService, IAppNavigator appNavigator, ISessionService sessionService, IAuthFlowStateService authFlowStateService)
     {
         _authApiService = authApiService;
+        _appNavigator = appNavigator;
         _sessionService = sessionService;
         _authFlowStateService = authFlowStateService;
     }
@@ -47,7 +49,7 @@ public partial class LoginViewModel : BaseViewModel
             if (response.OtpRequired)
             {
                 _authFlowStateService.SetPendingLogin(Email, Password);
-                await Shell.Current.GoToAsync($"{nameof(Pages.OtpChallengePage)}?email={Uri.EscapeDataString(Email)}&purpose=Login");
+                await _appNavigator.GoToOtpChallengeAsync(Email, "Login");
                 return;
             }
 
@@ -55,7 +57,7 @@ public partial class LoginViewModel : BaseViewModel
             {
                 await _sessionService.SaveTokenAsync(response.Token);
                 _authFlowStateService.ClearPendingLogin();
-                await Shell.Current.GoToAsync("//main");
+                await _appNavigator.GoToMainAsync();
                 return;
             }
 
@@ -74,12 +76,12 @@ public partial class LoginViewModel : BaseViewModel
     [RelayCommand]
     private async Task GoToRegisterAsync()
     {
-        await Shell.Current.GoToAsync(nameof(Pages.RegisterPage));
+        await _appNavigator.GoToRegisterAsync();
     }
 
     [RelayCommand]
     private async Task GoToForgotPasswordAsync()
     {
-        await Shell.Current.GoToAsync(nameof(Pages.ForgotPasswordPage));
+        await _appNavigator.GoToForgotPasswordAsync();
     }
 }

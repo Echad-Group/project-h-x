@@ -19,8 +19,9 @@ public class ViewModelBaselineTests
         {
             LoginAsyncHandler = _ => throw new InvalidOperationException("invalid credentials")
         };
+        var navigator = new FakeAppNavigator();
 
-        var vm = new LoginViewModel(auth, new FakeSessionService(), new FakeAuthFlowStateService())
+        var vm = new LoginViewModel(auth, navigator, new FakeSessionService(), new FakeAuthFlowStateService())
         {
             Email = "member@example.com",
             Password = "bad-password"
@@ -69,11 +70,13 @@ public class ViewModelBaselineTests
         {
             Status = new() { IsSubscribed = true, SubscriptionDate = new DateTime(2026, 3, 20, 8, 0, 0, DateTimeKind.Utc) }
         };
+        var navigator = new FakeAppNavigator();
 
         var vm = new ProfileViewModel(
             profileService,
             volunteerService,
             new FakeAuthApiService(),
+            navigator,
             new FakeSessionService(),
             new FakeApiBaseUrlProvider(),
             pushService);
@@ -155,5 +158,23 @@ public class ViewModelBaselineTests
         Assert.Equal(3, vm.PendingOutboxCount);
         Assert.Equal(1, vm.DeadLetterCount);
         Assert.Contains("Pending 3, dead-letter 1", vm.SyncSummary);
+    }
+
+    [Fact]
+    public async Task SubmitResultViewModel_SubmitAsync_RejectsImpossibleVoteTotals()
+    {
+        var vm = new SubmitResultViewModel(new FakeResultsApiService(), new FakeOutboxService())
+        {
+            PollingStationCode = "PS-77",
+            CandidateA = "70",
+            CandidateB = "40",
+            CandidateC = "10",
+            RejectedVotes = "5",
+            RegisteredVoters = "100"
+        };
+
+        await vm.SubmitCommand.ExecuteAsync(null);
+
+        Assert.Equal("Total ballots counted cannot exceed registered voters.", vm.ErrorMessage);
     }
 }

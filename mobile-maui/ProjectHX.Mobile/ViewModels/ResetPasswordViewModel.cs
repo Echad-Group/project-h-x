@@ -10,6 +10,7 @@ namespace ProjectHX.Mobile.ViewModels;
 public partial class ResetPasswordViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
+    private readonly IAppNavigator _appNavigator;
 
     [ObservableProperty]
     private string email = string.Empty;
@@ -23,9 +24,10 @@ public partial class ResetPasswordViewModel : BaseViewModel
     [ObservableProperty]
     private string confirmPassword = string.Empty;
 
-    public ResetPasswordViewModel(IAuthApiService authApiService)
+    public ResetPasswordViewModel(IAuthApiService authApiService, IAppNavigator appNavigator)
     {
         _authApiService = authApiService;
+        _appNavigator = appNavigator;
     }
 
     [RelayCommand]
@@ -62,7 +64,7 @@ public partial class ResetPasswordViewModel : BaseViewModel
                 NewPassword = NewPassword
             });
 
-            await Shell.Current.GoToAsync("//login");
+            await _appNavigator.GoToLoginAsync();
         }
         catch (Exception ex)
         {
@@ -77,6 +79,6 @@ public partial class ResetPasswordViewModel : BaseViewModel
     [RelayCommand]
     private async Task GoToLoginAsync()
     {
-        await Shell.Current.GoToAsync("//login");
+        await _appNavigator.GoToLoginAsync();
     }
 }

@@ -16,4 +16,10 @@ public partial class SubmitResultPage : ContentPage
         base.OnAppearing();
         await _viewModel.LoadAsync();
     }
+
+    protected override void OnDisappearing()
+    {
+        _viewModel.StopObserving();
+        base.OnDisappearing();
+    }
 }

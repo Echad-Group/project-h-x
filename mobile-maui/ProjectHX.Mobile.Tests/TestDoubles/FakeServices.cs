@@ -27,20 +27,83 @@ internal sealed class FakeSessionService : ISessionService
 {
     public string? Token { get; private set; }
 
+    public event EventHandler<SessionChangedEventArgs>? SessionChanged;
+
     public Task<string?> GetTokenAsync() => Task.FromResult(Token);
     public Task SaveTokenAsync(string token)
     {
         Token = token;
+        SessionChanged?.Invoke(this, new SessionChangedEventArgs(hasActiveSession: true, SessionChangeReason.SignedIn));
         return Task.CompletedTask;
     }
 
-    public Task ClearAsync()
+    public Task ClearAsync(SessionChangeReason reason = SessionChangeReason.SignedOut)
     {
         Token = null;
+        SessionChanged?.Invoke(this, new SessionChangedEventArgs(hasActiveSession: false, reason));
         return Task.CompletedTask;
     }
 
     public Task<bool> HasActiveSessionAsync() => Task.FromResult(!string.IsNullOrWhiteSpace(Token));
+}
+
+internal sealed class FakeAppNavigator : IAppNavigator
+{
+    public string? LastNavigation { get; private set; }
+
+    public Task GoToLoginAsync()
+    {
+        LastNavigation = "//login";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToMainAsync()
+    {
+        LastNavigation = "//main";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToRegisterAsync()
+    {
+        LastNavigation = "RegisterPage";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToForgotPasswordAsync()
+    {
+        LastNavigation = "ForgotPasswordPage";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToResetPasswordAsync(string email)
+    {
+        LastNavigation = $"ResetPasswordPage?email={email}";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToOtpChallengeAsync(string email, string purpose)
+    {
+        LastNavigation = $"OtpChallengePage?email={email}&purpose={purpose}";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToNewsDetailAsync(string slug)
+    {
+        LastNavigation = $"NewsDetailPage?slug={slug}";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToEventDetailAsync(int eventId)
+    {
+        LastNavigation = $"EventDetailPage?id={eventId}";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToIssueDetailAsync(int issueId)
+    {
+        LastNavigation = $"IssueDetailPage?id={issueId}";
+        return Task.CompletedTask;
+    }
 }
 
 internal sealed class FakeAuthFlowStateService : IAuthFlowStateService

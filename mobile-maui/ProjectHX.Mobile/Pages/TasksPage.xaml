@@ -97,9 +97,11 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Empty state -->
-                  <Label Text="No tasks found." Style="{StaticResource MutedLabelStyle}"
-                      HorizontalOptions="Center" />
+                  <!-- Empty state -->
+                  <Label Text="No tasks found."
+                      Style="{StaticResource MutedLabelStyle}"
+                      HorizontalOptions="Center"
+                      IsVisible="{Binding HasNoTasks}" />
 
             </VerticalStackLayout>
         </ScrollView>

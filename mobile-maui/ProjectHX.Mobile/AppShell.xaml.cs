@@ -6,6 +6,7 @@ namespace ProjectHX.Mobile;
 public partial class AppShell : Shell
 {
     private readonly ISessionService _sessionService;
+    private bool _isRedirecting;
 
     public AppShell(ISessionService sessionService)
     {
@@ -29,19 +30,21 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(ProfilePage), typeof(ProfilePage));
 
         Navigating += OnShellNavigating;
+        _sessionService.SessionChanged += OnSessionChanged;
     }
 
     public async Task InitializeSessionNavigationAsync()
     {
-        var hasSession = await _sessionService.HasActiveSessionAsync();
-        await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            await GoToAsync(hasSession ? "//main" : "//login");
-        });
+        await NavigateForSessionStateAsync();
     }
 
     private async void OnShellNavigating(object? sender, ShellNavigatingEventArgs e)
     {
+        if (_isRedirecting)
+        {
+            return;
+        }
+
         var target = e.Target?.Location?.OriginalString;
         if (string.IsNullOrWhiteSpace(target))
         {
@@ -59,14 +62,48 @@ public partial class AppShell : Shell
         if (isMainRoute && !hasSession)
         {
             e.Cancel();
-            _ = MainThread.InvokeOnMainThreadAsync(async () => await GoToAsync("//login"));
+            _ = RedirectAsync("//login");
             return;
         }
 
         if ((isLoginRoute || isAuthAuxRoute) && hasSession)
         {
             e.Cancel();
-            _ = MainThread.InvokeOnMainThreadAsync(async () => await GoToAsync("//main"));
+            _ = RedirectAsync("//main");
+        }
+    }
+
+    private async void OnSessionChanged(object? sender, SessionChangedEventArgs e)
+    {
+        if (e.HasActiveSession)
+        {
+            return;
+        }
+
+        await RedirectAsync("//login");
+    }
+
+    private async Task NavigateForSessionStateAsync()
+    {
+        var hasSession = await _sessionService.HasActiveSessionAsync();
+        await RedirectAsync(hasSession ? "//main" : "//login");
+    }
+
+    private async Task RedirectAsync(string route)
+    {
+        if (_isRedirecting)
+        {
+            return;
+        }
+
+        try
+        {
+            _isRedirecting = true;
+            await MainThread.InvokeOnMainThreadAsync(async () => await GoToAsync(route));
+        }
+        finally
+        {
+            _isRedirecting = false;
         }
     }
 }

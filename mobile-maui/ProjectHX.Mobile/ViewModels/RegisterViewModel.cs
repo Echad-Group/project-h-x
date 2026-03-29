@@ -8,6 +8,7 @@ namespace ProjectHX.Mobile.ViewModels;
 public partial class RegisterViewModel : BaseViewModel
 {
     private readonly IAuthApiService _authApiService;
+    private readonly IAppNavigator _appNavigator;
 
     [ObservableProperty]
     private string firstName = string.Empty;
@@ -24,9 +25,10 @@ public partial class RegisterViewModel : BaseViewModel
     [ObservableProperty]
     private string confirmPassword = string.Empty;
 
-    public RegisterViewModel(IAuthApiService authApiService)
+    public RegisterViewModel(IAuthApiService authApiService, IAppNavigator appNavigator)
     {
         _authApiService = authApiService;
+        _appNavigator = appNavigator;
     }
 
     [RelayCommand]
@@ -66,12 +68,12 @@ public partial class RegisterViewModel : BaseViewModel
 
             if (response.OtpRequired)
             {
-                await Shell.Current.GoToAsync($"{nameof(Pages.OtpChallengePage)}?email={Uri.EscapeDataString(Email)}&purpose=Registration");
+                await _appNavigator.GoToOtpChallengeAsync(Email, "Registration");
                 return;
             }
 
             InfoMessage = response.Message ?? "Registration complete. Please sign in.";
-            await Shell.Current.GoToAsync("//login");
+            await _appNavigator.GoToLoginAsync();
         }
         catch (Exception ex)
         {
@@ -86,6 +88,6 @@ public partial class RegisterViewModel : BaseViewModel
     [RelayCommand]
     private async Task GoToLoginAsync()
     {
-        await Shell.Current.GoToAsync("//login");
+        await _appNavigator.GoToLoginAsync();
     }
 }

@@ -15,6 +15,7 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
 {
     private readonly IResultsApiService _resultsApiService;
     private readonly ISyncOutboxService _outboxService;
+    private bool _isSubscribedToOutboxStatus;
 
     [ObservableProperty]
     private string pollingStationCode = string.Empty;
@@ -83,8 +84,30 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
 
     public async Task LoadAsync()
     {
-        await _outboxService.InitializeAsync();
-        await LoadSyncStatusAsync();
+        ErrorMessage = null;
+
+        try
+        {
+            EnsureOutboxStatusSubscription();
+            await _outboxService.InitializeAsync();
+            await LoadSyncStatusAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            SyncSummary = "Unable to read sync status right now.";
+        }
+    }
+
+    public void StopObserving()
+    {
+        if (!_isSubscribedToOutboxStatus)
+        {
+            return;
+        }
+
+        _outboxService.StatusChanged -= OnOutboxStatusChanged;
+        _isSubscribedToOutboxStatus = false;
     }
 
     [RelayCommand]
@@ -224,17 +247,29 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
             throw new InvalidOperationException("Polling station code is required.");
         }
 
+        var candidateAVotes = ParseNumber(CandidateA, "Candidate A votes");
+        var candidateBVotes = ParseNumber(CandidateB, "Candidate B votes");
+        var candidateCVotes = ParseNumber(CandidateC, "Candidate C votes");
+        var rejectedVotes = ParseNumber(RejectedVotes, "Rejected votes");
+        var registeredVoters = ParseNumber(RegisteredVoters, "Registered voters");
+
+        var totalVotes = candidateAVotes + candidateBVotes + candidateCVotes + rejectedVotes;
+        if (registeredVoters > 0 && totalVotes > registeredVoters)
+        {
+            throw new InvalidOperationException("Total ballots counted cannot exceed registered voters.");
+        }
+
         return new ResultSubmissionRequest
         {
             PollingStationCode = PollingStationCode.Trim(),
             Constituency = Normalize(Constituency),
             County = Normalize(County),
             Region = Normalize(Region),
-            CandidateA = ParseNumber(CandidateA, "Candidate A votes"),
-            CandidateB = ParseNumber(CandidateB, "Candidate B votes"),
-            CandidateC = ParseNumber(CandidateC, "Candidate C votes"),
-            RejectedVotes = ParseNumber(RejectedVotes, "Rejected votes"),
-            RegisteredVoters = ParseNumber(RegisteredVoters, "Registered voters"),
+            CandidateA = candidateAVotes,
+            CandidateB = candidateBVotes,
+            CandidateC = candidateCVotes,
+            RejectedVotes = rejectedVotes,
+            RegisteredVoters = registeredVoters,
             Latitude = Latitude,
             Longitude = Longitude,
             DeviceFingerprint = ResolveDeviceFingerprint(),
@@ -359,5 +394,16 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
     private async void OnOutboxStatusChanged(object? sender, EventArgs e)
     {
         await MainThread.InvokeOnMainThreadAsync(LoadSyncStatusAsync);
+    }
+
+    private void EnsureOutboxStatusSubscription()
+    {
+        if (_isSubscribedToOutboxStatus)
+        {
+            return;
+        }
+
+        _outboxService.StatusChanged += OnOutboxStatusChanged;
+        _isSubscribedToOutboxStatus = true;
     }
 }

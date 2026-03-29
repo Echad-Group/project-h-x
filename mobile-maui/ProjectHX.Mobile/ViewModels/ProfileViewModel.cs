@@ -13,6 +13,7 @@ public partial class ProfileViewModel : BaseViewModel
     private readonly IUserProfileApiService _userProfileApiService;
     private readonly IVolunteerApiService _volunteerApiService;
     private readonly IAuthApiService _authApiService;
+    private readonly IAppNavigator _appNavigator;
     private readonly ISessionService _sessionService;
     private readonly IApiBaseUrlProvider _apiBaseUrlProvider;
     private readonly IPushApiService _pushApiService;
@@ -149,6 +150,7 @@ public partial class ProfileViewModel : BaseViewModel
         IUserProfileApiService userProfileApiService,
         IVolunteerApiService volunteerApiService,
         IAuthApiService authApiService,
+        IAppNavigator appNavigator,
         ISessionService sessionService,
         IApiBaseUrlProvider apiBaseUrlProvider,
         IPushApiService pushApiService)
@@ -156,6 +158,7 @@ public partial class ProfileViewModel : BaseViewModel
         _userProfileApiService = userProfileApiService;
         _volunteerApiService = volunteerApiService;
         _authApiService = authApiService;
+        _appNavigator = appNavigator;
         _sessionService = sessionService;
         _apiBaseUrlProvider = apiBaseUrlProvider;
         _pushApiService = pushApiService;
@@ -418,9 +421,9 @@ public partial class ProfileViewModel : BaseViewModel
         }
         finally
         {
-            await _sessionService.ClearAsync();
+            await _sessionService.ClearAsync(SessionChangeReason.SignedOut);
             IsBusy = false;
-            await Shell.Current.GoToAsync("//login");
+            await _appNavigator.GoToLoginAsync();
         }
     }
 
@@ -517,8 +520,8 @@ public partial class ProfileViewModel : BaseViewModel
         {
             InfoMessage = await _userProfileApiService.DeleteAccountAsync(DeletePassword);
             DeletePassword = string.Empty;
-            await _sessionService.ClearAsync();
-            await Shell.Current.GoToAsync("//login");
+            await _sessionService.ClearAsync(SessionChangeReason.SignedOut);
+            await _appNavigator.GoToLoginAsync();
         }
         catch (Exception ex)
         {

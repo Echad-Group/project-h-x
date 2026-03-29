@@ -24,7 +24,7 @@ public sealed class AuthTokenHandler : DelegatingHandler
         var response = await base.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            await _sessionService.ClearAsync();
+            await _sessionService.ClearAsync(SessionChangeReason.Unauthorized);
         }
 
         return response;
