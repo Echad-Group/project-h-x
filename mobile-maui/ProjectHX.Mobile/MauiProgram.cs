@@ -43,6 +43,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<IUserProfileApiService, UserProfileApiService>();
         builder.Services.AddSingleton<IVolunteerApiService, VolunteerApiService>();
         builder.Services.AddSingleton<ISyncOutboxService, SyncOutboxService>();
+    builder.Services.AddSingleton<ITasksApiService, TasksApiService>();
+    builder.Services.AddSingleton<IInboxApiService, InboxApiService>();
+    builder.Services.AddSingleton<ILeaderboardApiService, LeaderboardApiService>();
 
         builder.Services.AddTransient<AppShell>();
 
@@ -52,6 +55,9 @@ public static class MauiProgram
         builder.Services.AddTransient<OtpChallengeViewModel>();
         builder.Services.AddTransient<ProfileViewModel>();
         builder.Services.AddTransient<ResetPasswordViewModel>();
+    builder.Services.AddTransient<TasksViewModel>();
+    builder.Services.AddTransient<InboxViewModel>();
+    builder.Services.AddTransient<LeaderboardViewModel>();
 
         builder.Services.AddTransient<Pages.LoginPage>();
         builder.Services.AddTransient<Pages.RegisterPage>();

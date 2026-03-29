@@ -3,28 +3,88 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectHX.Mobile.Pages.InboxPage"
              Title="Inbox">
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="14">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header area -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="14">
+
             <Label Text="Message Inbox" Style="{StaticResource PageTitleStyle}" />
-            <Label Text="Command updates and field notices from your coordination team." Style="{StaticResource MutedLabelStyle}" />
+            <Label Text="Command updates and field notices from your coordination team."
+                   Style="{StaticResource MutedLabelStyle}" />
 
-            <Border Style="{StaticResource CardStyle}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Weekly Command Report" FontAttributes="Bold" />
-                    <Label Text="Route: Ward 5 • Source: Field Team" Style="{StaticResource MutedLabelStyle}" />
-                    <Label Text="Completed tasks: 8 • Compliance issues: 0" />
-                    <Button Text="Mark Read" Style="{StaticResource SecondaryButtonStyle}" />
-                </VerticalStackLayout>
+            <!-- Unread badge -->
+            <Border Style="{StaticResource CardStyle}" BackgroundColor="#EFF6FF"
+                    IsVisible="{Binding HasUnreadMessages}">
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="{Binding UnreadCount}" FontAttributes="Bold" TextColor="#1D4ED8" />
+                    <Label Text="unread message(s)" TextColor="#1D4ED8" />
+                </HorizontalStackLayout>
             </Border>
 
-            <Border Style="{StaticResource CardStyle}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Campaign Message" FontAttributes="Bold" />
-                    <Label Text="Submitted 09:15" Style="{StaticResource MutedLabelStyle}" />
-                    <Label Text="Volunteer check-in numbers are due at end of day." />
-                    <Button Text="Mark Read" Style="{StaticResource SecondaryButtonStyle}" />
-                </VerticalStackLayout>
+            <!-- Busy indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource BrandGreen}" HorizontalOptions="Center" />
+
+            <!-- Error banner -->
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasErrorMessage}"
+                    BackgroundColor="#FEF2F2" StrokeThickness="1" Stroke="#FCA5A5">
+                <Label Text="{Binding ErrorMessage}" TextColor="#991B1B" />
             </Border>
+
+            <!-- Info banner -->
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasInfoMessage}"
+                    BackgroundColor="#F0FDF4" StrokeThickness="1" Stroke="#86EFAC">
+                <Label Text="{Binding InfoMessage}" TextColor="#166534" />
+            </Border>
+
+            <!-- Empty state -->
+            <Label Text="Your inbox is empty." Style="{StaticResource MutedLabelStyle}"
+                   HorizontalOptions="Center" />
+
         </VerticalStackLayout>
-    </ScrollView>
+
+        <!-- Message list -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Messages}"
+                        Margin="20,10,20,20"
+                        SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,0,0,10" Padding="14" StrokeThickness="1" StrokeShape="RoundRectangle 10"
+                            Stroke="#E5E7EB" BackgroundColor="#FFFFFF">
+                        <VerticalStackLayout Spacing="6">
+
+                            <!-- Channel + timestamp row -->
+                            <HorizontalStackLayout Spacing="8">
+                                <Border BackgroundColor="#334155" Padding="5,1" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 3">
+                                    <Label Text="{Binding ChannelDisplay}" TextColor="White" FontSize="11" FontAttributes="Bold" />
+                                </Border>
+                                <Label Text="{Binding TimeDisplay}" Style="{StaticResource MutedLabelStyle}" VerticalOptions="Center" />
+                                <Label Text="● UNREAD" TextColor="#1D4ED8" FontSize="10" FontAttributes="Bold"
+                                       VerticalOptions="Center"
+                                       IsVisible="{Binding IsUnread}" />
+                            </HorizontalStackLayout>
+
+                            <!-- Title -->
+                            <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="15" />
+
+                            <!-- Body preview -->
+                            <Label Text="{Binding BodyPreview}" MaxLines="3" LineBreakMode="TailTruncation" />
+
+                            <!-- Mark Read button (only for unread) -->
+                            <Button Text="Mark Read"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    IsVisible="{Binding IsUnread}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MarkReadCommand}"
+                                    CommandParameter="{Binding .}" />
+
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
 </ContentPage>
