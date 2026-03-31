@@ -1,10 +1,18 @@
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Mopups.Interfaces;
+using Mopups.Services;
+using ProjectHX.Extensions;
+using ProjectHX.Mobile.Contexts;
 using ProjectHX.Mobile.Infrastructure.Diagnostics;
 using ProjectHX.Mobile.Infrastructure.Outbox;
+using ProjectHX.Mobile.Pages;
 using ProjectHX.Mobile.Services;
 using ProjectHX.Mobile.Services.Interfaces;
 using ProjectHX.Mobile.ViewModels;
+using ProjectHX.Models.Configuration;
+using AppInfo = ProjectHX.Models.Configuration.AppInfo;
 
 namespace ProjectHX.Mobile;
 
@@ -15,6 +23,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -24,6 +33,7 @@ public static class MauiProgram
         using (var appSettingsStream = FileSystem.OpenAppPackageFileAsync("appsettings.json").GetAwaiter().GetResult())
         {
             builder.Configuration.AddJsonStream(appSettingsStream);
+            builder.Services.AddModels(builder.Configuration);
         }
 
         builder.Logging.SetMinimumLevel(LogLevel.Information);
@@ -36,15 +46,52 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAppDiagnosticsService, AppDiagnosticsService>();
         builder.Services.AddTransient<AuthTokenHandler>();
 
+        // Set up HttpClient with base address from config
         builder.Services
             .AddHttpClient("ProjectHxApi", (serviceProvider, client) =>
             {
                 client.BaseAddress = serviceProvider.GetRequiredService<IApiBaseUrlProvider>().GetBaseUri();
+                if (client.BaseAddress.Host.Contains("ngrok", StringComparison.OrdinalIgnoreCase))
+                    client.DefaultRequestHeaders.Add("ngrok-skip-browser-warning", "69420");
             })
             .AddHttpMessageHandler<AuthTokenHandler>();
 
-        builder.Services.AddSingleton<HttpClient>(serviceProvider =>
-            serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("ProjectHxApi"));
+        /*builder.Services.AddSingleton<HttpClient>(serviceProvider =>
+        {
+            var client = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("ProjectHxApi");
+            var config = serviceProvider.GetRequiredService<IConfiguration>();
+            var apiUrls = config.GetRequiredSection(nameof(ApiUrls)).Get<ApiUrls>()!;
+
+            client.BaseAddress = new Uri(apiUrls.NgRokTmpHost);
+            if(client.BaseAddress.Host.Contains("ngrok", StringComparison.OrdinalIgnoreCase))
+                client.DefaultRequestHeaders.Add("ngrok-skip-browser-warning", "69420");
+
+            return client;
+        });*/
+
+
+        builder.Services.AddSingleton<IPopupNavigation>(MopupService.Instance);
+
+
+        builder.Services.AddScoped<AppHttpContext>(serviceProvider =>
+        {
+            var baseUri = serviceProvider.GetRequiredService<IApiBaseUrlProvider>().GetBaseUri();
+            return new(baseUri.GetLeftPart(UriPartial.Authority), baseUri.ToString(), new HttpClient());
+        });
+        builder.Services.AddScoped<ServerAppDataFolders>(sp => new(builder.Configuration.GetRequiredSection(nameof(ServerAppDataFolders)).Get<ServerAppDataFolders>()!));
+        builder.Services.AddTransient<AppStorageContext>(serviceProvider =>
+        {
+            var appInfo = builder.Configuration.GetRequiredSection(nameof(AppInfo)).Get<AppInfo>()!;
+            var dataFolders = builder.Configuration.GetRequiredSection(nameof(ServerAppDataFolders)).Get<ServerAppDataFolders>()!;
+            return new(appInfo, dataFolders);
+        });
+        builder.Services.AddScoped<AppInfo>(serviceProvider =>
+        {
+            var appInfo = builder.Configuration.GetRequiredSection(nameof(AppInfo)).Get<AppInfo>()!;
+            return new(appInfo);
+        });
+
+        builder.Services.AddScoped<SqliteDbContext>();
 
         builder.Services.AddSingleton<IAuthApiService, AuthApiService>();
         builder.Services.AddSingleton<IUserProfileApiService, UserProfileApiService>();
@@ -91,7 +138,17 @@ public static class MauiProgram
         builder.Services.AddTransient<Pages.EventDetailPage>();
         builder.Services.AddTransient<Pages.IssueDetailPage>();
         builder.Services.AddTransient<Pages.ProfilePage>();
+        builder.Services.AddTransient<LoadingPage>();
+        builder.Services.AddTransient<OnboardingPage>();
 
-        return builder.Build();
+        var app = builder.Build();
+
+        // Eagerly initialize the local sqlite store once on startup.
+        using (var scope = app.Services.CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<SqliteDbContext>().Database.EnsureCreated();
+        }
+
+        return app;
     }
 }

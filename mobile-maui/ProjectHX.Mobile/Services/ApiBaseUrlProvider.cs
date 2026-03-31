@@ -34,15 +34,33 @@ public sealed class ApiBaseUrlProvider : IApiBaseUrlProvider
     {
 #if DEBUG
 #if ANDROID
-        return _configuration["ApiSettings:DebugAndroidBaseUrl"];
+        return GetFirstConfiguredValue(
+            "ApiSettings:DebugAndroidBaseUrl",
+            "ApiSettings:DebugDefaultBaseUrl");
 #elif IOS
-        return _configuration["ApiSettings:DebugIosBaseUrl"];
+        return GetFirstConfiguredValue(
+            "ApiSettings:DebugIosBaseUrl",
+            "ApiSettings:DebugDefaultBaseUrl");
 #else
         return _configuration["ApiSettings:DebugDefaultBaseUrl"];
 #endif
 #else
         return _configuration["ApiSettings:ProductionBaseUrl"];
 #endif
+    }
+
+    private string? GetFirstConfiguredValue(params string[] keys)
+    {
+        foreach (var key in keys)
+        {
+            var value = _configuration[key];
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+        }
+
+        return null;
     }
 
     private static Uri EnsureApiBase(Uri uri)

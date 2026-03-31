@@ -15,28 +15,41 @@
     Shell.TabBarDisabledColor="#D1D5DB">
 
     <ShellContent
+        ContentTemplate="{DataTemplate pages:LoadingPage}"
+        Route="loading"
+        NavigationPage.HasNavigationBar="False"/>
+    <ShellContent
+	    ContentTemplate="{DataTemplate pages:OnboardingPage}"
+	    Route="onboarding"
+        NavigationPage.HasNavigationBar="False"/>
+    <ShellContent
+	    ContentTemplate="{DataTemplate pages:WelcomePage}"
+	    Route="welcome"
+        NavigationPage.HasNavigationBar="False"/>
+    <ShellContent
         Title="Login"
         Route="login"
-        ContentTemplate="{DataTemplate pages:LoginPage}" />
+        ContentTemplate="{DataTemplate pages:LoginPage}"
+        NavigationPage.HasNavigationBar="False"/>
 
-    <TabBar Route="main">
+    <TabBar Route="main" NavigationPage.HasNavigationBar="True">
+        <Tab Title="Explore" Route="explore-tab">
+            <ShellContent ContentTemplate="{DataTemplate pages:ContentHubPage}" Route="explore" />
+        </Tab>
         <Tab Title="Tasks" Route="tasks-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:TasksPage}" Route="tasks" />
-        </Tab>
-        <Tab Title="Submit" Route="submit-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:SubmitResultPage}" Route="submit" />
         </Tab>
         <Tab Title="Inbox" Route="inbox-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:InboxPage}" Route="inbox" />
         </Tab>
-        <Tab Title="Leaderboard" Route="leaderboard-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:LeaderboardPage}" Route="leaderboard" />
-        </Tab>
-        <Tab Title="Explore" Route="explore-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:ContentHubPage}" Route="explore" />
-        </Tab>
         <Tab Title="Profile" Route="profile-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:ProfilePage}" Route="profile" />
+        </Tab>
+        <Tab Title="Submit" Route="submit-tab">
+            <ShellContent ContentTemplate="{DataTemplate pages:SubmitResultPage}" Route="submit" />
+        </Tab>
+        <Tab Title="Leaderboard" Route="leaderboard-tab">
+            <ShellContent ContentTemplate="{DataTemplate pages:LeaderboardPage}" Route="leaderboard" />
         </Tab>
     </TabBar>
 </Shell>

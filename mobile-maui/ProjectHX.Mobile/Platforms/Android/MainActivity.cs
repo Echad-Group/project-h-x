@@ -15,11 +15,22 @@ namespace ProjectHX.Mobile;
 	AutoVerify = false)]
 public class MainActivity : MauiAppCompatActivity
 {
-	protected override void OnCreate(Bundle? savedInstanceState)
+    public MainActivity()
+    {
+        Instance = this;
+        AndroidStaticHelperMethods = new(this);
+    }
+
+    public static MainActivity Instance { get; private set; } = null!;
+    public AndroidStaticHelperMethods AndroidStaticHelperMethods { get; private set; }
+    protected override void OnCreate(Bundle? savedInstanceState)
 	{
-		base.OnCreate(savedInstanceState);
+        base.OnCreate(savedInstanceState);
 		_ = DispatchIncomingLinkAsync(Intent);
-	}
+
+        Instance = this;
+        AndroidStaticHelperMethods = new(this);
+    }
 
 	protected override void OnNewIntent(Intent? intent)
 	{

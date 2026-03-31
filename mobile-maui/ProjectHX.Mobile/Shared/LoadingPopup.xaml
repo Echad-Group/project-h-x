@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mopups:PopupPage
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
+	x:Class="ProjectHX.Mobile.Shared.LoadingPopup"
+	BackgroundColor="#80000000"
+	CloseWhenBackgroundIsClicked="False">
+	<Frame
+		BackgroundColor="WhiteSmoke"
+		CornerRadius="10"
+		HeightRequest="120"
+		WidthRequest="150"
+		>
+		<VerticalStackLayout			
+			HorizontalOptions="Center"
+			VerticalOptions="Center"
+			>
+			<ActivityIndicator
+				IsEnabled="True"
+				IsRunning="True"
+				IsVisible="True" Color="{DynamicResource BrandGreenDark}"/>
+			<Label x:Name="LoadingLabel"
+				   Margin="0,10,0,0"
+				   HorizontalOptions="Center"
+				   Text="{Binding Text}"
+				   VerticalOptions="Center"
+				   HorizontalTextAlignment="Center"/>
+		</VerticalStackLayout>
+	</Frame>
+</mopups:PopupPage>

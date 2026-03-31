@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+		<!--Do NOT build for Windows. It's not targeted in this project TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks-->
 		<OutputType>Exe</OutputType>
 		<RootNamespace>ProjectHX.Mobile</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -21,9 +21,9 @@
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
-		<WindowsPackageType>None</WindowsPackageType>
+		<!--WindowsPackageType>None</WindowsPackageType>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion-->
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
@@ -52,12 +52,41 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
+		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.14" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.14" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+
+		<PackageReference Include="Mopups" Version="1.3.4" />
+
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\ProjectHX.Models\ProjectHX.Models.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Pages\LoadingPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\OnboardingPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\WelcomePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Shared\LoadingPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Shared\SharedPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 </Project>

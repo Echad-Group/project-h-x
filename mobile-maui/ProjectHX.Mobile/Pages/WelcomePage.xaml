@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="ProjectHX.Mobile.Pages.WelcomePage"
+			 BackgroundColor="#2b823b"
+			 Shell.NavBarIsVisible="False">
+
+	<VerticalStackLayout
+		Padding="30,0"
+		Spacing="0"
+		VerticalOptions="Center">
+		<Image
+			Source="new_kenya_2_0.png"
+			HeightRequest="185"
+			Aspect="AspectFit"
+			Margin="0"
+			SemanticProperties.Description="dot net bot in a hovercraft number nine" />
+
+		<Label IsVisible="True"
+			FontSize="20"
+			FontAttributes="Bold"
+			Text="The innvative platform connecting farmers and buyers together"
+			Style="{DynamicResource Headline}"
+			HorizontalTextAlignment="Center"
+			
+			SemanticProperties.HeadingLevel="Level1" />
+
+		<Button
+			x:Name="LoginBtn"
+			Text="Login"
+			FontSize="Medium"
+			FontAttributes="Bold"
+			SemanticProperties.Hint="Sends the user to the login page"
+			Clicked="OnLoginClicked"
+			HorizontalOptions="Fill"
+			BackgroundColor="#25472c"
+			CornerRadius="50"
+			HeightRequest="40"
+			Margin="0, 50, 0, 20"/>
+		
+		<Button
+			x:Name="SignupBtn"
+			Text="Signup"
+			FontSize="Medium"
+			FontAttributes="Bold"
+			SemanticProperties.Hint="Sends the user to the signup page"
+			Clicked="OnSignupClicked"
+			HorizontalOptions="Fill"
+			BackgroundColor="#25472c"
+			CornerRadius="50"
+			HeightRequest="40" />
+	</VerticalStackLayout>
+</ContentPage>

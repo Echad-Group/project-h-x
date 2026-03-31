@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mopups:PopupPage
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
+	x:Class="ProjectHX.Mobile.Shared.SharedPopup"
+	BackgroundColor="#80000000"
+	CloseWhenBackgroundIsClicked="True">
+	<Frame
+		BackgroundColor="WhiteSmoke"
+		CornerRadius="10"
+		WidthRequest="300">
+		<VerticalStackLayout
+			HorizontalOptions="Center"
+			VerticalOptions="Center"
+			Padding="20"
+			Spacing="15">
+			<!-- Placeholder for custom content -->
+			<ContentPresenter x:Name="PopupContent" Content="{Binding Content}" />
+			<!-- Replace the ContentPresenter with ContentView 
+			<ContentView x:Name="PopupContent" />-->
+
+			<!-- Buttons -->
+			<HorizontalStackLayout HorizontalOptions="End" Spacing="16">
+				<Button Text="{Binding CancelText}" BackgroundColor="#ffffff" TextColor="#25472c"  FontAttributes="Bold" CornerRadius="50" Command="{Binding CancelCommand}" IsVisible="{Binding CancelVisible}" />
+				<Button Text="{Binding OkText}" BackgroundColor="#25472c" CornerRadius="50" Command="{Binding OkCommand}" IsVisible="{Binding OkVisible}" />
+			</HorizontalStackLayout>
+
+		</VerticalStackLayout>
+	</Frame>
+</mopups:PopupPage>

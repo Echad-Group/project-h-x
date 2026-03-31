@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../ThirdPartyServices/ThirdPartyServices.csproj" />
+    <ProjectReference Include="..\..\ProjectHX.Models\ProjectHX.Models.csproj" />
   </ItemGroup>
 
 </Project>

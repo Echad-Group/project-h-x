@@ -1,6 +1,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using NewKenyaAPI.Models;
+using ProjectHX.Contexts.MDB;
 
 namespace NewKenyaAPI.Services
 {
@@ -37,25 +38,19 @@ namespace NewKenyaAPI.Services
         private readonly IMongoCollection<CampaignPhaseStateDocument> _campaignPhase;
         private readonly IMongoCollection<WarRoomCountersDocument> _counters;
 
-        public WarRoomMongoStore(IConfiguration configuration)
+        public WarRoomMongoStore(MongoDbContext mongoDbContext)
         {
-            var connectionString = configuration["MongoDb:ConnectionString"] ?? "mongodb://localhost:27017";
-            var databaseName = configuration["MongoDb:Database"] ?? "newkenya";
-
-            var client = new MongoClient(connectionString);
-            var database = client.GetDatabase(databaseName);
-
-            _lanes = database.GetCollection<WarRoomCommandLane>("warroom_lanes");
-            _pods = database.GetCollection<WarRoomCommandPodItem>("warroom_pods");
-            _incidents = database.GetCollection<WarRoomIncidentItem>("warroom_incidents");
-            _battleRhythm = database.GetCollection<WarRoomBattleRhythmDocument>("warroom_battle_rhythm");
-            _legalCases = database.GetCollection<WarRoomLegalCaseItem>("warroom_legal_cases");
-            _commandGrid = database.GetCollection<WarRoomCommandGridStatusItem>("warroom_command_grid");
-            _coalitions = database.GetCollection<CoalitionCommandItem>("warroom_coalitions");
-            _mobilizationRoles = database.GetCollection<MobilizationRoleAssignmentItem>("warroom_mobilization_roles");
-            _redZone = database.GetCollection<WarRoomRedZoneStateDocument>("warroom_red_zone");
-            _campaignPhase = database.GetCollection<CampaignPhaseStateDocument>("warroom_campaign_phase");
-            _counters = database.GetCollection<WarRoomCountersDocument>("warroom_counters");
+            _lanes = mongoDbContext.GetCollection<WarRoomCommandLane>("warroom_lanes");
+            _pods = mongoDbContext.GetCollection<WarRoomCommandPodItem>("warroom_pods");
+            _incidents = mongoDbContext.GetCollection<WarRoomIncidentItem>("warroom_incidents");
+            _battleRhythm = mongoDbContext.GetCollection<WarRoomBattleRhythmDocument>("warroom_battle_rhythm");
+            _legalCases = mongoDbContext.GetCollection<WarRoomLegalCaseItem>("warroom_legal_cases");
+            _commandGrid = mongoDbContext.GetCollection<WarRoomCommandGridStatusItem>("warroom_command_grid");
+            _coalitions = mongoDbContext.GetCollection<CoalitionCommandItem>("warroom_coalitions");
+            _mobilizationRoles = mongoDbContext.GetCollection<MobilizationRoleAssignmentItem>("warroom_mobilization_roles");
+            _redZone = mongoDbContext.GetCollection<WarRoomRedZoneStateDocument>("warroom_red_zone");
+            _campaignPhase = mongoDbContext.GetCollection<CampaignPhaseStateDocument>("warroom_campaign_phase");
+            _counters = mongoDbContext.GetCollection<WarRoomCountersDocument>("warroom_counters");
         }
 
         public WarRoomPersistenceSnapshot? LoadSnapshot()
