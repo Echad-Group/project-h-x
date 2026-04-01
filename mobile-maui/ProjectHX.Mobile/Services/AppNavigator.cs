@@ -40,4 +40,8 @@ public sealed class AppNavigator : IAppNavigator
             await Shell.Current.GoToAsync(route);
         });
     }
+
+    public Task GoToLoadingAsync() => NavigateAsync("//loading");
+
+    public Task GoToWelcomeAsync() => NavigateAsync("//welcome");
 }

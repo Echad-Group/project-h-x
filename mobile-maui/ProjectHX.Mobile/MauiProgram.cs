@@ -56,18 +56,16 @@ public static class MauiProgram
             })
             .AddHttpMessageHandler<AuthTokenHandler>();
 
-        /*builder.Services.AddSingleton<HttpClient>(serviceProvider =>
+        // All services that inject HttpClient should receive the configured named client.
+        builder.Services.AddTransient<HttpClient>(serviceProvider =>
         {
             var client = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("ProjectHxApi");
-            var config = serviceProvider.GetRequiredService<IConfiguration>();
-            var apiUrls = config.GetRequiredSection(nameof(ApiUrls)).Get<ApiUrls>()!;
 
-            client.BaseAddress = new Uri(apiUrls.NgRokTmpHost);
-            if(client.BaseAddress.Host.Contains("ngrok", StringComparison.OrdinalIgnoreCase))
+            if (client.BaseAddress!.Host.Contains("ngrok", StringComparison.OrdinalIgnoreCase))
                 client.DefaultRequestHeaders.Add("ngrok-skip-browser-warning", "69420");
 
             return client;
-        });*/
+        });
 
 
         builder.Services.AddSingleton<IPopupNavigation>(MopupService.Instance);

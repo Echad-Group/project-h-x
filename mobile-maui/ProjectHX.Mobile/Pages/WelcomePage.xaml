@@ -2,52 +2,65 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
 			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
 			 x:Class="ProjectHX.Mobile.Pages.WelcomePage"
-			 BackgroundColor="#2b823b"
+			 BackgroundColor="{StaticResource LightBackground}"
 			 Shell.NavBarIsVisible="False">
 
-	<VerticalStackLayout
-		Padding="30,0"
-		Spacing="0"
-		VerticalOptions="Center">
-		<Image
-			Source="new_kenya_2_0.png"
-			HeightRequest="185"
-			Aspect="AspectFit"
-			Margin="0"
-			SemanticProperties.Description="dot net bot in a hovercraft number nine" />
+	<Grid Padding="24,24,24,28">
+		<BoxView Color="#E8F5EE" Opacity="0.8" CornerRadius="240" WidthRequest="460" HeightRequest="460" HorizontalOptions="End" VerticalOptions="Start" Margin="0,-200,-170,0" />
+		<BoxView Color="#DDEFE6" Opacity="0.75" CornerRadius="210" WidthRequest="380" HeightRequest="380" HorizontalOptions="Start" VerticalOptions="End" Margin="-140,0,0,-150" />
 
-		<Label IsVisible="True"
-			FontSize="20"
-			FontAttributes="Bold"
-			Text="The innvative platform connecting farmers and buyers together"
-			Style="{DynamicResource Headline}"
-			HorizontalTextAlignment="Center"
-			
-			SemanticProperties.HeadingLevel="Level1" />
+		<Border Style="{StaticResource CardStyle}" Stroke="{StaticResource Gray200}" StrokeThickness="1" Padding="24" VerticalOptions="Center">
+			<Border.StrokeShape>
+				<RoundRectangle CornerRadius="28" />
+			</Border.StrokeShape>
+			<VerticalStackLayout Spacing="16">
+				<Image
+					Source="new_kenya_2_0.png"
+					HeightRequest="160"
+					Aspect="AspectFit"
+					SemanticProperties.Description="Project HX logo" />
 
-		<Button
-			x:Name="LoginBtn"
-			Text="Login"
-			FontSize="Medium"
-			FontAttributes="Bold"
-			SemanticProperties.Hint="Sends the user to the login page"
-			Clicked="OnLoginClicked"
-			HorizontalOptions="Fill"
-			BackgroundColor="#25472c"
-			CornerRadius="50"
-			HeightRequest="40"
-			Margin="0, 50, 0, 20"/>
-		
-		<Button
-			x:Name="SignupBtn"
-			Text="Signup"
-			FontSize="Medium"
-			FontAttributes="Bold"
-			SemanticProperties.Hint="Sends the user to the signup page"
-			Clicked="OnSignupClicked"
-			HorizontalOptions="Fill"
-			BackgroundColor="#25472c"
-			CornerRadius="50"
-			HeightRequest="40" />
-	</VerticalStackLayout>
+				<Label
+					FontSize="30"
+					FontAttributes="Bold"
+					Text="Project HX"
+					TextColor="{StaticResource DarkGreen}"
+					HorizontalTextAlignment="Center"
+					SemanticProperties.HeadingLevel="Level1" />
+
+				<Label
+					FontSize="16"
+					Text="Coordinate volunteer tasks, receive campaign updates, and submit field results for New Kenya Movement."
+					TextColor="{StaticResource AppTextDarkColor}"
+					HorizontalTextAlignment="Center" />
+
+				<Button
+					x:Name="LoginBtn"
+					Text="Sign In"
+					FontSize="Medium"
+					FontAttributes="Bold"
+					SemanticProperties.Hint="Open the login page"
+					Clicked="OnLoginClicked"
+					HorizontalOptions="Fill"
+					BackgroundColor="{StaticResource BrandGreen}"
+					TextColor="White"
+					CornerRadius="14"
+					HeightRequest="48"
+					Margin="0,10,0,0"/>
+
+				<Button
+					x:Name="SignupBtn"
+					Text="Create Volunteer Account"
+					FontSize="Medium"
+					FontAttributes="Bold"
+					SemanticProperties.Hint="Open the signup page"
+					Clicked="OnSignupClicked"
+					HorizontalOptions="Fill"
+					BackgroundColor="#ECF7F1"
+					TextColor="{StaticResource BrandGreenDark}"
+					CornerRadius="14"
+					HeightRequest="48" />
+			</VerticalStackLayout>
+		</Border>
+	</Grid>
 </ContentPage>

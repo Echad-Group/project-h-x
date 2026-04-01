@@ -10,16 +10,16 @@ public partial class WelcomePage : ContentPage
 	}
 	private async void OnLoginClicked(object sender, EventArgs e)
 	{
-		await Shell.Current.GoToAsync("//login");
+		await Shell.Current.GoToAsync(nameof(LoginPage));
 	}
 	private async void OnSignupClicked(object sender, EventArgs e)
 	{
-		await Shell.Current.GoToAsync("//signup");
+		await Shell.Current.GoToAsync($"{nameof(RegisterPage)}");
 	}
 
 	protected override void OnAppearing()
 	{
-		NativeCodeHelper.SetStyleColorDarkContent(AppUIHelpers.BackgroundGreen);
+		NativeCodeHelper.SetStyleColorDarkContent("#F2F2F2");
 		base.OnAppearing();
 	}
 }

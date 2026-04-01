@@ -1,3 +1,4 @@
+using ProjectHX.Mobile.Contexts;
 using ProjectHX.Mobile.Models.Auth;
 using ProjectHX.Mobile.Services.Interfaces;
 using System.Net.Http.Json;
@@ -8,7 +9,7 @@ public sealed class AuthApiService : IAuthApiService
 {
     private readonly HttpClient _httpClient;
 
-    public AuthApiService(HttpClient httpClient)
+    public AuthApiService(HttpClient httpClient, AppStorageContext appStorageContext)
     {
         _httpClient = httpClient;
 

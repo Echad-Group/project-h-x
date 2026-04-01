@@ -86,7 +86,7 @@ public partial class AppShell : Shell
     private async Task NavigateForSessionStateAsync()
     {
         var hasSession = await _sessionService.HasActiveSessionAsync();
-        await RedirectAsync(hasSession ? "//main" : "//login");
+        await RedirectAsync(hasSession ? "//main" : "//welcome");
     }
 
     private async Task RedirectAsync(string route)

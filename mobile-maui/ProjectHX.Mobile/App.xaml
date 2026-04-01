@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ProjectHX.Mobile.App">
+             x:Class="ProjectHX.Mobile.App"
+             xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+             android:Application.WindowSoftInputModeAdjust="Resize">
     <Application.Resources>
         <ResourceDictionary>
             <Color x:Key="PageBackground">#F3F4F6</Color>
@@ -105,7 +107,7 @@
 
 
             <Style TargetType="ContentPage">
-                <Setter Property="BackgroundColor" Value="{StaticResource PageBackground}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LightBackground}, Dark={StaticResource DarkBackground}}" />
                 <Setter Property="Padding" Value="0" />
             </Style>
 

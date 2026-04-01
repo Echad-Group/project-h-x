@@ -2,43 +2,47 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectHX.Mobile.Pages.OnboardingPage"
+             x:Name="RootPage"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="{AppThemeBinding Light=White, Dark=#3B3532}">
+             BackgroundColor="{StaticResource LightBackground}">
     <Grid>
-        <!-- CarouselView for onboarding -->
+        <BoxView Color="#E8F5EE" Opacity="0.8" CornerRadius="220" WidthRequest="440" HeightRequest="440" HorizontalOptions="End" VerticalOptions="Start" Margin="0,-180,-140,0" />
+        <BoxView Color="#DDEFE6" Opacity="0.75" CornerRadius="200" WidthRequest="360" HeightRequest="360" HorizontalOptions="Start" VerticalOptions="End" Margin="-130,0,0,-140" />
+
         <CarouselView x:Name="OnboardingCarousel"
                       IndicatorView="OnboardingIndicators"
                       ItemsSource="{Binding OnboardingItems}"
-                      VerticalOptions="CenterAndExpand"
-                      HorizontalOptions="FillAndExpand">
+                      VerticalOptions="Center"
+                      HorizontalOptions="Fill">
             <CarouselView.ItemTemplate>
                 <DataTemplate>
-                    <Frame CornerRadius="32"
-                           Margin="24,40"
-                           Padding="0"
-                           HasShadow="False"
-                           HeightRequest="600"
-                           VerticalOptions="Center"
-                           BackgroundColor="#FFF6E0">
+                    <Border Margin="24,40"
+                            Padding="0"
+                            HeightRequest="600"
+                            VerticalOptions="Center"
+                            BackgroundColor="{Binding CardColor}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="32" />
+                        </Border.StrokeShape>
                         <Grid RowDefinitions="*,Auto,Auto,Auto,Auto" Padding="32,32,32,24">
-                            <Image Source="{Binding Image}" HeightRequest="180" Aspect="AspectFit" Grid.Row="0" HorizontalOptions="Center" />
+                            <Image Source="{Binding Image}" HeightRequest="170" Aspect="AspectFit" Grid.Row="0" HorizontalOptions="Center" />
                             <Label Text="{Binding Title}"
                                    FontAttributes="Bold"
-                                   FontSize="28"
-                                   TextColor="#222"
+                                   FontSize="30"
+                                   TextColor="{StaticResource DarkGreen}"
                                    HorizontalOptions="Start"
                                    Margin="0,24,0,0"
                                    Grid.Row="1" />
                             <Label Text="{Binding Description}"
 								   HorizontalTextAlignment="Start"
-                                   FontSize="16"
-                                   TextColor="#444"
+                                   FontSize="17"
+                                   TextColor="{StaticResource AppTextDarkColor}"
                                    HorizontalOptions="Center"
                                    Margin="0,8,0,0"
                                    Grid.Row="2" />
                             <IndicatorView x:Name="InnerIndicators"
                                            IndicatorColor="#C4C4C4"
-                                           SelectedIndicatorColor="#222"
+                                           SelectedIndicatorColor="{StaticResource BrandGreen}"
                                            HorizontalOptions="Center"
                                            Margin="0,24,0,0"
                                            Grid.Row="3"
@@ -46,32 +50,33 @@
                             <Grid Grid.Row="4" ColumnDefinitions="*,Auto" Margin="0,24,0,0">
                                 <Button Text="SKIP"
                                         BackgroundColor="Transparent"
-                                        TextColor="#222"
+                                        TextColor="{StaticResource BrandGreenDark}"
                                         FontAttributes="Bold"
-                                        Clicked="OnSkipClicked"
+                                    Command="{Binding Source={x:Reference RootPage}, Path=BindingContext.SkipCommand}"
+                                    IsVisible="{Binding Source={x:Reference RootPage}, Path=BindingContext.ShowSkip}"
                                         HorizontalOptions="Start"
                                         Padding="8,0"
                                         />
                                 <Button x:Name="NextButton"
-                                        Text="{Binding ButtonText}"
-                                        BackgroundColor="{StaticResource AppPrimaryColor}"
-                                        TextColor="{StaticResource AppTextDarkColor}"
+                                    Text="{Binding Source={x:Reference RootPage}, Path=BindingContext.NextButtonText}"
+                                        BackgroundColor="{StaticResource BrandGreen}"
+                                        TextColor="White"
                                         FontAttributes="Bold"
                                         CornerRadius="24"
                                         HeightRequest="48"
-                                        WidthRequest="100"
-                                        Command="{Binding ButtonCommand}"
+                                        WidthRequest="120"
+                                    Command="{Binding Source={x:Reference RootPage}, Path=BindingContext.NextCommand}"
                                         HorizontalOptions="End"
                                         />
                             </Grid>
                         </Grid>
-                    </Frame>
+                    </Border>
                 </DataTemplate>
             </CarouselView.ItemTemplate>
         </CarouselView>
         <IndicatorView x:Name="OnboardingIndicators"
-                       IndicatorColor="{AppThemeBinding Light={StaticResource AppTextDarkColor}, Dark=WhiteSmoke}"
-                       SelectedIndicatorColor="{StaticResource AppPrimaryColor}"
+                       IndicatorColor="{StaticResource Gray300}"
+                       SelectedIndicatorColor="{StaticResource BrandGreen}"
                        HorizontalOptions="Center"
                        VerticalOptions="End"
                        Margin="0,0,0,20" />

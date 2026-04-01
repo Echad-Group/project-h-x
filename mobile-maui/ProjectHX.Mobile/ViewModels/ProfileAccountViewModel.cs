@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Devices;
+using ProjectHX.Mobile.Contexts;
 using ProjectHX.Mobile.Models.Profile;
 using ProjectHX.Mobile.Models.PublicContent;
 using ProjectHX.Mobile.Services.Interfaces;
@@ -15,6 +16,7 @@ public sealed partial class ProfileAccountViewModel : ProfileSectionViewModelBas
     private readonly ISessionService _sessionService;
     private readonly IPushApiService _pushApiService;
     private readonly Func<Task> _refreshProfileAsync;
+    private readonly AppStorageContext _appStorageContext;
 
     [ObservableProperty]
     private string newEmail = string.Empty;
@@ -47,7 +49,8 @@ public sealed partial class ProfileAccountViewModel : ProfileSectionViewModelBas
         IAppNavigator appNavigator,
         ISessionService sessionService,
         IPushApiService pushApiService,
-        Func<Task> refreshProfileAsync)
+        Func<Task> refreshProfileAsync,
+        AppStorageContext appStorageContext)
         : base(pageState)
     {
         _userProfileApiService = userProfileApiService;
@@ -56,6 +59,7 @@ public sealed partial class ProfileAccountViewModel : ProfileSectionViewModelBas
         _sessionService = sessionService;
         _pushApiService = pushApiService;
         _refreshProfileAsync = refreshProfileAsync;
+        _appStorageContext = appStorageContext;
     }
 
     public void ApplyProfile(UserProfileModel profile)
@@ -292,8 +296,9 @@ public sealed partial class ProfileAccountViewModel : ProfileSectionViewModelBas
         finally
         {
             await _sessionService.ClearAsync(SessionChangeReason.SignedOut);
+            Preferences.Remove(_appStorageContext.UserIsBoarded);
             FinishOperation();
-            await _appNavigator.GoToLoginAsync();
+            await _appNavigator.GoToWelcomeAsync();
         }
     }
 

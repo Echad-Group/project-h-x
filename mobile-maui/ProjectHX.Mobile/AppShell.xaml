@@ -16,40 +16,36 @@
 
     <ShellContent
         ContentTemplate="{DataTemplate pages:LoadingPage}"
-        Route="loading"
-        NavigationPage.HasNavigationBar="False"/>
+        Route="loading"/>
     <ShellContent
 	    ContentTemplate="{DataTemplate pages:OnboardingPage}"
-	    Route="onboarding"
-        NavigationPage.HasNavigationBar="False"/>
+	    Route="onboarding"/>
     <ShellContent
 	    ContentTemplate="{DataTemplate pages:WelcomePage}"
-	    Route="welcome"
-        NavigationPage.HasNavigationBar="False"/>
+	    Route="welcome"/>
     <ShellContent
         Title="Login"
         Route="login"
-        ContentTemplate="{DataTemplate pages:LoginPage}"
-        NavigationPage.HasNavigationBar="False"/>
+        ContentTemplate="{DataTemplate pages:LoginPage}"/>
 
-    <TabBar Route="main" NavigationPage.HasNavigationBar="True">
+    <TabBar Route="main" NavigationPage.HasNavigationBar="True" Shell.NavBarIsVisible="False">
         <Tab Title="Explore" Route="explore-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:ContentHubPage}" Route="explore" />
+            <ShellContent ContentTemplate="{DataTemplate pages:ContentHubPage}" Route="explore" Shell.NavBarIsVisible="False"/>
         </Tab>
         <Tab Title="Tasks" Route="tasks-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:TasksPage}" Route="tasks" />
+            <ShellContent ContentTemplate="{DataTemplate pages:TasksPage}" Route="tasks" Shell.NavBarIsVisible="False"/>
         </Tab>
         <Tab Title="Inbox" Route="inbox-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:InboxPage}" Route="inbox" />
+            <ShellContent ContentTemplate="{DataTemplate pages:InboxPage}" Route="inbox" Shell.NavBarIsVisible="False"/>
         </Tab>
         <Tab Title="Profile" Route="profile-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:ProfilePage}" Route="profile" />
+            <ShellContent ContentTemplate="{DataTemplate pages:ProfilePage}" Route="profile" Shell.NavBarIsVisible="False"/>
         </Tab>
         <Tab Title="Submit" Route="submit-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:SubmitResultPage}" Route="submit" />
+            <ShellContent ContentTemplate="{DataTemplate pages:SubmitResultPage}" Route="submit" Shell.NavBarIsVisible="False"/>
         </Tab>
         <Tab Title="Leaderboard" Route="leaderboard-tab">
-            <ShellContent ContentTemplate="{DataTemplate pages:LeaderboardPage}" Route="leaderboard" />
+            <ShellContent ContentTemplate="{DataTemplate pages:LeaderboardPage}" Route="leaderboard" Shell.NavBarIsVisible="False"/>
         </Tab>
     </TabBar>
 </Shell>

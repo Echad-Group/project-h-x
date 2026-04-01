@@ -11,4 +11,6 @@ public interface IAppNavigator
     Task GoToNewsDetailAsync(string slug);
     Task GoToEventDetailAsync(int eventId);
     Task GoToIssueDetailAsync(int issueId);
+    Task GoToLoadingAsync();
+    Task GoToWelcomeAsync();
 }
