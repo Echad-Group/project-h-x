@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "jRWZHE/RsyE=",
+  "dgSpecHash": "RDTC7HgkH84=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\ProjectHX.Models\\ProjectHX.Models.csproj",
+  "projectFilePath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\shared\\ProjectHX.Models\\ProjectHX.Models.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Rodern\\.nuget\\packages\\dnsclient\\1.6.1\\dnsclient.1.6.1.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.aspnetcore.hosting.abstractions\\2.3.9\\microsoft.aspnetcore.hosting.abstractions.2.3.9.nupkg.sha512",

@@ -22393,8 +22393,8 @@
     },
     "ProjectHX.Models/1.0.0": {
       "type": "project",
-      "path": "../../ProjectHX.Models/ProjectHX.Models.csproj",
-      "msbuildProject": "../../ProjectHX.Models/ProjectHX.Models.csproj"
+      "path": "../../shared/ProjectHX.Models/ProjectHX.Models.csproj",
+      "msbuildProject": "../../shared/ProjectHX.Models/ProjectHX.Models.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -22462,16 +22462,16 @@
         "net9.0-android35.0": {
           "targetAlias": "net9.0-android",
           "projectReferences": {
-            "C:\\Users\\Rodern\\git-repos\\project-h-x\\ProjectHX.Models\\ProjectHX.Models.csproj": {
-              "projectPath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\ProjectHX.Models\\ProjectHX.Models.csproj"
+            "C:\\Users\\Rodern\\git-repos\\project-h-x\\shared\\ProjectHX.Models\\ProjectHX.Models.csproj": {
+              "projectPath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\shared\\ProjectHX.Models\\ProjectHX.Models.csproj"
             }
           }
         },
         "net9.0-ios26.2": {
           "targetAlias": "net9.0-ios",
           "projectReferences": {
-            "C:\\Users\\Rodern\\git-repos\\project-h-x\\ProjectHX.Models\\ProjectHX.Models.csproj": {
-              "projectPath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\ProjectHX.Models\\ProjectHX.Models.csproj"
+            "C:\\Users\\Rodern\\git-repos\\project-h-x\\shared\\ProjectHX.Models\\ProjectHX.Models.csproj": {
+              "projectPath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\shared\\ProjectHX.Models\\ProjectHX.Models.csproj"
             }
           }
         }

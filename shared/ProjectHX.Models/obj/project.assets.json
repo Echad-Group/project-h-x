@@ -1545,11 +1545,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Rodern\\git-repos\\project-h-x\\ProjectHX.Models\\ProjectHX.Models.csproj",
+      "projectUniqueName": "C:\\Users\\Rodern\\git-repos\\project-h-x\\shared\\ProjectHX.Models\\ProjectHX.Models.csproj",
       "projectName": "ProjectHX.Models",
-      "projectPath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\ProjectHX.Models\\ProjectHX.Models.csproj",
+      "projectPath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\shared\\ProjectHX.Models\\ProjectHX.Models.csproj",
       "packagesPath": "C:\\Users\\Rodern\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\ProjectHX.Models\\obj\\",
+      "outputPath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\shared\\ProjectHX.Models\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
