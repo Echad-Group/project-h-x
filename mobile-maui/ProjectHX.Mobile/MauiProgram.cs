@@ -112,6 +112,7 @@ public static class MauiProgram
         builder.Services.AddTransient<ForgotPasswordViewModel>();
         builder.Services.AddTransient<OtpChallengeViewModel>();
         builder.Services.AddTransient<ProfileViewModel>();
+        builder.Services.AddTransient<VolunteerPageViewModel>();
         builder.Services.AddTransient<ResetPasswordViewModel>();
         builder.Services.AddTransient<TasksViewModel>();
         builder.Services.AddTransient<InboxViewModel>();
@@ -136,6 +137,7 @@ public static class MauiProgram
         builder.Services.AddTransient<Pages.EventDetailPage>();
         builder.Services.AddTransient<Pages.IssueDetailPage>();
         builder.Services.AddTransient<Pages.ProfilePage>();
+        builder.Services.AddTransient<Pages.VolunteerPage>();
         builder.Services.AddTransient<LoadingPage>();
         builder.Services.AddTransient<OnboardingPage>();
 

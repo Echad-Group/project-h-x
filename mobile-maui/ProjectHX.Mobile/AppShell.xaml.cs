@@ -28,6 +28,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(EventDetailPage), typeof(EventDetailPage));
         Routing.RegisterRoute(nameof(IssueDetailPage), typeof(IssueDetailPage));
         Routing.RegisterRoute(nameof(ProfilePage), typeof(ProfilePage));
+        Routing.RegisterRoute(nameof(VolunteerPage), typeof(VolunteerPage));
 
         Navigating += OnShellNavigating;
         _sessionService.SessionChanged += OnSessionChanged;

@@ -161,6 +161,46 @@ public class ViewModelBaselineTests
     }
 
     [Fact]
+    public async Task ProfileViewModel_AllowsMemberToJoinVolunteerFlow_FromMobile()
+    {
+        var volunteerService = new FakeVolunteerApiService
+        {
+            Status = new VolunteerStatusResponse { IsVolunteer = false }
+        };
+
+        var vm = new ProfileViewModel(
+            new FakeUserProfileApiService
+            {
+                Profile = new UserProfileModel
+                {
+                    Email = "member@example.com",
+                    FirstName = "Ada",
+                    LastName = "Lovelace"
+                }
+            },
+            volunteerService,
+            new FakeAuthApiService(),
+            new FakeAppNavigator(),
+            new FakeSessionService(),
+            new FakeApiBaseUrlProvider(),
+            new FakePushApiService());
+
+        await vm.LoadAsync();
+        vm.Volunteer.VolunteerName = "Ada Lovelace";
+        vm.Volunteer.VolunteerEmail = "member@example.com";
+        vm.Volunteer.VolunteerRegion = "Dar es Salaam";
+        vm.Volunteer.VolunteerAvailabilityZones = "Temeke, Kigamboni";
+        vm.Volunteer.VolunteerSkills = "Mobilization, Data Collection";
+
+        await vm.Volunteer.SaveVolunteerProfileCommand.ExecuteAsync(null);
+
+        Assert.Null(vm.ErrorMessage);
+        Assert.Equal(1, volunteerService.CreateCalls);
+        Assert.True(vm.Volunteer.IsVolunteer);
+        Assert.Contains("volunteer", vm.InfoMessage ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task SubmitResultViewModel_SubmitAsync_RejectsImpossibleVoteTotals()
     {
         var vm = new SubmitResultViewModel(new FakeResultsApiService(), new FakeOutboxService())

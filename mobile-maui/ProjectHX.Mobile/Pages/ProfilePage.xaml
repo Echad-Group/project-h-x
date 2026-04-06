@@ -76,36 +76,13 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Label Text="Volunteer Self-Service" Style="{StaticResource SectionTitleStyle}" />
-            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Volunteer}">
+            <Label Text="Volunteer &amp; Get Involved" Style="{StaticResource SectionTitleStyle}" />
+            <Border Style="{StaticResource CardStyle}">
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="{Binding VolunteerStatusSummary}" Style="{StaticResource MutedLabelStyle}" />
-                    <Label Text="You can update your volunteer profile details and leave the volunteer role from here." Style="{StaticResource MutedLabelStyle}" />
-
-                    <Entry Placeholder="Volunteer Name" Text="{Binding VolunteerName}" IsEnabled="{Binding IsVolunteer}" />
-                    <Entry Placeholder="Volunteer Email" Text="{Binding VolunteerEmail}" Keyboard="Email" IsEnabled="{Binding IsVolunteer}" />
-                    <Entry Placeholder="Volunteer Phone" Text="{Binding VolunteerPhone}" Keyboard="Telephone" IsEnabled="{Binding IsVolunteer}" />
-                    <Entry Placeholder="Volunteer City" Text="{Binding VolunteerCity}" IsEnabled="{Binding IsVolunteer}" />
-                    <Entry Placeholder="Volunteer Region" Text="{Binding VolunteerRegion}" IsEnabled="{Binding IsVolunteer}" />
-                    <Entry Placeholder="Availability Zones" Text="{Binding VolunteerAvailabilityZones}" IsEnabled="{Binding IsVolunteer}" />
-                    <Entry Placeholder="Skills" Text="{Binding VolunteerSkills}" IsEnabled="{Binding IsVolunteer}" />
-                    <Entry Placeholder="Hours Per Week" Text="{Binding VolunteerHoursPerWeek}" Keyboard="Numeric" IsEnabled="{Binding IsVolunteer}" />
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                        <VerticalStackLayout Grid.Column="0" Spacing="4">
-                            <Label Text="Available Weekends" />
-                            <Switch IsToggled="{Binding VolunteerAvailableWeekends}" IsEnabled="{Binding IsVolunteer}" />
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1" Spacing="4">
-                            <Label Text="Available Evenings" />
-                            <Switch IsToggled="{Binding VolunteerAvailableEvenings}" IsEnabled="{Binding IsVolunteer}" />
-                        </VerticalStackLayout>
-                    </Grid>
-
-                    <Editor Placeholder="Volunteer Interests" Text="{Binding VolunteerInterests}" AutoSize="TextChanges" HeightRequest="100" IsEnabled="{Binding IsVolunteer}" />
-
-                    <Button Text="Save Volunteer Profile" Command="{Binding SaveVolunteerProfileCommand}" IsEnabled="{Binding IsVolunteer}" />
-                    <Button Text="Leave Volunteer Role" Command="{Binding LeaveVolunteerRoleCommand}" Style="{StaticResource DangerButtonStyle}" IsEnabled="{Binding IsVolunteer}" />
+                    <Label Text="{Binding Volunteer.VolunteerStatusSummary}" Style="{StaticResource MutedLabelStyle}" />
+                    <Label Text="{Binding Volunteer.AssignmentPreferenceSummary}" Style="{StaticResource MutedLabelStyle}" />
+                    <Label Text="Open the dedicated Volunteer page to sign up, update your skills and service areas, or manage your volunteer dashboard." Style="{StaticResource MutedLabelStyle}" />
+                    <Button Text="Open Volunteer Hub" Command="{Binding OpenVolunteerHubCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" />
                 </VerticalStackLayout>
             </Border>
 

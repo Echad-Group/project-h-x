@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectHX.Mobile.Pages.VolunteerPage"
+             x:Name="RootPage"
+             Title="Get Involved">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Border Style="{StaticResource CardStyle}" StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="1,0">
+                        <GradientStop Color="#067647" Offset="0" />
+                        <GradientStop Color="#0EA5E9" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Get Involved" FontSize="30" FontAttributes="Bold" TextColor="#FFFFFF" />
+                    <Label Text="Volunteer with your team, choose your service areas, and receive assignment updates matched to your skills." TextColor="#ECFDF5" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" BackgroundColor="#EFF6FF" Stroke="#BFDBFE" StrokeThickness="1">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Volunteer with Us" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="Your member account is already linked in the app. Complete this form to join the volunteer program, show where you can help, and get routed project updates from your team." TextColor="#1D4ED8" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
+                <Label Text="{Binding ErrorMessage}" TextColor="#B91C1C" />
+            </Border>
+            <Border IsVisible="{Binding HasInfoMessage}" BackgroundColor="#ECFDF5" Stroke="#6EE7B7" StrokeThickness="1" Padding="12">
+                <Label Text="{Binding InfoMessage}" TextColor="#065F46" />
+            </Border>
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Volunteer}" IsVisible="{Binding ShowVolunteerDashboard}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="You're Already a Volunteer!" FontSize="24" FontAttributes="Bold" />
+                    <Label Text="{Binding VolunteerStatusSummary}" Style="{StaticResource MutedLabelStyle}" />
+                    <Label Text="Thank you for being part of the movement. Keep your skills and coverage areas up to date so the right assignments reach you quickly." Style="{StaticResource MutedLabelStyle}" />
+
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="6">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Name:" FontAttributes="Bold" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding VolunteerName}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Email:" FontAttributes="Bold" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding VolunteerEmail}" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="Phone:" FontAttributes="Bold" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding VolunteerPhone}" />
+                        <Label Grid.Row="3" Grid.Column="0" Text="Coverage:" FontAttributes="Bold" />
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding AssignmentPreferenceSummary}" />
+                        <Label Grid.Row="4" Grid.Column="0" Text="Interests:" FontAttributes="Bold" />
+                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding VolunteerInterests}" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="Edit Status" Command="{Binding BeginEditingCommand}" />
+                        <Button Grid.Column="1" Text="Open Tasks" Command="{Binding ViewAssignmentsCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Grid.Column="2" Text="Stop Volunteering" Command="{Binding LeaveVolunteerRoleCommand}" Style="{StaticResource DangerButtonStyle}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Volunteer}" IsVisible="{Binding ShowSuccessState}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Registration Successful!" FontSize="24" FontAttributes="Bold" TextColor="#166534" />
+                    <Label Text="Your volunteer profile is ready. Your chosen areas and skills will now help your team send the right project updates and assignments to you." TextColor="#166534" />
+                    <Label Text="{Binding AssignmentPreferenceSummary}" Style="{StaticResource MutedLabelStyle}" />
+
+                    <Border BackgroundColor="#F8FAFC" Stroke="#E5E7EB" StrokeThickness="1" Padding="12">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Next steps" FontAttributes="Bold" />
+                            <Label Text="• Watch your Tasks tab for matched field assignments" Style="{StaticResource MutedLabelStyle}" />
+                            <Label Text="• Check Inbox for team updates and instructions" Style="{StaticResource MutedLabelStyle}" />
+                            <Label Text="• Return here anytime to update your skills and availability" Style="{StaticResource MutedLabelStyle}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="View Dashboard" Command="{Binding DismissSuccessCommand}" />
+                        <Button Grid.Column="1" Text="Open Tasks" Command="{Binding ViewAssignmentsCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" BindingContext="{Binding Volunteer}" IsVisible="{Binding ShowVolunteerForm}">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Volunteer with Us" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <Label Text="Join or update your volunteer profile so your team can match assignments to your skills, coverage areas, and availability." Style="{StaticResource MutedLabelStyle}" HorizontalTextAlignment="Center" />
+
+                    <Label Text="Contact Information" Style="{StaticResource SectionTitleStyle}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Entry Grid.Column="0" Placeholder="Name" Text="{Binding VolunteerName}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                        <Entry Grid.Column="1" Placeholder="Email" Text="{Binding VolunteerEmail}" Keyboard="Email" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    </Grid>
+                    <Entry Placeholder="Phone (+254...)" Text="{Binding VolunteerPhone}" Keyboard="Telephone" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+
+                    <Label Text="Location" Style="{StaticResource SectionTitleStyle}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Entry Grid.Column="0" Placeholder="City" Text="{Binding VolunteerCity}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                        <Picker Grid.Column="1" Title="Select Region" ItemsSource="{Binding RegionOptions}" SelectedItem="{Binding VolunteerRegion}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    </Grid>
+
+                    <Label Text="Where can you help?" FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding AvailabilityZoneOptions}" SelectionMode="None" HeightRequest="100">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" Span="4" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="6" Padding="0,4">
+                                    <CheckBox IsChecked="{Binding IsSelected}" />
+                                    <Label Text="{Binding Label}" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label Text="Skills Offered" Style="{StaticResource SectionTitleStyle}" />
+                    <CollectionView ItemsSource="{Binding SkillOptions}" SelectionMode="None" HeightRequest="200">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" Span="2" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="8" Padding="0,6">
+                                    <CheckBox IsChecked="{Binding IsSelected}" />
+                                    <Label Text="{Binding DisplayLabel}" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label Text="Availability" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="{Binding HoursPerWeekSummary}" FontAttributes="Bold" />
+                    <Slider Minimum="0" Maximum="40" Value="{Binding VolunteerHoursPerWeek}" ThumbColor="#067647" MinimumTrackColor="#067647" MaximumTrackColor="#D1D5DB" />
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Label Grid.Column="0" Text="0h" Style="{StaticResource MutedLabelStyle}" />
+                        <Label Grid.Column="2" Text="40h" Style="{StaticResource MutedLabelStyle}" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Border Grid.Column="0" Stroke="#D1D5DB" StrokeThickness="1" Padding="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="Available on weekends" VerticalOptions="Center" />
+                                <CheckBox Grid.Column="1" IsChecked="{Binding VolunteerAvailableWeekends}" />
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="1" Stroke="#D1D5DB" StrokeThickness="1" Padding="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="Available in evenings" VerticalOptions="Center" />
+                                <CheckBox Grid.Column="1" IsChecked="{Binding VolunteerAvailableEvenings}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Label Text="Additional Interests" FontAttributes="Bold" />
+                    <Editor Placeholder="Any other ways you'd like to help?" Text="{Binding VolunteerInterests}" HeightRequest="120" AutoSize="TextChanges" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+
+                    <Button Text="{Binding VolunteerActionText}" Command="{Binding SaveVolunteerProfileCommand}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Button Text="Cancel Edit" Command="{Binding CancelEditingCommand}" Style="{StaticResource SecondaryButtonStyle}" IsVisible="{Binding CanCancelEdit}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

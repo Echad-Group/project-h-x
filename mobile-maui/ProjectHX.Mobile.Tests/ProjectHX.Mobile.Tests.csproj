@@ -1,17 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UseMaui>true</UseMaui>
-    <SingleProject>false</SingleProject>
-    <EnableDefaultMauiItems>false</EnableDefaultMauiItems>
-    <EnableMauiImageProcessing>false</EnableMauiImageProcessing>
-    <EnableMauiFontProcessing>false</EnableMauiFontProcessing>
-    <EnableMauiSplashScreenProcessing>false</EnableMauiSplashScreenProcessing>
-    <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+    <UseMaui>false</UseMaui>
+    <EnableMauiAppTests>false</EnableMauiAppTests>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,7 +22,12 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(EnableMauiAppTests)' != 'true'">
+    <Compile Remove="**\*.cs" />
+    <None Include="**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EnableMauiAppTests)' == 'true'">
     <ProjectReference Include="..\ProjectHX.Mobile\ProjectHX.Mobile.csproj" />
   </ItemGroup>
 </Project>

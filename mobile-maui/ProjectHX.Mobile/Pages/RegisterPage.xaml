@@ -15,7 +15,7 @@
                 </Border.Background>
                 <VerticalStackLayout Spacing="4">
                     <Label Text="Join The Movement" FontSize="28" FontAttributes="Bold" TextColor="#FFFFFF" />
-                    <Label Text="Create your member profile and verify your account." TextColor="#ECFDF5" />
+                    <Label Text="Create your member account, then choose how and where you can help so your team can route the right updates and assignments to you." TextColor="#ECFDF5" />
                 </VerticalStackLayout>
             </Border>
 

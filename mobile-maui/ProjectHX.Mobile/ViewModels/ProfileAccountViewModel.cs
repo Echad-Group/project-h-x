@@ -16,7 +16,7 @@ public sealed partial class ProfileAccountViewModel : ProfileSectionViewModelBas
     private readonly ISessionService _sessionService;
     private readonly IPushApiService _pushApiService;
     private readonly Func<Task> _refreshProfileAsync;
-    private readonly AppStorageContext _appStorageContext;
+    private readonly AppStorageContext? _appStorageContext;
 
     [ObservableProperty]
     private string newEmail = string.Empty;
@@ -50,7 +50,7 @@ public sealed partial class ProfileAccountViewModel : ProfileSectionViewModelBas
         ISessionService sessionService,
         IPushApiService pushApiService,
         Func<Task> refreshProfileAsync,
-        AppStorageContext appStorageContext)
+        AppStorageContext? appStorageContext = null)
         : base(pageState)
     {
         _userProfileApiService = userProfileApiService;
@@ -296,7 +296,11 @@ public sealed partial class ProfileAccountViewModel : ProfileSectionViewModelBas
         finally
         {
             await _sessionService.ClearAsync(SessionChangeReason.SignedOut);
-            Preferences.Remove(_appStorageContext.UserIsBoarded);
+            if (_appStorageContext is not null)
+            {
+                Preferences.Remove(_appStorageContext.UserIsBoarded);
+            }
+
             FinishOperation();
             await _appNavigator.GoToWelcomeAsync();
         }

@@ -42,19 +42,15 @@ namespace NewKenyaAPI.Services
                     { "support_email", supportEmail }
                 };
 
-                await _mailerSendService.SendEmail(
+                await TrySendMailerSendTemplateAsync(
                     templateId,
                     fromName,
                     fromEmail,
                     new[] { email },
                     "Welcome to New Kenya Movement - Set Your Password",
-                    Array.Empty<MailerSendNetCore.Emails.Dtos.MailerSendEmailAttachment>(),
-                    variables
+                    variables,
+                    "welcome"
                 );
-
-                _logger.LogInformation("Welcome email sent successfully to: {Email}", email);
-
-
 
                 var subject = "Welcome to New Kenya Movement - Set Your Password";
                 var htmlBody = $@"
@@ -141,18 +137,15 @@ namespace NewKenyaAPI.Services
                     { "support_email", supportEmail }
                 };
 
-                await _mailerSendService.SendEmail(
+                await TrySendMailerSendTemplateAsync(
                     templateId,
                     fromName,
                     fromEmail,
                     new[] { email },
                     "Reset Your Password - New Kenya Movement",
-                    Array.Empty<MailerSendNetCore.Emails.Dtos.MailerSendEmailAttachment>(),
-                    variables
+                    variables,
+                    "password reset"
                 );
-
-                _logger.LogInformation("Password reset email sent successfully to: {Email}", email);
-
 
                 var subject = "Reset Your Password - New Kenya Movement";
                 var htmlBody = $@"
@@ -219,18 +212,15 @@ namespace NewKenyaAPI.Services
                     { "support_email", supportEmail }
                 };
 
-                await _mailerSendService.SendEmail(
+                await TrySendMailerSendTemplateAsync(
                     templateId,
                     fromName,
                     fromEmail,
                     new[] { email },
                     "Your New Kenya OTP Code",
-                    Array.Empty<MailerSendNetCore.Emails.Dtos.MailerSendEmailAttachment>(),
-                    variables
+                    variables,
+                    "OTP"
                 );
-
-                _logger.LogInformation("OTP email sent successfully to: {Email}", email);
-
 
                 var subject = "Your New Kenya OTP Code";
                 var htmlBody = $@"
@@ -261,6 +251,38 @@ namespace NewKenyaAPI.Services
             }
         }
 
+        private async Task TrySendMailerSendTemplateAsync(
+            string templateId,
+            string fromName,
+            string fromEmail,
+            string[] recipients,
+            string subject,
+            IDictionary<string, string> variables,
+            string emailType)
+        {
+            try
+            {
+                var messageId = await _mailerSendService.SendEmail(
+                    templateId,
+                    fromName,
+                    fromEmail,
+                    recipients,
+                    subject,
+                    Array.Empty<MailerSendNetCore.Emails.Dtos.MailerSendEmailAttachment>(),
+                    variables
+                );
+
+                if (!string.IsNullOrWhiteSpace(messageId))
+                {
+                    _logger.LogInformation("{EmailType} email queued with MailerSend for: {Email}", emailType, string.Join(", ", recipients));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "MailerSend failed for {EmailType} email to: {Email}. Continuing with SMTP/archive fallback.", emailType, string.Join(", ", recipients));
+            }
+        }
+
         public async Task SendEmailAsync(string to, string subject, string htmlBody)
         {
             var smtpHost = _configuration["EmailSettings:SmtpHost"];
@@ -281,21 +303,20 @@ namespace NewKenyaAPI.Services
                 DeliveryStatus = "pending"
             };
 
-            // If email is not configured, log instead of sending
+            // If SMTP is not configured locally, archive the message so auth flows still work in development.
             if (string.IsNullOrEmpty(smtpHost) || string.IsNullOrEmpty(smtpUsername))
             {
-                _logger.LogWarning("Email service not configured. Email would be sent to: {Email}", to);
+                archiveRecord.DeliveryStatus = "archived";
+                archiveRecord.Error = "SMTP not configured for this environment";
+                await AppendToArchiveAsync(archiveRecord);
+
+                _logger.LogWarning("SMTP is not configured. Archived email for {Email} instead of sending.", to);
                 _logger.LogInformation("Subject: {Subject}", subject);
-                _logger.LogInformation("Body (first 200 chars): {Body}", htmlBody.Substring(0, Math.Min(200, htmlBody.Length)));
                 return;
             }
 
             try
             {
-                archiveRecord.DeliveryStatus = "skipped";
-                archiveRecord.Error = "SMTP not configured";
-                await AppendToArchiveAsync(archiveRecord);
-                
                 using var client = new SmtpClient(smtpHost, smtpPort)
                 {
                     EnableSsl = true,

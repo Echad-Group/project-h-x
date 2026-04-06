@@ -13,8 +13,8 @@ on:
       - .github/workflows/mobile-maui-tests.yml
 
 jobs:
-  maui-test-baseline:
-    runs-on: windows-latest
+  mobile-test-host:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -25,11 +25,5 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Install MAUI workload
-        run: dotnet workload install maui
-
-      - name: Restore test project
-        run: dotnet restore mobile-maui/ProjectHX.Mobile.Tests/ProjectHX.Mobile.Tests.csproj
-
-      - name: Run MAUI Sprint 6 test baseline
+      - name: Run non-Windows mobile test host
         run: dotnet test mobile-maui/ProjectHX.Mobile.Tests/ProjectHX.Mobile.Tests.csproj --configuration Release --logger "trx;LogFileName=maui-tests.trx"

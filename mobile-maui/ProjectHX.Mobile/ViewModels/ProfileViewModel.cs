@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.Input;
 using ProjectHX.Mobile.Contexts;
 using ProjectHX.Mobile.Models.Profile;
 using ProjectHX.Mobile.Models.PublicContent;
@@ -10,6 +11,7 @@ public partial class ProfileViewModel : BaseViewModel
     private readonly IUserProfileApiService _userProfileApiService;
     private readonly IVolunteerApiService _volunteerApiService;
     private readonly IPushApiService _pushApiService;
+    private readonly IAppNavigator _appNavigator;
 
     public ProfileIdentityViewModel Identity { get; }
 
@@ -27,15 +29,16 @@ public partial class ProfileViewModel : BaseViewModel
         ISessionService sessionService,
         IApiBaseUrlProvider apiBaseUrlProvider,
         IPushApiService pushApiService,
-        AppStorageContext appStorageContext)
+        AppStorageContext? appStorageContext = null)
     {
         _userProfileApiService = userProfileApiService;
         _volunteerApiService = volunteerApiService;
         _pushApiService = pushApiService;
+        _appNavigator = appNavigator;
 
         Identity = new ProfileIdentityViewModel(this, userProfileApiService, apiBaseUrlProvider, RefreshProfileAsync);
         Details = new ProfileDetailsViewModel(this, userProfileApiService, RefreshProfileAsync);
-        Volunteer = new ProfileVolunteerViewModel(this, volunteerApiService, RefreshVolunteerAsync);
+        Volunteer = new ProfileVolunteerViewModel(this, volunteerApiService, RefreshVolunteerAsync, appNavigator);
         Account = new ProfileAccountViewModel(this, userProfileApiService, authApiService, appNavigator, sessionService, pushApiService, RefreshProfileAsync, appStorageContext);
     }
 
@@ -75,6 +78,7 @@ public partial class ProfileViewModel : BaseViewModel
         var profile = await _userProfileApiService.GetProfileAsync();
         Identity.ApplyProfile(profile);
         Details.ApplyProfile(profile);
+        Volunteer.ApplyMemberProfile(profile);
         Account.ApplyProfile(profile);
     }
 
@@ -93,5 +97,11 @@ public partial class ProfileViewModel : BaseViewModel
         {
             Account.ApplyPushLoadFailure();
         }
+    }
+
+    [RelayCommand]
+    private async Task OpenVolunteerHubAsync()
+    {
+        await _appNavigator.GoToVolunteerHubAsync();
     }
 }

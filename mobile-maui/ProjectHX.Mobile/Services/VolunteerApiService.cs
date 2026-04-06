@@ -29,6 +29,16 @@ public sealed class VolunteerApiService : IVolunteerApiService
         return payload ?? new VolunteerStatusResponse { IsVolunteer = false };
     }
 
+    public async Task<string> CreateVolunteerProfileAsync(UpdateVolunteerRequest request, CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.PostAsJsonAsync("volunteers", request, cancellationToken);
+        return await ApiResponseReader.ReadMessageResponseAsync(
+            response,
+            "Volunteer sign-up completed. You will now receive assignment updates for your selected areas and skills.",
+            "Failed to complete volunteer sign-up.",
+            cancellationToken);
+    }
+
     public async Task<string> UpdateMyVolunteerProfileAsync(UpdateVolunteerRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PutAsJsonAsync("volunteers/me", request, cancellationToken);

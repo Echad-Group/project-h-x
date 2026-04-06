@@ -20,7 +20,7 @@
                     </Border.Background>
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Daily Execution Hub" FontSize="28" FontAttributes="Bold" TextColor="#FFFFFF" />
-                        <Label Text="Track tasks and command priorities across your wards." TextColor="#E0F2FE" />
+                        <Label Text="Track team assignments and project updates for your chosen areas and skills." TextColor="#E0F2FE" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -98,7 +98,7 @@
                 </Border>
 
                   <!-- Empty state -->
-                  <Label Text="No tasks found."
+                  <Label Text="No assignments yet. Complete your volunteer profile with your skills and coverage areas to receive matched team updates."
                       Style="{StaticResource MutedLabelStyle}"
                       HorizontalOptions="Center"
                       IsVisible="{Binding HasNoTasks}" />

@@ -104,6 +104,30 @@ internal sealed class FakeAppNavigator : IAppNavigator
         LastNavigation = $"IssueDetailPage?id={issueId}";
         return Task.CompletedTask;
     }
+
+    public Task GoToVolunteerHubAsync()
+    {
+        LastNavigation = "//main/volunteer-tab/volunteer";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToTasksAsync()
+    {
+        LastNavigation = "//main/tasks-tab/tasks";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToLoadingAsync()
+    {
+        LastNavigation = "//loading";
+        return Task.CompletedTask;
+    }
+
+    public Task GoToWelcomeAsync()
+    {
+        LastNavigation = "//welcome";
+        return Task.CompletedTask;
+    }
 }
 
 internal sealed class FakeAuthFlowStateService : IAuthFlowStateService
@@ -184,9 +208,43 @@ internal sealed class FakeUserProfileApiService : IUserProfileApiService
 internal sealed class FakeVolunteerApiService : IVolunteerApiService
 {
     public VolunteerStatusResponse Status { get; set; } = new();
+    public int CreateCalls { get; private set; }
+    public int UpdateCalls { get; private set; }
 
     public Task<VolunteerStatusResponse> GetMyVolunteerStatusAsync(CancellationToken cancellationToken = default) => Task.FromResult(Status);
-    public Task<string> UpdateMyVolunteerProfileAsync(UpdateVolunteerRequest request, CancellationToken cancellationToken = default) => Task.FromResult("ok");
+
+    public Task<string> CreateVolunteerProfileAsync(UpdateVolunteerRequest request, CancellationToken cancellationToken = default)
+    {
+        CreateCalls++;
+        Status = new VolunteerStatusResponse
+        {
+            IsVolunteer = true,
+            Volunteer = new VolunteerProfileModel
+            {
+                Name = request.Name,
+                Email = request.Email,
+                Phone = request.Phone,
+                City = request.City,
+                Region = request.Region,
+                AvailabilityZones = request.AvailabilityZones,
+                Skills = request.Skills,
+                HoursPerWeek = request.HoursPerWeek,
+                AvailableWeekends = request.AvailableWeekends,
+                AvailableEvenings = request.AvailableEvenings,
+                Interests = request.Interests,
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+        return Task.FromResult("Volunteer sign-up completed.");
+    }
+
+    public Task<string> UpdateMyVolunteerProfileAsync(UpdateVolunteerRequest request, CancellationToken cancellationToken = default)
+    {
+        UpdateCalls++;
+        return Task.FromResult("Volunteer profile updated successfully.");
+    }
+
     public Task<string> LeaveVolunteerRoleAsync(CancellationToken cancellationToken = default) => Task.FromResult("ok");
 }
 
