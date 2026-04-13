@@ -10,4 +10,6 @@ public sealed class IssueModel
     public string? Color { get; set; }
     public List<IssueInitiativeModel> Initiatives { get; set; } = [];
     public List<IssueQuestionModel> Questions { get; set; } = [];
+
+    public bool HasIcon => !string.IsNullOrWhiteSpace(Icon);
 }

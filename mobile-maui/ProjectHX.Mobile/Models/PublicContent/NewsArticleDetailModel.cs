@@ -11,8 +11,11 @@ public sealed class NewsArticleDetailModel
     public string Author { get; set; } = string.Empty;
     public DateTime PublishedDate { get; set; }
     public string? FeaturedImageUrl { get; set; }
+    public List<string> ImageUrls { get; set; } = [];
     public int Views { get; set; }
     public int ReadTimeMinutes { get; set; }
 
     public string PublishedDisplay => PublishedDate.ToLocalTime().ToString("d MMM yyyy, HH:mm");
+    public string? PrimaryImageUrl => ImageUrls.FirstOrDefault(url => !string.IsNullOrWhiteSpace(url)) ?? FeaturedImageUrl;
+    public bool HasPrimaryImage => !string.IsNullOrWhiteSpace(PrimaryImageUrl);
 }

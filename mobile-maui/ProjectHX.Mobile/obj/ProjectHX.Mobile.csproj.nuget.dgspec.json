@@ -107,6 +107,10 @@
               "target": "Package",
               "version": "[13.0.4, )"
             },
+            "SourceGear.sqlite3": {
+              "target": "Package",
+              "version": "[3.50.4.5, )"
+            },
             "sqlite-net-pcl": {
               "target": "Package",
               "version": "[1.9.172, )"
@@ -191,6 +195,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.4, )"
+            },
+            "SourceGear.sqlite3": {
+              "target": "Package",
+              "version": "[3.50.4.5, )"
             },
             "sqlite-net-pcl": {
               "target": "Package",

@@ -15,4 +15,5 @@ public sealed class CampaignEventModel
     public int? Capacity { get; set; }
 
     public string DateDisplay => Date.ToLocalTime().ToString("ddd d MMM, HH:mm");
+    public bool HasImage => !string.IsNullOrWhiteSpace(ImageUrl);
 }

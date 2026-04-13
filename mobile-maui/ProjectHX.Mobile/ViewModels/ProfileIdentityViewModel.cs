@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Devices;
 using ProjectHX.Mobile.Models.Profile;
 using ProjectHX.Mobile.Services.Interfaces;
@@ -31,6 +32,19 @@ public sealed partial class ProfileIdentityViewModel : ProfileSectionViewModelBa
     private string? profilePhotoUrl;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNidaDocument))]
+    private string? nidaDocumentUrl;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasVoterCardDocument))]
+    private string? voterCardDocumentUrl;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelfieDocument))]
+    [NotifyPropertyChangedFor(nameof(HasSelfiePreview))]
+    private string? selfieDocumentUrl;
+
+    [ObservableProperty]
     private string nidaDocumentStatus = "Not uploaded";
 
     [ObservableProperty]
@@ -40,6 +54,10 @@ public sealed partial class ProfileIdentityViewModel : ProfileSectionViewModelBa
     private string selfieDocumentStatus = "Not uploaded";
 
     public bool HasProfilePhoto => !string.IsNullOrWhiteSpace(ProfilePhotoUrl);
+    public bool HasNidaDocument => !string.IsNullOrWhiteSpace(NidaDocumentUrl);
+    public bool HasVoterCardDocument => !string.IsNullOrWhiteSpace(VoterCardDocumentUrl);
+    public bool HasSelfieDocument => !string.IsNullOrWhiteSpace(SelfieDocumentUrl);
+    public bool HasSelfiePreview => IsImageUrl(SelfieDocumentUrl);
 
     public ProfileIdentityViewModel(
         BaseViewModel pageState,
@@ -64,9 +82,12 @@ public sealed partial class ProfileIdentityViewModel : ProfileSectionViewModelBa
         VoterCardStatus = profile.VoterCardStatus;
         RolesSummary = profile.Roles.Count == 0 ? "Member" : string.Join(", ", profile.Roles);
         ProfilePhotoUrl = BuildAbsoluteUrl(profile.ProfilePhotoUrl);
-        NidaDocumentStatus = BuildDocumentStatus("National ID", profile.IdImageUrl);
-        VoterCardDocumentStatus = BuildDocumentStatus("Voter card", profile.VoterCardImageUrl);
-        SelfieDocumentStatus = BuildDocumentStatus("Selfie", profile.SelfieImageUrl);
+        NidaDocumentUrl = BuildAbsoluteUrl(profile.IdImageUrl);
+        VoterCardDocumentUrl = BuildAbsoluteUrl(profile.VoterCardImageUrl);
+        SelfieDocumentUrl = BuildAbsoluteUrl(profile.SelfieImageUrl);
+        NidaDocumentStatus = BuildDocumentStatus("National ID", NidaDocumentUrl);
+        VoterCardDocumentStatus = BuildDocumentStatus("Voter card", VoterCardDocumentUrl);
+        SelfieDocumentStatus = BuildDocumentStatus("Selfie", SelfieDocumentUrl);
         UpdateCompleteness(profile);
     }
 
@@ -132,6 +153,24 @@ public sealed partial class ProfileIdentityViewModel : ProfileSectionViewModelBa
             },
             uploadAsync: (stream, fileName, contentType, cancellationToken) => _userProfileApiService.UploadVerificationDocumentAsync(stream, fileName, contentType, "selfie", cancellationToken),
             successMessage: "Selfie uploaded successfully.");
+    }
+
+    [RelayCommand]
+    private async Task OpenNidaDocumentAsync()
+    {
+        await OpenUrlAsync(NidaDocumentUrl);
+    }
+
+    [RelayCommand]
+    private async Task OpenVoterCardDocumentAsync()
+    {
+        await OpenUrlAsync(VoterCardDocumentUrl);
+    }
+
+    [RelayCommand]
+    private async Task OpenSelfieDocumentAsync()
+    {
+        await OpenUrlAsync(SelfieDocumentUrl);
     }
 
     private async Task UploadVerificationDocumentInternalAsync(string documentType, string pickerTitle)
@@ -212,6 +251,28 @@ public sealed partial class ProfileIdentityViewModel : ProfileSectionViewModelBa
     private static string BuildDocumentStatus(string label, string? url)
     {
         return string.IsNullOrWhiteSpace(url) ? $"{label}: not uploaded" : $"{label}: uploaded";
+    }
+
+    private static bool IsImageUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return false;
+        }
+
+        var path = Uri.TryCreate(url, UriKind.Absolute, out var absoluteUri) ? absoluteUri.AbsolutePath : url;
+        var extension = Path.GetExtension(path).ToLowerInvariant();
+        return extension is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".bmp" or ".svg";
+    }
+
+    private static async Task OpenUrlAsync(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return;
+        }
+
+        await Browser.Default.OpenAsync(url, BrowserLaunchMode.SystemPreferred);
     }
 
     private void UpdateCompleteness(UserProfileModel profile)

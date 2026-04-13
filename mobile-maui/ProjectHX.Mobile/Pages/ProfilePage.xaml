@@ -49,11 +49,21 @@
                     <Button Text="Upload Profile Photo" Command="{Binding UploadProfilePhotoCommand}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                     <Button Text="Delete Profile Photo" Command="{Binding DeleteProfilePhotoCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
                     <Label Text="{Binding NidaDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload NIDA Document" Command="{Binding UploadNidaDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="Upload NIDA Document" Command="{Binding UploadNidaDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                        <Button Grid.Column="1" Text="View Current File" Command="{Binding OpenNidaDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsVisible="{Binding HasNidaDocument}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    </Grid>
                     <Label Text="{Binding VoterCardDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload Voter Card" Command="{Binding UploadVoterCardDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="Upload Voter Card" Command="{Binding UploadVoterCardDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                        <Button Grid.Column="1" Text="View Current File" Command="{Binding OpenVoterCardDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsVisible="{Binding HasVoterCardDocument}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    </Grid>
                     <Label Text="{Binding SelfieDocumentStatus}" TextColor="#374151" />
-                    <Button Text="Upload Verification Selfie" Command="{Binding UploadSelfieDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    <Image Source="{Binding SelfieDocumentUrl}" HeightRequest="120" WidthRequest="120" Aspect="AspectFill" IsVisible="{Binding HasSelfiePreview}" HorizontalOptions="Start" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="Upload Verification Selfie" Command="{Binding UploadSelfieDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                        <Button Grid.Column="1" Text="View Current File" Command="{Binding OpenSelfieDocumentCommand}" Style="{StaticResource SecondaryButtonStyle}" IsVisible="{Binding HasSelfieDocument}" IsEnabled="{Binding Source={x:Reference RootPage}, Path=BindingContext.IsNotBusy}" />
+                    </Grid>
                 </VerticalStackLayout>
             </Border>
 

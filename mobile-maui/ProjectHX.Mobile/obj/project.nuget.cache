@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "9GIXJ4Mqz8k=",
+  "dgSpecHash": "IJi4UWS/2/o=",
   "success": true,
   "projectFilePath": "C:\\Users\\Rodern\\git-repos\\project-h-x\\mobile-maui\\ProjectHX.Mobile\\ProjectHX.Mobile.csproj",
   "expectedPackageFiles": [
@@ -62,6 +62,7 @@
     "C:\\Users\\Rodern\\.nuget\\packages\\sharpcompress\\0.30.1\\sharpcompress.0.30.1.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\sixlabors.imagesharp\\3.1.12\\sixlabors.imagesharp.3.1.12.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\snappier\\1.0.0\\snappier.1.0.0.nupkg.sha512",
+    "C:\\Users\\Rodern\\.nuget\\packages\\sourcegear.sqlite3\\3.50.4.5\\sourcegear.sqlite3.3.50.4.5.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\sqlite-net-pcl\\1.9.172\\sqlite-net-pcl.1.9.172.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.10\\sqlitepclraw.bundle_e_sqlite3.2.1.10.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\sqlitepclraw.bundle_green\\2.1.2\\sqlitepclraw.bundle_green.2.1.2.nupkg.sha512",
@@ -169,11 +170,11 @@
     "C:\\Users\\Rodern\\.nuget\\packages\\xamarin.kotlinx.serialization.core\\1.7.3.4\\xamarin.kotlinx.serialization.core.1.7.3.4.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\xamarin.kotlinx.serialization.core.jvm\\1.7.3.4\\xamarin.kotlinx.serialization.core.jvm.1.7.3.4.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\zstdsharp.port\\0.7.3\\zstdsharp.port.0.7.3.nupkg.sha512",
-    "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.android.ref.35\\35.0.105\\microsoft.android.ref.35.35.0.105.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.android.runtime.35.android-arm64\\35.0.105\\microsoft.android.runtime.35.android-arm64.35.0.105.nupkg.sha512",
     "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.android.runtime.35.android-x64\\35.0.105\\microsoft.android.runtime.35.android-x64.35.0.105.nupkg.sha512",
-    "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.ios.ref.net9.0_26.2\\26.2.9000\\microsoft.ios.ref.net9.0_26.2.26.2.9000.nupkg.sha512",
-    "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.ios.runtime.iossimulator-x64.net9.0_26.2\\26.2.9000\\microsoft.ios.runtime.iossimulator-x64.net9.0_26.2.26.2.9000.nupkg.sha512"
+    "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.android.ref.35\\35.0.105\\microsoft.android.ref.35.35.0.105.nupkg.sha512",
+    "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.ios.runtime.iossimulator-x64.net9.0_26.2\\26.2.9000\\microsoft.ios.runtime.iossimulator-x64.net9.0_26.2.26.2.9000.nupkg.sha512",
+    "C:\\Users\\Rodern\\.nuget\\packages\\microsoft.ios.ref.net9.0_26.2\\26.2.9000\\microsoft.ios.ref.net9.0_26.2.26.2.9000.nupkg.sha512"
   ],
   "logs": []
 }

@@ -11,6 +11,7 @@
             </Border>
             <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasArticle}">
                 <VerticalStackLayout Spacing="8">
+                    <Image Source="{Binding Article.PrimaryImageUrl}" HeightRequest="220" Aspect="AspectFill" IsVisible="{Binding Article.HasPrimaryImage}" />
                     <Label Text="{Binding Article.Title}" FontSize="24" FontAttributes="Bold" />
                     <Label Text="{Binding Article.PublishedDisplay}" Style="{StaticResource MutedLabelStyle}" />
                     <Label Text="{Binding Article.Excerpt}" FontAttributes="Italic" />

@@ -15,6 +15,7 @@
 
             <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasEvent}">
                 <VerticalStackLayout Spacing="8">
+                    <Image Source="{Binding EventItem.ImageUrl}" HeightRequest="220" Aspect="AspectFill" IsVisible="{Binding EventItem.HasImage}" />
                     <Label Text="{Binding EventItem.Title}" FontSize="24" FontAttributes="Bold" />
                     <Label Text="{Binding EventItem.DateDisplay}" Style="{StaticResource MutedLabelStyle}" />
                     <Label Text="{Binding EventItem.Location}" Style="{StaticResource MutedLabelStyle}" />

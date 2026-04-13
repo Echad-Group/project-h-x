@@ -11,7 +11,10 @@
             </Border>
             <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasIssue}">
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="{Binding Issue.Title}" FontSize="24" FontAttributes="Bold" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="{Binding Issue.Icon}" FontSize="28" IsVisible="{Binding Issue.HasIcon}" VerticalOptions="Center" />
+                        <Label Text="{Binding Issue.Title}" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
                     <Label Text="{Binding Issue.Summary}" />
 
                     <Label Text="Initiatives" Style="{StaticResource SectionTitleStyle}" />
