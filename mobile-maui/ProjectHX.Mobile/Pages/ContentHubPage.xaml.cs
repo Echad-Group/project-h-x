@@ -5,6 +5,7 @@ namespace ProjectHX.Mobile.Pages;
 public partial class ContentHubPage : ContentPage
 {
     private readonly ContentHubViewModel _viewModel;
+    private CancellationTokenSource? _loadCancellationTokenSource;
 
     public ContentHubPage(ContentHubViewModel viewModel)
     {
@@ -13,9 +14,15 @@ public partial class ContentHubPage : ContentPage
         BindingContext = _viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadAsync();
+        PageLoadCoordinator.StartLoad(_viewModel, _viewModel, ref _loadCancellationTokenSource);
+    }
+
+    protected override void OnDisappearing()
+    {
+        PageLoadCoordinator.CancelLoad(ref _loadCancellationTokenSource);
+        base.OnDisappearing();
     }
 }

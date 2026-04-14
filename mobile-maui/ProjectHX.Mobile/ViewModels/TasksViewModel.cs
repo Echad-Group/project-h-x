@@ -8,7 +8,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public sealed partial class TasksViewModel : BaseViewModel
+public sealed partial class TasksViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly ITasksApiService _tasksApiService;
     private readonly ISyncOutboxService _outboxService;
@@ -45,19 +45,19 @@ public sealed partial class TasksViewModel : BaseViewModel
         _outboxService = outboxService;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy) return;
         IsBusy = true;
         ErrorMessage = null;
         InfoMessage = null;
-        SelectedTask = null;
-        IsCompletionFormVisible = false;
 
         try
         {
-            _allTasks = await _tasksApiService.GetMyTasksAsync();
-            ApplyFilter(ActiveFilter);
+            await LoadTasksCoreAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {
@@ -112,7 +112,7 @@ public sealed partial class TasksViewModel : BaseViewModel
         {
             var msg = await _tasksApiService.StartTaskAsync(SelectedTask.Id);
             InfoMessage = msg;
-            await LoadAsync();
+            await LoadTasksCoreAsync();
         }
         catch (Exception ex)
         {
@@ -140,7 +140,7 @@ public sealed partial class TasksViewModel : BaseViewModel
             var msg = await _tasksApiService.CompleteTaskAsync(taskId, notes);
             InfoMessage = msg;
             IsCompletionFormVisible = false;
-            await LoadAsync();
+            await LoadTasksCoreAsync();
         }
         catch (Exception ex) when (IsNetworkError(ex))
         {
@@ -162,6 +162,14 @@ public sealed partial class TasksViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    private async Task LoadTasksCoreAsync(CancellationToken cancellationToken = default)
+    {
+        SelectedTask = null;
+        IsCompletionFormVisible = false;
+        _allTasks = await _tasksApiService.GetMyTasksAsync(cancellationToken);
+        ApplyFilter(ActiveFilter);
     }
 
     private void ApplyFilter(string filter)

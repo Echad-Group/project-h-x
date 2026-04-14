@@ -36,7 +36,7 @@ namespace ProjectHX.Mobile.Helpers
 			Updating
 		}
 
-		public static async void ShortToast(string message)
+		public static async Task ShortToast(string message)
 		{
 			CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -49,7 +49,7 @@ namespace ProjectHX.Mobile.Helpers
 			await toast.Show(cancellationTokenSource.Token);
 		}
 
-		public static async void LongToast(string message)
+		public static async Task LongToast(string message)
 		{
 			CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 

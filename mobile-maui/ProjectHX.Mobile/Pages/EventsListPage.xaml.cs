@@ -4,24 +4,25 @@ namespace ProjectHX.Mobile.Pages;
 
 public partial class EventsListPage : ContentPage
 {
-    private EventsListViewModel? _viewModel;
+    private readonly EventsListViewModel _viewModel;
+    private CancellationTokenSource? _loadCancellationTokenSource;
 
-    public EventsListPage()
+    public EventsListPage(EventsListViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
     }
 
-    protected override void OnNavigatedTo(NavigatedToEventArgs args)
+    protected override void OnAppearing()
     {
-        base.OnNavigatedTo(args);
+        base.OnAppearing();
+        PageLoadCoordinator.StartLoad(_viewModel, _viewModel, ref _loadCancellationTokenSource);
+    }
 
-        _viewModel = BindingContext as EventsListViewModel;
-        if (_viewModel != null)
-        {
-            MainThread.BeginInvokeOnMainThread(async () =>
-            {
-                await _viewModel.LoadAsync();
-            });
-        }
+    protected override void OnDisappearing()
+    {
+        PageLoadCoordinator.CancelLoad(ref _loadCancellationTokenSource);
+        base.OnDisappearing();
     }
 }

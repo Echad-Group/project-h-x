@@ -63,14 +63,14 @@ public partial class AppShell : Shell
         if (isMainRoute && !hasSession)
         {
             e.Cancel();
-            _ = RedirectAsync("//login");
+            await RedirectAsync("//login");
             return;
         }
 
         if ((isLoginRoute || isAuthAuxRoute) && hasSession)
         {
             e.Cancel();
-            _ = RedirectAsync("//main");
+            await RedirectAsync("//main");
         }
     }
 

@@ -41,9 +41,9 @@ public class LoadingService : ILoadingService, IDisposable
 		navigation = MopupService.Instance;
 	}
 
-	public async void Dispose()
+	public void Dispose()
 	{
-		await navigation.PopAsync();
+		_ = navigation.PopAsync();
 	}
 
 	public async Task<IDisposable> Show()

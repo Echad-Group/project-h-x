@@ -6,7 +6,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public sealed partial class InboxViewModel : BaseViewModel
+public sealed partial class InboxViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly IInboxApiService _inboxApiService;
 
@@ -24,7 +24,7 @@ public sealed partial class InboxViewModel : BaseViewModel
         _inboxApiService = inboxApiService;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy) return;
         IsBusy = true;
@@ -33,9 +33,12 @@ public sealed partial class InboxViewModel : BaseViewModel
 
         try
         {
-            var list = await _inboxApiService.GetInboxAsync();
+            var list = await _inboxApiService.GetInboxAsync(cancellationToken);
             Messages = new ObservableCollection<InboxMessage>(list);
             UnreadCount = list.Count(m => m.IsUnread);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {
@@ -53,12 +56,15 @@ public sealed partial class InboxViewModel : BaseViewModel
         if (message == null || !message.IsUnread || IsBusy) return;
 
         ErrorMessage = null;
+        InfoMessage = null;
 
         try
         {
             await _inboxApiService.MarkReadAsync(message.Id);
-            // Optimistic update — refresh the full list
-            await LoadAsync();
+            message.ReadAt = DateTime.UtcNow;
+            Messages = new ObservableCollection<InboxMessage>(Messages);
+            UnreadCount = Messages.Count(m => m.IsUnread);
+            InfoMessage = "Message marked as read.";
         }
         catch (Exception ex)
         {

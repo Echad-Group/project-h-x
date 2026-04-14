@@ -5,7 +5,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public sealed partial class LeaderboardViewModel : BaseViewModel
+public sealed partial class LeaderboardViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly ILeaderboardApiService _leaderboardApiService;
 
@@ -28,7 +28,7 @@ public sealed partial class LeaderboardViewModel : BaseViewModel
         _leaderboardApiService = leaderboardApiService;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy) return;
         IsBusy = true;
@@ -38,8 +38,11 @@ public sealed partial class LeaderboardViewModel : BaseViewModel
 
         try
         {
-            MyRank = await _leaderboardApiService.GetMyRankAsync(SelectedScope);
+            MyRank = await _leaderboardApiService.GetMyRankAsync(SelectedScope, cancellationToken);
             HasRank = true;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {

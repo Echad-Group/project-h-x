@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:ProjectHX.Mobile.ViewModels"
+             xmlns:models="clr-namespace:ProjectHX.Mobile.Models.PublicContent"
              x:Class="ProjectHX.Mobile.Pages.NewsListPage"
+             x:DataType="viewModels:NewsListViewModel"
              Title="All News">
     <Grid RowDefinitions="Auto,*" BackgroundColor="#FFFFFF">
         <!-- Header -->
@@ -33,7 +36,7 @@
             <CollectionView Grid.Row="1" ItemsSource="{Binding Articles}" 
                           SelectionMode="None" IsVisible="{Binding Articles.Count, Converter={StaticResource IntToBoolConverter}}">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:NewsArticleListItemModel">
                         <Border Padding="16" Margin="12,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" 
                                StrokeThickness="1"
                                StrokeShape="RoundRectangle 12">

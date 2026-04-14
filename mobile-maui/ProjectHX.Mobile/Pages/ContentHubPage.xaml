@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:ProjectHX.Mobile.ViewModels"
+             xmlns:models="clr-namespace:ProjectHX.Mobile.Models.PublicContent"
              x:Class="ProjectHX.Mobile.Pages.ContentHubPage"
+             x:DataType="viewModels:ContentHubViewModel"
              Title="Explore"
              BackgroundColor="#FFFFFF">
     <ScrollView>
@@ -51,7 +54,7 @@
                 <!-- Featured News Cards -->
                 <CollectionView ItemsSource="{Binding FeaturedNews}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:NewsArticleListItemModel">
                             <Border Padding="12" Margin="0,0,0,8" Stroke="#E5E7EB" 
                                    BackgroundColor="#FFFFFF" StrokeThickness="1"
                                    StrokeShape="RoundRectangle 8">
@@ -91,7 +94,7 @@
                 <!-- Events Cards -->
                 <CollectionView ItemsSource="{Binding UpcomingEvents}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:CampaignEventModel">
                             <Border Padding="12" Margin="0,0,0,8" Stroke="#E5E7EB" 
                                    BackgroundColor="#FFFFFF" StrokeThickness="1"
                                    StrokeShape="RoundRectangle 8">
@@ -136,7 +139,7 @@
                 <!-- Issues Cards -->
                 <CollectionView ItemsSource="{Binding Issues}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:IssueModel">
                             <Border Padding="12" Margin="0,0,0,8" Stroke="#E5E7EB" 
                                    BackgroundColor="#FFFFFF" StrokeThickness="1"
                                    StrokeShape="RoundRectangle 8">
@@ -171,7 +174,7 @@
                 <!-- Team Members Cards -->
                 <CollectionView ItemsSource="{Binding TeamMembers}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:CampaignTeamMemberModel">
                             <Border Padding="12" Margin="0,0,0,8" Stroke="#E5E7EB" 
                                    BackgroundColor="#FFFFFF" StrokeThickness="1"
                                    StrokeShape="RoundRectangle 8">

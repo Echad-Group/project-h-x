@@ -6,7 +6,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public partial class ProfileViewModel : BaseViewModel
+public partial class ProfileViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly IUserProfileApiService _userProfileApiService;
     private readonly IVolunteerApiService _volunteerApiService;
@@ -42,7 +42,7 @@ public partial class ProfileViewModel : BaseViewModel
         Account = new ProfileAccountViewModel(this, userProfileApiService, authApiService, appNavigator, sessionService, pushApiService, RefreshProfileAsync, appStorageContext);
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy)
         {
@@ -54,7 +54,10 @@ public partial class ProfileViewModel : BaseViewModel
 
         try
         {
-            await RefreshAllSectionsAsync();
+            await RefreshAllSectionsAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {
@@ -66,36 +69,80 @@ public partial class ProfileViewModel : BaseViewModel
         }
     }
 
-    private async Task RefreshAllSectionsAsync()
+    private async Task RefreshAllSectionsAsync(CancellationToken cancellationToken)
     {
-        await RefreshProfileAsync();
-        await RefreshVolunteerAsync();
-        await RefreshPushStatusAsync();
+        var profileTask = _userProfileApiService.GetProfileAsync(cancellationToken);
+        var volunteerTask = _volunteerApiService.GetMyVolunteerStatusAsync(cancellationToken);
+        var pushStatusTask = GetPushStatusAsync(cancellationToken);
+
+        await Task.WhenAll(profileTask, volunteerTask, pushStatusTask);
+
+        var profile = await profileTask;
+        Identity.ApplyProfile(profile);
+        Details.ApplyProfile(profile);
+        Volunteer.ApplyMemberProfile(profile);
+        Account.ApplyProfile(profile);
+
+        Volunteer.ApplyStatus(await volunteerTask);
+
+        var pushStatus = await pushStatusTask;
+        if (pushStatus is null)
+        {
+            Account.ApplyPushLoadFailure();
+            return;
+        }
+
+        Account.ApplyPushStatus(pushStatus);
     }
 
-    private async Task RefreshProfileAsync()
+    private Task RefreshProfileAsync()
+        => RefreshProfileAsync(CancellationToken.None);
+
+    private async Task RefreshProfileAsync(CancellationToken cancellationToken)
     {
-        var profile = await _userProfileApiService.GetProfileAsync();
+        var profile = await _userProfileApiService.GetProfileAsync(cancellationToken);
         Identity.ApplyProfile(profile);
         Details.ApplyProfile(profile);
         Volunteer.ApplyMemberProfile(profile);
         Account.ApplyProfile(profile);
     }
 
-    private async Task RefreshVolunteerAsync()
+    private Task RefreshVolunteerAsync()
+        => RefreshVolunteerAsync(CancellationToken.None);
+
+    private async Task RefreshVolunteerAsync(CancellationToken cancellationToken)
     {
-        Volunteer.ApplyStatus(await _volunteerApiService.GetMyVolunteerStatusAsync());
+        Volunteer.ApplyStatus(await _volunteerApiService.GetMyVolunteerStatusAsync(cancellationToken));
     }
 
-    private async Task RefreshPushStatusAsync()
+    private Task RefreshPushStatusAsync()
+        => RefreshPushStatusAsync(CancellationToken.None);
+
+    private async Task RefreshPushStatusAsync(CancellationToken cancellationToken)
+    {
+        var pushStatus = await GetPushStatusAsync(cancellationToken);
+        if (pushStatus is null)
+        {
+            Account.ApplyPushLoadFailure();
+            return;
+        }
+
+        Account.ApplyPushStatus(pushStatus);
+    }
+
+    private async Task<PushStatusModel?> GetPushStatusAsync(CancellationToken cancellationToken)
     {
         try
         {
-            Account.ApplyPushStatus(await _pushApiService.GetStatusAsync());
+            return await _pushApiService.GetStatusAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch
         {
-            Account.ApplyPushLoadFailure();
+            return null;
         }
     }
 

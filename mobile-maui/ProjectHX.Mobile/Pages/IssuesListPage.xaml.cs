@@ -4,24 +4,25 @@ namespace ProjectHX.Mobile.Pages;
 
 public partial class IssuesListPage : ContentPage
 {
-    private IssuesListViewModel? _viewModel;
+    private readonly IssuesListViewModel _viewModel;
+    private CancellationTokenSource? _loadCancellationTokenSource;
 
-    public IssuesListPage()
+    public IssuesListPage(IssuesListViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
     }
 
-    protected override void OnNavigatedTo(NavigatedToEventArgs args)
+    protected override void OnAppearing()
     {
-        base.OnNavigatedTo(args);
+        base.OnAppearing();
+        PageLoadCoordinator.StartLoad(_viewModel, _viewModel, ref _loadCancellationTokenSource);
+    }
 
-        _viewModel = BindingContext as IssuesListViewModel;
-        if (_viewModel != null)
-        {
-            MainThread.BeginInvokeOnMainThread(async () =>
-            {
-                await _viewModel.LoadAsync();
-            });
-        }
+    protected override void OnDisappearing()
+    {
+        PageLoadCoordinator.CancelLoad(ref _loadCancellationTokenSource);
+        base.OnDisappearing();
     }
 }

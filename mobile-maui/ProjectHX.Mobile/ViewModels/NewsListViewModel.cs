@@ -6,7 +6,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public sealed partial class NewsListViewModel : BaseViewModel
+public sealed partial class NewsListViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly INewsApiService _newsApiService;
     private readonly IAppNavigator _appNavigator;
@@ -27,7 +27,7 @@ public sealed partial class NewsListViewModel : BaseViewModel
         _appNavigator = appNavigator;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy)
         {
@@ -39,11 +39,16 @@ public sealed partial class NewsListViewModel : BaseViewModel
         HasMoreItems = true;
         Articles.Clear();
 
-        await LoadMoreAsync();
+        await LoadMorePageAsync(cancellationToken);
     }
 
     [RelayCommand]
     private async Task LoadMoreAsync()
+    {
+        await LoadMorePageAsync();
+    }
+
+    private async Task LoadMorePageAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy || !HasMoreItems)
         {
@@ -55,8 +60,8 @@ public sealed partial class NewsListViewModel : BaseViewModel
 
         try
         {
-            var articles = await _newsApiService.GetArticlesAsync(_currentPage, PageSize);
-            
+            var articles = await _newsApiService.GetArticlesAsync(_currentPage, PageSize, cancellationToken);
+
             if (articles == null || articles.Count == 0)
             {
                 HasMoreItems = false;
@@ -74,6 +79,9 @@ public sealed partial class NewsListViewModel : BaseViewModel
             }
 
             _currentPage++;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {

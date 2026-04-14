@@ -86,7 +86,7 @@ public sealed class SyncOutboxService : ISyncOutboxService
 
         if (HasInternet())
         {
-            _ = Task.Run(() => ProcessAsync(CancellationToken.None));
+            _ = ProcessSafelyAsync(CancellationToken.None);
         }
     }
 
@@ -268,7 +268,20 @@ public sealed class SyncOutboxService : ISyncOutboxService
     {
         if (e.NetworkAccess == NetworkAccess.Internet)
         {
-            _ = Task.Run(() => ProcessAsync(CancellationToken.None));
+            _ = ProcessSafelyAsync(CancellationToken.None);
+        }
+    }
+
+    private async Task ProcessSafelyAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await ProcessAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _lastError = ex.Message;
+            _logger.LogError(ex, "Outbox processing trigger failed.");
         }
     }
 

@@ -6,7 +6,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public sealed partial class ContentHubViewModel : BaseViewModel
+public sealed partial class ContentHubViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly INewsApiService _newsApiService;
     private readonly IEventsApiService _eventsApiService;
@@ -40,7 +40,7 @@ public sealed partial class ContentHubViewModel : BaseViewModel
         _appNavigator = appNavigator;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy)
         {
@@ -52,10 +52,10 @@ public sealed partial class ContentHubViewModel : BaseViewModel
 
         try
         {
-            var featuredTask = _newsApiService.GetFeaturedNewsAsync();
-            var eventsTask = _eventsApiService.GetEventsAsync();
-            var issuesTask = _issuesApiService.GetIssuesAsync();
-            var teamTask = _campaignTeamApiService.GetTeamAsync();
+            var featuredTask = _newsApiService.GetFeaturedNewsAsync(cancellationToken);
+            var eventsTask = _eventsApiService.GetEventsAsync(cancellationToken);
+            var issuesTask = _issuesApiService.GetIssuesAsync(cancellationToken);
+            var teamTask = _campaignTeamApiService.GetTeamAsync(cancellationToken);
 
             await Task.WhenAll(featuredTask, eventsTask, issuesTask, teamTask);
 
@@ -63,6 +63,9 @@ public sealed partial class ContentHubViewModel : BaseViewModel
             UpcomingEvents = new ObservableCollection<CampaignEventModel>((await eventsTask).OrderBy(item => item.Date).Take(6));
             Issues = new ObservableCollection<IssueModel>((await issuesTask).Take(6));
             TeamMembers = new ObservableCollection<CampaignTeamMemberModel>((await teamTask).Take(8));
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {

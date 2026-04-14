@@ -11,7 +11,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public sealed partial class SubmitResultViewModel : BaseViewModel
+public sealed partial class SubmitResultViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly IResultsApiService _resultsApiService;
     private readonly ISyncOutboxService _outboxService;
@@ -79,18 +79,20 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
     {
         _resultsApiService = resultsApiService;
         _outboxService = outboxService;
-        _outboxService.StatusChanged += OnOutboxStatusChanged;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         ErrorMessage = null;
 
         try
         {
             EnsureOutboxStatusSubscription();
-            await _outboxService.InitializeAsync();
-            await LoadSyncStatusAsync();
+            await _outboxService.InitializeAsync(cancellationToken);
+            await LoadSyncStatusAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {
@@ -341,9 +343,9 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
         }
     }
 
-    private async Task LoadSyncStatusAsync()
+    private async Task LoadSyncStatusAsync(CancellationToken cancellationToken = default)
     {
-        var snapshot = await _outboxService.GetStatusAsync();
+        var snapshot = await _outboxService.GetStatusAsync(cancellationToken);
         PendingOutboxCount = snapshot.PendingCount + snapshot.ProcessingCount;
         DeadLetterCount = snapshot.DeadLetterCount;
 
@@ -393,7 +395,14 @@ public sealed partial class SubmitResultViewModel : BaseViewModel
 
     private async void OnOutboxStatusChanged(object? sender, EventArgs e)
     {
-        await MainThread.InvokeOnMainThreadAsync(LoadSyncStatusAsync);
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => LoadSyncStatusAsync());
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
     }
 
     private void EnsureOutboxStatusSubscription()

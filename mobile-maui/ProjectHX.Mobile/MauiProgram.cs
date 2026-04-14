@@ -30,8 +30,13 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        using (var appSettingsStream = FileSystem.OpenAppPackageFileAsync("appsettings.json").GetAwaiter().GetResult())
+        using (var appSettingsStream = typeof(MauiProgram).Assembly.GetManifestResourceStream("ProjectHX.Mobile.appsettings.json"))
         {
+            if (appSettingsStream is null)
+            {
+                throw new InvalidOperationException("Embedded mobile app settings could not be loaded.");
+            }
+
             builder.Configuration.AddJsonStream(appSettingsStream);
             builder.Services.AddModels(builder.Configuration);
         }
@@ -148,12 +153,6 @@ public static class MauiProgram
         builder.Services.AddTransient<OnboardingPage>();
 
         var app = builder.Build();
-
-        // Eagerly initialize the local sqlite store once on startup.
-        using (var scope = app.Services.CreateScope())
-        {
-            scope.ServiceProvider.GetRequiredService<SqliteDbContext>().Database.EnsureCreated();
-        }
 
         return app;
     }

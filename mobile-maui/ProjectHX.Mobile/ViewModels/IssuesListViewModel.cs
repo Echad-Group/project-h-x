@@ -6,7 +6,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public sealed partial class IssuesListViewModel : BaseViewModel
+public sealed partial class IssuesListViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly IIssuesApiService _issuesApiService;
     private readonly IAppNavigator _appNavigator;
@@ -22,7 +22,7 @@ public sealed partial class IssuesListViewModel : BaseViewModel
         _appNavigator = appNavigator;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy)
         {
@@ -34,8 +34,11 @@ public sealed partial class IssuesListViewModel : BaseViewModel
 
         try
         {
-            var issues = await _issuesApiService.GetIssuesAsync();
+            var issues = await _issuesApiService.GetIssuesAsync(cancellationToken);
             Issues = new ObservableCollection<IssueModel>(issues);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {

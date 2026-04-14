@@ -15,15 +15,22 @@ public partial class IssueDetailPage : ContentPage, IQueryAttributable
 
     public async void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.TryGetValue("id", out var idObj) && int.TryParse(idObj?.ToString(), out var id))
+        try
         {
-            await _viewModel.LoadByIdAsync(id);
-            return;
-        }
+            if (query.TryGetValue("id", out var idObj) && int.TryParse(idObj?.ToString(), out var id))
+            {
+                await _viewModel.LoadByIdAsync(id);
+                return;
+            }
 
-        if (query.TryGetValue("slug", out var slugObj) && slugObj is string slug)
+            if (query.TryGetValue("slug", out var slugObj) && slugObj is string slug)
+            {
+                await _viewModel.LoadBySlugAsync(Uri.UnescapeDataString(slug));
+            }
+        }
+        catch (Exception ex)
         {
-            await _viewModel.LoadBySlugAsync(Uri.UnescapeDataString(slug));
+            _viewModel.ErrorMessage = ex.Message;
         }
     }
 }

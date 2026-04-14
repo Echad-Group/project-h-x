@@ -6,7 +6,7 @@ using ProjectHX.Mobile.Services.Interfaces;
 
 namespace ProjectHX.Mobile.ViewModels;
 
-public sealed partial class EventsListViewModel : BaseViewModel
+public sealed partial class EventsListViewModel : BaseViewModel, IAsyncPageLoadable
 {
     private readonly IEventsApiService _eventsApiService;
     private readonly IAppNavigator _appNavigator;
@@ -25,7 +25,7 @@ public sealed partial class EventsListViewModel : BaseViewModel
         _appNavigator = appNavigator;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (IsBusy)
         {
@@ -37,11 +37,14 @@ public sealed partial class EventsListViewModel : BaseViewModel
 
         try
         {
-            var events = await _eventsApiService.GetEventsAsync();
-            
+            var events = await _eventsApiService.GetEventsAsync(cancellationToken);
+
             // Apply sorting based on sortOption
             var sorted = SortEvents(events);
             Events = new ObservableCollection<CampaignEventModel>(sorted);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
         }
         catch (Exception ex)
         {
@@ -54,7 +57,7 @@ public sealed partial class EventsListViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task ChangeSortAsync(string newSort)
+    private Task ChangeSortAsync(string newSort)
     {
         SortOption = newSort;
         if (Events.Count > 0)
@@ -62,6 +65,8 @@ public sealed partial class EventsListViewModel : BaseViewModel
             var sorted = SortEvents(Events.ToList());
             Events = new ObservableCollection<CampaignEventModel>(sorted);
         }
+
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

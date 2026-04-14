@@ -93,7 +93,7 @@ namespace ProjectHX.Mobile.Helpers
 		public static ICommand ShowPopup => new Command(async () =>
 		{
 
-			await ConstructPopup("Test", "Testing everything...", "Toast now!", () => AppUIHelpers.LongToast("It works!!!"));
+			await ConstructPopup("Test", "Testing everything...", "Toast now!", () => _ = AppUIHelpers.LongToast("It works!!!"));
 		});
 
 		public static ICommand ClosePopup => new Command(() =>
@@ -129,11 +129,11 @@ namespace ProjectHX.Mobile.Helpers
 			MopupService.Instance.PopAsync();
 		});
 
-		public static async void OpenLoading(string text = "Loading...")
+		public static async Task OpenLoading(string text = "Loading...")
 		{
 			try
 			{
-				CloseLoading();
+				await CloseLoading();
 				var loadingPopup = new LoadingPopup();
 				await PopupNavigation!.PushAsync(loadingPopup);
 				loadingPopup.BindingContext = new
@@ -147,7 +147,7 @@ namespace ProjectHX.Mobile.Helpers
 			}
 		}
 
-		public static async void CloseLoading()
+		public static async Task CloseLoading()
 		{
             try
             {

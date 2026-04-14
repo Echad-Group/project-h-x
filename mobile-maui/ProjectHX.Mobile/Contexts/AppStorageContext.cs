@@ -11,7 +11,6 @@ namespace ProjectHX.Mobile.Contexts
 	{
 		public AppStorageContext(AppInfo appInfo, ServerAppDataFolders serverAppDataFolders)
 		{
-			_ = CheckForStoragePermission();
 			AppName = appInfo.Name;
 			DatabaseFilename = appInfo.DatabaseFilename;
 
@@ -32,7 +31,7 @@ namespace ProjectHX.Mobile.Contexts
 			SubjectNotesPath = Path.Combine(DocumentPath, "subject_notes");
 
 			SqliteDatabasePath = Path.Combine(DatabasePath, DatabaseFilename);
-			CreateDataFoldersCaller(appInfo.Name);
+			EnsureDataFoldersExist();
 		}
 		public string AppName { get; private set; }
 		public partial string CreateUserRootFolder(string folderName);
@@ -42,84 +41,23 @@ namespace ProjectHX.Mobile.Contexts
 		{
 			File.WriteAllText(Path.Combine(savePath, fileName), content);
 		}
-		public async void CreateDataFoldersCaller(string folderName)
-		{
-#pragma warning disable CS0612 // Type or member is obsolete
-			await CreateDataFolders(folderName);
-#pragma warning restore CS0612 // Type or member is obsolete
-		}
-		public static async Task<bool> CheckForStoragePermission()
-		{
-			bool permitted = false;
-			var status = await Permissions.CheckStatusAsync<Permissions.StorageWrite>();
-			if (status == PermissionStatus.Granted)
-			{
-				permitted = true;
-			}
-			else
-			{
-				status = await Permissions.RequestAsync<Permissions.StorageWrite>();
-				if (status == PermissionStatus.Granted)
-				{
-					permitted = true;
-				}
-			}
-			return permitted;
-		}
-
-		[Obsolete]
-		public async Task<bool> CreateDataFolders(string folderName)
+		private void EnsureDataFoldersExist()
 		{
 			try
 			{
-				if (!Directory.Exists(UserRootFolder))
-				{
-					Directory.CreateDirectory(UserRootFolder);
-				}
-				if (!Directory.Exists(DatabasePath))
-				{
-					Directory.CreateDirectory(DatabasePath);
-				}
-				if (!Directory.Exists(DocumentPath))
-				{
-					Directory.CreateDirectory(DocumentPath);
-				}
-				if (!Directory.Exists(ImagesPath))
-				{
-					Directory.CreateDirectory(ImagesPath);
-				}
-				if (!Directory.Exists(PastPapersPath))
-				{
-					Directory.CreateDirectory(PastPapersPath);
-				}
-				if (!Directory.Exists(PastPaperSolutionsPath))
-				{
-					Directory.CreateDirectory(PastPaperSolutionsPath);
-				}
-				if (!Directory.Exists(SubjectNotesPath))
-				{
-					Directory.CreateDirectory(SubjectNotesPath);
-				}
-				if (!Directory.Exists(ProfileImagePath))
-				{
-					Directory.CreateDirectory(ProfileImagePath);
-				}
-				if (!Directory.Exists(SubjectCoverImagesPath))
-				{
-					Directory.CreateDirectory(SubjectCoverImagesPath);
-				}
-
-				return true;
+				Directory.CreateDirectory(UserRootFolder);
+				Directory.CreateDirectory(DatabasePath);
+				Directory.CreateDirectory(DocumentPath);
+				Directory.CreateDirectory(ImagesPath);
+				Directory.CreateDirectory(PastPapersPath);
+				Directory.CreateDirectory(PastPaperSolutionsPath);
+				Directory.CreateDirectory(SubjectNotesPath);
+				Directory.CreateDirectory(ProfileImagePath);
+				Directory.CreateDirectory(SubjectCoverImagesPath);
 			}
 			catch (Exception ex)
 			{
-
-				bool choice = await App.Current!.MainPage!.DisplayAlert("Setup Error", $"There was an error creating data folders. Message: {ex.Message}", "Restart App", "Cancel");
-				if (choice)
-				{
-					App.Current!.Quit();
-				}
-				return false;
+				throw new InvalidOperationException($"Failed to initialize application storage: {ex.Message}", ex);
 			}
 		}
 		public string ApplicationDataFolder { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);

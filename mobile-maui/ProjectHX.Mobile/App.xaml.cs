@@ -11,6 +11,8 @@ public partial class App : Application
     private readonly ISyncOutboxService _outboxService;
     private readonly IAppDiagnosticsService _diagnosticsService;
     private readonly ILogger<App> _logger;
+    private Task? _startupWork;
+    private Task? _resumeWork;
 
     public App(
         IServiceProvider serviceProvider,
@@ -30,54 +32,58 @@ public partial class App : Application
     {
         var shell = _serviceProvider.GetRequiredService<AppShell>();
         var window = new Window(shell);
-        _ = MainThread.InvokeOnMainThreadAsync(shell.InitializeSessionNavigationAsync);
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await _outboxService.InitializeAsync();
-                await _outboxService.ProcessAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "App startup outbox initialization failed.");
-                await _diagnosticsService.RecordEventAsync(
-                    category: "app",
-                    eventName: "startup_outbox_failed",
-                    severity: "Error",
-                    message: ex.Message,
-                    context: new { exception = ex.GetType().Name });
-            }
-        });
+        _startupWork = InitializeAppAsync(shell);
         return window;
     }
 
     protected override void OnResume()
     {
         base.OnResume();
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await _outboxService.ProcessAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Outbox processing failed on app resume.");
-                await _diagnosticsService.RecordEventAsync(
-                    category: "app",
-                    eventName: "resume_outbox_failed",
-                    severity: "Error",
-                    message: ex.Message,
-                    context: new { exception = ex.GetType().Name });
-            }
-        });
+        _resumeWork = ProcessOutboxOnResumeAsync();
     }
 
     protected override async void OnAppLinkRequestReceived(Uri uri)
     {
         base.OnAppLinkRequestReceived(uri);
         await HandleDeepLinkAsync(uri);
+    }
+
+    private async Task InitializeAppAsync(AppShell shell)
+    {
+        try
+        {
+            await shell.InitializeSessionNavigationAsync();
+            await _outboxService.InitializeAsync();
+            await _outboxService.ProcessAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "App startup outbox initialization failed.");
+            await _diagnosticsService.RecordEventAsync(
+                category: "app",
+                eventName: "startup_outbox_failed",
+                severity: "Error",
+                message: ex.Message,
+                context: new { exception = ex.GetType().Name });
+        }
+    }
+
+    private async Task ProcessOutboxOnResumeAsync()
+    {
+        try
+        {
+            await _outboxService.ProcessAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Outbox processing failed on app resume.");
+            await _diagnosticsService.RecordEventAsync(
+                category: "app",
+                eventName: "resume_outbox_failed",
+                severity: "Error",
+                message: ex.Message,
+                context: new { exception = ex.GetType().Name });
+        }
     }
 
     private async Task HandleDeepLinkAsync(Uri uri)

@@ -5,7 +5,7 @@ namespace ProjectHX.Mobile.Helpers
 {
 	public class ToastHelper
 	{
-		public static async void ShortToast(string message)
+		public static async Task ShortToast(string message)
 		{
 			CancellationTokenSource cancellationTokenSource = new();
 			ToastDuration duration = ToastDuration.Short;
@@ -13,7 +13,7 @@ namespace ProjectHX.Mobile.Helpers
 			var toast = Toast.Make(message, duration, fontSize);
 			await toast.Show(cancellationTokenSource.Token);
 		}
-		public static async void LongToast(string message)
+		public static async Task LongToast(string message)
 		{
 			CancellationTokenSource cancellationTokenSource = new();
 			ToastDuration duration = ToastDuration.Long;

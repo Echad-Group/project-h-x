@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:ProjectHX.Mobile.ViewModels"
+             xmlns:models="clr-namespace:ProjectHX.Mobile.Models.PublicContent"
              x:Class="ProjectHX.Mobile.Pages.EventsListPage"
+             x:DataType="viewModels:EventsListViewModel"
              Title="All Events">
     <Grid RowDefinitions="Auto,*" BackgroundColor="#FFFFFF">
         <!-- Header -->
@@ -47,7 +50,7 @@
             <CollectionView Grid.Row="1" ItemsSource="{Binding Events}" SelectionMode="None" 
                           IsVisible="{Binding Events.Count, Converter={StaticResource IntToBoolConverter}}">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:CampaignEventModel">
                         <Border Padding="16" Margin="12,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" 
                                StrokeThickness="1"
                                StrokeShape="RoundRectangle 12">

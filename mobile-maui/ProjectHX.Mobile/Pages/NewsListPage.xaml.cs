@@ -4,24 +4,25 @@ namespace ProjectHX.Mobile.Pages;
 
 public partial class NewsListPage : ContentPage
 {
-    private NewsListViewModel? _viewModel;
+    private readonly NewsListViewModel _viewModel;
+    private CancellationTokenSource? _loadCancellationTokenSource;
 
-    public NewsListPage()
+    public NewsListPage(NewsListViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
     }
 
-    protected override void OnNavigatedTo(NavigatedToEventArgs args)
+    protected override void OnAppearing()
     {
-        base.OnNavigatedTo(args);
+        base.OnAppearing();
+        PageLoadCoordinator.StartLoad(_viewModel, _viewModel, ref _loadCancellationTokenSource);
+    }
 
-        _viewModel = BindingContext as NewsListViewModel;
-        if (_viewModel != null)
-        {
-            MainThread.BeginInvokeOnMainThread(async () =>
-            {
-                await _viewModel.LoadAsync();
-            });
-        }
+    protected override void OnDisappearing()
+    {
+        PageLoadCoordinator.CancelLoad(ref _loadCancellationTokenSource);
+        base.OnDisappearing();
     }
 }
