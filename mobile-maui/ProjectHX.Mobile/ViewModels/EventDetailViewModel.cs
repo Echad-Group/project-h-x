@@ -11,6 +11,7 @@ public sealed partial class EventDetailViewModel : BaseViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasEvent))]
+    [NotifyPropertyChangedFor(nameof(HasEventImages))]
     private CampaignEventModel? eventItem;
 
     [ObservableProperty]
@@ -29,6 +30,8 @@ public sealed partial class EventDetailViewModel : BaseViewModel
     private string specialRequirements = string.Empty;
 
     public bool HasEvent => EventItem != null;
+    
+    public bool HasEventImages => EventItem?.ImageUrls?.Count > 1;
 
     public EventDetailViewModel(IEventsApiService eventsApiService)
     {

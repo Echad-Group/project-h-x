@@ -24,6 +24,15 @@ public sealed class NewsApiService : INewsApiService
         return articles.Select(NormalizeArticle).ToList();
     }
 
+    public async Task<List<NewsArticleListItemModel>> GetArticlesAsync(int page = 1, int pageSize = 12, CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.GetAsync($"news?page={page}&pageSize={pageSize}", cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var articles = await response.Content.ReadFromJsonAsync<List<NewsArticleListItemModel>>(cancellationToken: cancellationToken) ?? [];
+        return articles.Select(NormalizeArticle).ToList();
+    }
+
     public async Task<List<NewsArticleListItemModel>> GetFeaturedNewsAsync(CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync("news/featured", cancellationToken);

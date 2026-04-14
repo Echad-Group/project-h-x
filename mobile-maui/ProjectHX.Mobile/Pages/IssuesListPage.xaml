@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectHX.Mobile.Pages.IssuesListPage"
+             Title="All Issues">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#FFFFFF">
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,16" Spacing="12" BackgroundColor="#F8FAFC">
+            <Label Text="Policy &amp; Issues" FontSize="24" FontAttributes="Bold" TextColor="#0F172A" />
+            <Label Text="Explore our key policy initiatives and platforms for national development." TextColor="#6B7280" />
+        </VerticalStackLayout>
+
+        <!-- Content -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*" Padding="0">
+            <!-- Refresh Button -->
+            <Button Grid.Row="0" Text="Refresh" Command="{Binding RefreshCommand}" 
+                    Margin="20,12" BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                    CornerRadius="8" Padding="16,12" />
+
+            <!-- Loading and Error States -->
+            <VerticalStackLayout Grid.Row="1" IsVisible="{Binding IsBusy}" VerticalOptions="Center" HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="True" Color="#0EA5E9" Scale="1.5" />
+                <Label Text="Loading issues..." TextColor="#6B7280" HorizontalTextAlignment="Center" Margin="0,12" />
+            </VerticalStackLayout>
+
+            <Border Grid.Row="1" IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" 
+                   Stroke="#FCA5A5" StrokeThickness="1" Padding="16" Margin="20"
+                   StrokeShape="RoundRectangle 8">
+                <Label Text="{Binding ErrorMessage}" TextColor="#991B1B" LineBreakMode="WordWrap" />
+            </Border>
+
+            <!-- Issues List -->
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Issues}" SelectionMode="None" 
+                          IsVisible="{Binding Issues.Count, Converter={StaticResource IntToBoolConverter}}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="16" Margin="12,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" 
+                               StrokeThickness="1"
+                               StrokeShape="RoundRectangle 12">
+                            <VerticalStackLayout Spacing="8">
+                                <!-- Issue Title with Icon -->
+                                <HorizontalStackLayout Spacing="12">
+                                    <Label Text="{Binding Icon}" FontSize="32" IsVisible="{Binding HasIcon}" 
+                                           VerticalOptions="Center" WidthRequest="48" />
+                                    <VerticalStackLayout Spacing="2" HorizontalOptions="FillAndExpand">
+                                        <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" 
+                                               TextColor="#0F172A" LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+
+                                <!-- Summary -->
+                                <Label Text="{Binding Summary}" FontSize="13" TextColor="#6B7280" 
+                                      LineBreakMode="WordWrap" />
+
+                                <!-- Initiatives Count -->
+                                <HorizontalStackLayout Spacing="8" IsVisible="{Binding Initiatives, Converter={StaticResource StringToNotEmptyConverter}}">
+                                    <Label Text="📋" FontSize="12" />
+                                    <Label Text="{Binding Initiatives, StringFormat='Key Initiatives: {0}'}" 
+                                           FontSize="12" TextColor="#6B7280" />
+                                </HorizontalStackLayout>
+
+                                <!-- Explore Button -->
+                                <Button Text="Explore This Issue" 
+                                       Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenIssueCommand}"
+                                       CommandParameter="{Binding .}"
+                                       BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                                       CornerRadius="6" Padding="12,8" FontSize="13" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </Grid>
+</ContentPage>

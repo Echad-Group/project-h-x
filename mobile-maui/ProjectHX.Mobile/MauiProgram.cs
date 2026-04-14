@@ -119,6 +119,9 @@ public static class MauiProgram
         builder.Services.AddTransient<LeaderboardViewModel>();
         builder.Services.AddTransient<SubmitResultViewModel>();
         builder.Services.AddTransient<ContentHubViewModel>();
+        builder.Services.AddTransient<NewsListViewModel>();
+        builder.Services.AddTransient<EventsListViewModel>();
+        builder.Services.AddTransient<IssuesListViewModel>();
         builder.Services.AddTransient<NewsDetailViewModel>();
         builder.Services.AddTransient<EventDetailViewModel>();
         builder.Services.AddTransient<IssueDetailViewModel>();
@@ -133,6 +136,9 @@ public static class MauiProgram
         builder.Services.AddTransient<Pages.InboxPage>();
         builder.Services.AddTransient<Pages.LeaderboardPage>();
         builder.Services.AddTransient<Pages.ContentHubPage>();
+        builder.Services.AddTransient<Pages.NewsListPage>();
+        builder.Services.AddTransient<Pages.EventsListPage>();
+        builder.Services.AddTransient<Pages.IssuesListPage>();
         builder.Services.AddTransient<Pages.NewsDetailPage>();
         builder.Services.AddTransient<Pages.EventDetailPage>();
         builder.Services.AddTransient<Pages.IssueDetailPage>();

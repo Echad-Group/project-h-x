@@ -10,9 +10,12 @@ public sealed partial class NewsDetailViewModel : BaseViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasArticle))]
+    [NotifyPropertyChangedFor(nameof(HasArticleImages))]
     private NewsArticleDetailModel? article;
 
     public bool HasArticle => Article != null;
+    
+    public bool HasArticleImages => Article?.ImageUrls?.Count > 1;
 
     public NewsDetailViewModel(INewsApiService newsApiService)
     {

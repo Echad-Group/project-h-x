@@ -31,6 +31,9 @@
     <TabBar Route="main" NavigationPage.HasNavigationBar="True" Shell.NavBarIsVisible="False">
         <Tab Title="Explore" Route="explore-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:ContentHubPage}" Route="explore" Shell.NavBarIsVisible="False"/>
+            <ShellContent x:Name="NewsListRoute" ContentTemplate="{DataTemplate pages:NewsListPage}" Route="news-list" Shell.NavBarIsVisible="False"/>
+            <ShellContent x:Name="EventsListRoute" ContentTemplate="{DataTemplate pages:EventsListPage}" Route="events-list" Shell.NavBarIsVisible="False"/>
+            <ShellContent x:Name="IssuesListRoute" ContentTemplate="{DataTemplate pages:IssuesListPage}" Route="issues-list" Shell.NavBarIsVisible="False"/>
         </Tab>
         <Tab Title="Get Involved" Route="volunteer-tab">
             <ShellContent ContentTemplate="{DataTemplate pages:VolunteerPage}" Route="volunteer" Shell.NavBarIsVisible="False"/>

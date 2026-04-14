@@ -28,6 +28,15 @@ public sealed class AppNavigator : IAppNavigator
     public Task GoToIssueDetailAsync(int issueId)
         => NavigateAsync($"{nameof(IssueDetailPage)}?id={issueId}");
 
+    public Task GoToAllNewsAsync()
+        => NavigateAsync(nameof(NewsListPage));
+
+    public Task GoToAllEventsAsync()
+        => NavigateAsync(nameof(EventsListPage));
+
+    public Task GoToAllIssuesAsync()
+        => NavigateAsync(nameof(IssuesListPage));
+
     public Task GoToVolunteerHubAsync()
         => NavigateAsync("//main/volunteer-tab/volunteer");
 

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectHX.Mobile.Pages.NewsListPage"
+             Title="All News">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#FFFFFF">
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,16" Spacing="12" BackgroundColor="#F8FAFC">
+            <Label Text="All News &amp; Updates" FontSize="24" FontAttributes="Bold" TextColor="#0F172A" />
+            <Label Text="Stay informed with our latest articles and announcements." TextColor="#6B7280" />
+        </VerticalStackLayout>
+
+        <!-- Content -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*" Padding="0">
+            <!-- Refresh Button -->
+            <Button Grid.Row="0" Text="Refresh" Command="{Binding RefreshCommand}" 
+                    Margin="20,12" BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                    CornerRadius="8" Padding="16,12" />
+
+            <!-- Loading and Error States -->
+            <VerticalStackLayout Grid.Row="1" IsVisible="{Binding IsBusy}" VerticalOptions="Center" HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="True" Color="#0EA5E9" Scale="1.5" />
+                <Label Text="Loading articles..." TextColor="#6B7280" HorizontalTextAlignment="Center" Margin="0,12" />
+            </VerticalStackLayout>
+
+            <Border Grid.Row="1" IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" 
+                    Stroke="#FCA5A5" StrokeThickness="1" Padding="16" Margin="20"
+                    StrokeShape="RoundRectangle 8">
+                <Label Text="{Binding ErrorMessage}" TextColor="#991B1B" LineBreakMode="WordWrap" />
+            </Border>
+
+            <!-- News List with Infinite Scroll -->
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Articles}" 
+                          SelectionMode="None" IsVisible="{Binding Articles.Count, Converter={StaticResource IntToBoolConverter}}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="16" Margin="12,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" 
+                               StrokeThickness="1"
+                               StrokeShape="RoundRectangle 12">
+                            <VerticalStackLayout Spacing="8">
+                                <!-- Primary Image -->
+                                <Image Source="{Binding PrimaryImageUrl}" HeightRequest="180" 
+                                      Aspect="AspectFill" IsVisible="{Binding HasPrimaryImage}" />
+
+                                <!-- Title -->
+                                <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" 
+                                       TextColor="#0F172A" LineBreakMode="WordWrap" />
+
+                                <!-- Excerpt -->
+                                <Label Text="{Binding Excerpt}" FontSize="13" TextColor="#6B7280" 
+                                       LineBreakMode="TailTruncation" MaxLines="2" />
+
+                                <!-- Meta Info -->
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding PublishedDisplay}" FontSize="12" TextColor="#9CA3AF" />
+                                    <Label Text="{Binding Category, StringFormat='Category: {0}'}" 
+                                           FontSize="12" TextColor="#9CA3AF" IsVisible="{Binding Category, Converter={StaticResource StringToNotEmptyConverter}}" />
+                                </VerticalStackLayout>
+
+                                <!-- Read Button -->
+                                <Button Text="Read Full Article" 
+                                       Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenArticleCommand}"
+                                       CommandParameter="{Binding .}"
+                                       BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                                       CornerRadius="6" Padding="12,8" FontSize="13" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Load More Button -->
+            <Button Grid.Row="1" Text="Load More Articles" IsVisible="{Binding HasMoreItems}"
+                   VerticalOptions="End" Margin="20,12" 
+                   Command="{Binding LoadMoreCommand}"
+                   BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                   CornerRadius="8" Padding="16,12" />
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectHX.Mobile.Pages.EventsListPage"
+             Title="All Events">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#FFFFFF">
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,16" Spacing="12" BackgroundColor="#F8FAFC">
+            <Label Text="All Events" FontSize="24" FontAttributes="Bold" TextColor="#0F172A" />
+            <Label Text="Discover and join upcoming events and campaigns." TextColor="#6B7280" />
+
+            <!-- Sort Options -->
+            <HorizontalStackLayout Spacing="8">
+                <Button Text="Upcoming" 
+                       Command="{Binding ChangeSortCommand}"
+                       CommandParameter="upcoming"
+                       BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                       CornerRadius="6" Padding="12,6" FontSize="12" />
+                <Button Text="Past" 
+                       Command="{Binding ChangeSortCommand}"
+                       CommandParameter="past"
+                       BackgroundColor="#E5E7EB" TextColor="#6B7280" 
+                       CornerRadius="6" Padding="12,6" FontSize="12" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <!-- Content -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*" Padding="0">
+            <!-- Refresh Button -->
+            <Button Grid.Row="0" Text="Refresh" Command="{Binding RefreshCommand}" 
+                    Margin="20,12" BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                    CornerRadius="8" Padding="16,12" />
+
+            <!-- Loading and Error States -->
+            <VerticalStackLayout Grid.Row="1" IsVisible="{Binding IsBusy}" VerticalOptions="Center" HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="True" Color="#0EA5E9" Scale="1.5" />
+                <Label Text="Loading events..." TextColor="#6B7280" HorizontalTextAlignment="Center" Margin="0,12" />
+            </VerticalStackLayout>
+
+            <Border Grid.Row="1" IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" 
+                    Stroke="#FCA5A5" StrokeThickness="1" Padding="16" Margin="20"
+                    StrokeShape="RoundRectangle 8">
+                <Label Text="{Binding ErrorMessage}" TextColor="#991B1B" LineBreakMode="WordWrap" />
+            </Border>
+
+            <!-- Events List -->
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Events}" SelectionMode="None" 
+                          IsVisible="{Binding Events.Count, Converter={StaticResource IntToBoolConverter}}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="16" Margin="12,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" 
+                               StrokeThickness="1"
+                               StrokeShape="RoundRectangle 12">
+                            <VerticalStackLayout Spacing="8">
+                                <!-- Event Image -->
+                                <Image Source="{Binding ImageUrl}" HeightRequest="180" 
+                                      Aspect="AspectFill" IsVisible="{Binding HasImage}" />
+
+                                <!-- Title -->
+                                <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" 
+                                       TextColor="#0F172A" LineBreakMode="WordWrap" />
+
+                                <!-- Date and Location -->
+                                <VerticalStackLayout Spacing="4">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="📅" FontSize="12" />
+                                        <Label Text="{Binding DateDisplay}" FontSize="13" TextColor="#6B7280" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="8" IsVisible="{Binding Location, Converter={StaticResource StringToNotEmptyConverter}}">
+                                        <Label Text="📍" FontSize="12" />
+                                        <Label Text="{Binding Location}" FontSize="13" TextColor="#6B7280" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Description -->
+                                <Label Text="{Binding Description}" FontSize="12" TextColor="#6B7280" 
+                                       LineBreakMode="TailTruncation" MaxLines="2" />
+
+                                <!-- Event Button -->
+                                <Button Text="View Event Details" 
+                                       Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenEventCommand}"
+                                       CommandParameter="{Binding .}"
+                                       BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                                       CornerRadius="6" Padding="12,8" FontSize="13" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -112,4 +112,22 @@ public sealed partial class ContentHubViewModel : BaseViewModel
 
         await _appNavigator.GoToIssueDetailAsync(issue.Id);
     }
+
+    [RelayCommand]
+    private async Task GoToAllNewsAsync()
+    {
+        await _appNavigator.GoToAllNewsAsync();
+    }
+
+    [RelayCommand]
+    private async Task GoToAllEventsAsync()
+    {
+        await _appNavigator.GoToAllEventsAsync();
+    }
+
+    [RelayCommand]
+    private async Task GoToAllIssuesAsync()
+    {
+        await _appNavigator.GoToAllIssuesAsync();
+    }
 }

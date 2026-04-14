@@ -2,123 +2,198 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectHX.Mobile.Pages.ContentHubPage"
-             Title="Explore">
+             Title="Explore"
+             BackgroundColor="#FFFFFF">
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="14">
-            <Border Style="{StaticResource CardStyle}" StrokeThickness="0">
+        <VerticalStackLayout Padding="0" Spacing="0">
+            <!-- Hero Section -->
+            <Border Style="{StaticResource CardStyle}" 
+                    Margin="0" Padding="20" 
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 0">
                 <Border.Background>
                     <LinearGradientBrush EndPoint="1,0">
                         <GradientStop Color="#0F172A" Offset="0" />
                         <GradientStop Color="#0EA5E9" Offset="1" />
                     </LinearGradientBrush>
                 </Border.Background>
-                <VerticalStackLayout Spacing="4">
-                    <Label Text="Public Content Hub" FontSize="28" FontAttributes="Bold" TextColor="#FFFFFF" />
-                    <Label Text="News, events, issues, and team updates in one place." TextColor="#DBEAFE" />
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Welcome to the Campaign" FontSize="28" FontAttributes="Bold" TextColor="#FFFFFF" LineBreakMode="WordWrap" />
+                    <Label Text="Discover news, events, policy initiatives, and meet the team driving change." 
+                           TextColor="#DBEAFE" FontSize="14" LineBreakMode="WordWrap" />
                 </VerticalStackLayout>
             </Border>
 
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource BrandGreen}" />
-            <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" Stroke="#FCA5A5" StrokeThickness="1" Padding="12">
+            <!-- Error and Loading States -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" 
+                             Color="{StaticResource BrandGreen}" Margin="20" />
+            <Border IsVisible="{Binding HasErrorMessage}" BackgroundColor="#FEF2F2" 
+                   Stroke="#FCA5A5" StrokeThickness="1" Padding="12" Margin="20">
                 <Label Text="{Binding ErrorMessage}" TextColor="#991B1B" />
             </Border>
 
-            <Button Text="Refresh Content" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+            <!-- Refresh Button -->
+            <Button Text="Refresh All Content" Command="{Binding RefreshCommand}" 
+                   Margin="20,12" BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                   CornerRadius="8" Padding="16,12" />
 
-            <Border Style="{StaticResource CardStyle}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Featured News" Style="{StaticResource SectionTitleStyle}" />
-                    <CollectionView ItemsSource="{Binding FeaturedNews}" SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Padding="10" Margin="0,0,0,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" StrokeThickness="1">
+            <!-- Featured News Section -->
+            <VerticalStackLayout Padding="20,20" Spacing="12">
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="Featured News" FontSize="20" FontAttributes="Bold" 
+                           TextColor="#0F172A" VerticalOptions="Center" />
+                    <Button Text="View All" Command="{Binding GoToAllNewsCommand}" 
+                           BackgroundColor="#F0F9FF" TextColor="#0284C7" 
+                           CornerRadius="6" Padding="12,6" FontSize="12" 
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- Featured News Cards -->
+                <CollectionView ItemsSource="{Binding FeaturedNews}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12" Margin="0,0,0,8" Stroke="#E5E7EB" 
+                                   BackgroundColor="#FFFFFF" StrokeThickness="1"
+                                   StrokeShape="RoundRectangle 8">
+                                <VerticalStackLayout Spacing="8">
+                                    <Image Source="{Binding PrimaryImageUrl}" HeightRequest="140" 
+                                          Aspect="AspectFill" IsVisible="{Binding HasPrimaryImage}" />
                                     <VerticalStackLayout Spacing="4">
-                                        <Image Source="{Binding PrimaryImageUrl}" HeightRequest="160" Aspect="AspectFill" IsVisible="{Binding HasPrimaryImage}" />
-                                        <Label Text="{Binding Title}" FontAttributes="Bold" />
-                                        <Label Text="{Binding Excerpt}" LineBreakMode="TailTruncation" MaxLines="2" Style="{StaticResource MutedLabelStyle}" />
-                                        <Label Text="{Binding PublishedDisplay}" Style="{StaticResource MutedLabelStyle}" />
-                                        <Button Text="Read Article"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenNewsCommand}"
-                                                CommandParameter="{Binding .}"
-                                                Style="{StaticResource SecondaryButtonStyle}" />
+                                        <Label Text="{Binding Title}" FontSize="14" FontAttributes="Bold" 
+                                               TextColor="#0F172A" LineBreakMode="TailTruncation" MaxLines="2" />
+                                        <Label Text="{Binding Excerpt}" FontSize="12" TextColor="#6B7280" 
+                                               LineBreakMode="TailTruncation" MaxLines="1" />
+                                        <Label Text="{Binding PublishedDisplay}" FontSize="11" TextColor="#9CA3AF" />
                                     </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </Border>
+                                    <Button Text="Read" 
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenNewsCommand}"
+                                           CommandParameter="{Binding .}"
+                                           BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                                           CornerRadius="6" Padding="12,6" FontSize="12" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
 
-            <Border Style="{StaticResource CardStyle}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Events" Style="{StaticResource SectionTitleStyle}" />
-                    <CollectionView ItemsSource="{Binding UpcomingEvents}" SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Padding="10" Margin="0,0,0,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" StrokeThickness="1">
-                                    <VerticalStackLayout Spacing="4">
-                                        <Image Source="{Binding ImageUrl}" HeightRequest="160" Aspect="AspectFill" IsVisible="{Binding HasImage}" />
-                                        <Label Text="{Binding Title}" FontAttributes="Bold" />
-                                        <Label Text="{Binding DateDisplay}" Style="{StaticResource MutedLabelStyle}" />
-                                        <Label Text="{Binding Location}" Style="{StaticResource MutedLabelStyle}" />
-                                        <Button Text="Open Event"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenEventCommand}"
-                                                CommandParameter="{Binding .}"
-                                                Style="{StaticResource SecondaryButtonStyle}" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </Border>
+            <!-- Events Section -->
+            <VerticalStackLayout Padding="20,20" Spacing="12" BackgroundColor="#F8FAFC">
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="Upcoming Events" FontSize="20" FontAttributes="Bold" 
+                           TextColor="#0F172A" VerticalOptions="Center" />
+                    <Button Text="View All" Command="{Binding GoToAllEventsCommand}" 
+                           BackgroundColor="#F0F9FF" TextColor="#0284C7" 
+                           CornerRadius="6" Padding="12,6" FontSize="12" 
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
 
-            <Border Style="{StaticResource CardStyle}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Policy Issues" Style="{StaticResource SectionTitleStyle}" />
-                    <CollectionView ItemsSource="{Binding Issues}" SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Padding="10" Margin="0,0,0,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" StrokeThickness="1">
+                <!-- Events Cards -->
+                <CollectionView ItemsSource="{Binding UpcomingEvents}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12" Margin="0,0,0,8" Stroke="#E5E7EB" 
+                                   BackgroundColor="#FFFFFF" StrokeThickness="1"
+                                   StrokeShape="RoundRectangle 8">
+                                <VerticalStackLayout Spacing="8">
+                                    <Image Source="{Binding ImageUrl}" HeightRequest="140" 
+                                          Aspect="AspectFill" IsVisible="{Binding HasImage}" />
                                     <VerticalStackLayout Spacing="4">
-                                        <HorizontalStackLayout Spacing="8">
-                                            <Label Text="{Binding Icon}" FontSize="24" IsVisible="{Binding HasIcon}" VerticalOptions="Center" />
-                                            <Label Text="{Binding Title}" FontAttributes="Bold" VerticalOptions="Center" />
+                                        <Label Text="{Binding Title}" FontSize="14" FontAttributes="Bold" 
+                                               TextColor="#0F172A" LineBreakMode="TailTruncation" MaxLines="2" />
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="📅" FontSize="11" />
+                                            <Label Text="{Binding DateDisplay}" FontSize="11" TextColor="#6B7280" />
                                         </HorizontalStackLayout>
-                                        <Label Text="{Binding Summary}" Style="{StaticResource MutedLabelStyle}" LineBreakMode="TailTruncation" MaxLines="2" />
-                                        <Button Text="View Issue"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenIssueCommand}"
-                                                CommandParameter="{Binding .}"
-                                                Style="{StaticResource SecondaryButtonStyle}" />
+                                        <HorizontalStackLayout Spacing="4" IsVisible="{Binding Location, Converter={StaticResource StringToNotEmptyConverter}}">
+                                            <Label Text="📍" FontSize="11" />
+                                            <Label Text="{Binding Location}" FontSize="11" TextColor="#6B7280" LineBreakMode="TailTruncation" MaxLines="1" />
+                                        </HorizontalStackLayout>
                                     </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </Border>
+                                    <Button Text="View Event" 
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenEventCommand}"
+                                           CommandParameter="{Binding .}"
+                                           BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                                           CornerRadius="6" Padding="12,6" FontSize="12" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
 
-            <Border Style="{StaticResource CardStyle}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Campaign Team" Style="{StaticResource SectionTitleStyle}" />
-                    <CollectionView ItemsSource="{Binding TeamMembers}" SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Padding="10" Margin="0,0,0,8" Stroke="#E5E7EB" BackgroundColor="#FFFFFF" StrokeThickness="1">
-                                    <HorizontalStackLayout Spacing="12">
-                                        <Image Source="{Binding PhotoUrl}" WidthRequest="56" HeightRequest="56" Aspect="AspectFill" IsVisible="{Binding HasPhoto}" />
-                                        <VerticalStackLayout Spacing="4">
-                                            <Label Text="{Binding Name}" FontAttributes="Bold" />
-                                            <Label Text="{Binding Role}" Style="{StaticResource MutedLabelStyle}" />
-                                            <Label Text="{Binding Bio}" Style="{StaticResource MutedLabelStyle}" LineBreakMode="TailTruncation" MaxLines="2" />
-                                        </VerticalStackLayout>
+            <!-- Policy Issues Section -->
+            <VerticalStackLayout Padding="20,20" Spacing="12">
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="Policy Issues" FontSize="20" FontAttributes="Bold" 
+                           TextColor="#0F172A" VerticalOptions="Center" />
+                    <Button Text="View All" 
+                           BackgroundColor="#F0F9FF" TextColor="#0284C7" 
+                           CornerRadius="6" Padding="12,6" FontSize="12" 
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- Issues Cards -->
+                <CollectionView ItemsSource="{Binding Issues}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12" Margin="0,0,0,8" Stroke="#E5E7EB" 
+                                   BackgroundColor="#FFFFFF" StrokeThickness="1"
+                                   StrokeShape="RoundRectangle 8">
+                                <VerticalStackLayout Spacing="8">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding Icon}" FontSize="24" IsVisible="{Binding HasIcon}" 
+                                               VerticalOptions="Center" WidthRequest="36" />
+                                        <Label Text="{Binding Title}" FontSize="14" FontAttributes="Bold" 
+                                               TextColor="#0F172A" VerticalOptions="Center" LineBreakMode="TailTruncation" MaxLines="1" />
                                     </HorizontalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </Border>
+                                    <Label Text="{Binding Summary}" FontSize="12" TextColor="#6B7280" 
+                                           LineBreakMode="TailTruncation" MaxLines="2" />
+                                    <Button Text="Explore Issue" 
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenIssueCommand}"
+                                           CommandParameter="{Binding .}"
+                                           BackgroundColor="#0EA5E9" TextColor="#FFFFFF" 
+                                           CornerRadius="6" Padding="12,6" FontSize="12" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!-- Campaign Team Section -->
+            <VerticalStackLayout Padding="20,20" Spacing="12" BackgroundColor="#F8FAFC">
+                <Label Text="Campaign Team" FontSize="20" FontAttributes="Bold" 
+                       TextColor="#0F172A" />
+                <Label Text="Meet the dedicated leaders driving our vision for a better Kenya." 
+                       FontSize="13" TextColor="#6B7280" />
+
+                <!-- Team Members Cards -->
+                <CollectionView ItemsSource="{Binding TeamMembers}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12" Margin="0,0,0,8" Stroke="#E5E7EB" 
+                                   BackgroundColor="#FFFFFF" StrokeThickness="1"
+                                   StrokeShape="RoundRectangle 8">
+                                <HorizontalStackLayout Spacing="12">
+                                    <Image Source="{Binding PhotoUrl}" WidthRequest="56" HeightRequest="56" 
+                                          Aspect="AspectFill" IsVisible="{Binding HasPhoto}" />
+                                    <VerticalStackLayout Spacing="4" HorizontalOptions="Fill">
+                                        <Label Text="{Binding Name}" FontSize="14" FontAttributes="Bold" 
+                                               TextColor="#0F172A" />
+                                        <Label Text="{Binding Role}" FontSize="12" TextColor="#0EA5E9" FontAttributes="Bold" />
+                                        <Label Text="{Binding Bio}" FontSize="11" TextColor="#6B7280" 
+                                               LineBreakMode="TailTruncation" MaxLines="1" />
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!-- Footer Spacing -->
+            <BoxView HeightRequest="20" Color="Transparent" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

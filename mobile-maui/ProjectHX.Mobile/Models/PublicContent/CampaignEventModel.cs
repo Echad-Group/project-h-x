@@ -11,6 +11,7 @@ public sealed class CampaignEventModel
     public string? City { get; set; }
     public string? Region { get; set; }
     public string? ImageUrl { get; set; }
+    public List<string> ImageUrls { get; set; } = [];
     public string? Type { get; set; }
     public int? Capacity { get; set; }
 

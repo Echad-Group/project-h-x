@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:ProjectHX.Mobile.Components"
              x:Class="ProjectHX.Mobile.Pages.EventDetailPage"
              Title="Event Detail">
     <ScrollView>
@@ -15,7 +16,17 @@
 
             <Border Style="{StaticResource CardStyle}" IsVisible="{Binding HasEvent}">
                 <VerticalStackLayout Spacing="8">
-                    <Image Source="{Binding EventItem.ImageUrl}" HeightRequest="220" Aspect="AspectFill" IsVisible="{Binding EventItem.HasImage}" />
+                    <!-- Image Carousel for multiple images -->
+                    <local:ImageCarousel 
+                        Images="{Binding EventItem.ImageUrls}" 
+                        HeightRequest="240"
+                        IsVisible="{Binding HasEventImages}" />
+                    
+                    <!-- Fallback single image if no carousel images -->
+                    <Image Source="{Binding EventItem.ImageUrl}" 
+                           HeightRequest="220" Aspect="AspectFill" 
+                           IsVisible="{Binding EventItem.HasImage}" />
+                    
                     <Label Text="{Binding EventItem.Title}" FontSize="24" FontAttributes="Bold" />
                     <Label Text="{Binding EventItem.DateDisplay}" Style="{StaticResource MutedLabelStyle}" />
                     <Label Text="{Binding EventItem.Location}" Style="{StaticResource MutedLabelStyle}" />

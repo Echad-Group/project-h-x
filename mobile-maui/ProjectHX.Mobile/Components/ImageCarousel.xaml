@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectHX.Mobile.Components.ImageCarousel"
+             x:Name="CarouselControl">
+
+    <Grid RowDefinitions="*,Auto" BackgroundColor="#000000">
+        <!-- Images Container -->
+        <CarouselView Grid.Row="0" 
+                     ItemsSource="{Binding Images, Source={x:Reference CarouselControl}}"
+                     Position="{Binding CurrentImageIndex, Source={x:Reference CarouselControl}}">
+            <CarouselView.ItemTemplate>
+                <DataTemplate>
+                    <Image Source="{Binding .}" Aspect="AspectFill" />
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+
+        <!-- Indicators -->
+        <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="6" 
+                     HorizontalOptions="Center" VerticalOptions="End" Padding="0,12">
+            <Label Text="{Binding Source={x:Reference CarouselControl}, Path=IndicatorText, StringFormat='{0}'}" 
+                   TextColor="#FFFFFF" FontSize="12" VerticalOptions="Center" />
+        </StackLayout>
+    </Grid>
+</ContentView>
