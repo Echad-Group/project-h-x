@@ -80,7 +80,7 @@ public sealed partial class ContentHubViewModel : BaseViewModel, IAsyncPageLoada
     [RelayCommand]
     private async Task RefreshAsync()
     {
-        await LoadAsync();
+        await Task.Run(async () => await LoadAsync());
     }
 
     [RelayCommand]

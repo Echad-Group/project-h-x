@@ -56,9 +56,9 @@
                                       LineBreakMode="WordWrap" />
 
                                 <!-- Initiatives Count -->
-                                <HorizontalStackLayout Spacing="8" IsVisible="{Binding Initiatives, Converter={StaticResource StringToNotEmptyConverter}}">
+                                <HorizontalStackLayout Spacing="8" IsVisible="{Binding Initiatives.Count, Converter={StaticResource IntToBoolConverter}}">
                                     <Label Text="📋" FontSize="12" />
-                                    <Label Text="{Binding Initiatives, StringFormat='Key Initiatives: {0}'}" 
+                                    <Label Text="{Binding Initiatives.Count, StringFormat='Key Initiatives: {0}'}" 
                                            FontSize="12" TextColor="#6B7280" />
                                 </HorizontalStackLayout>
 

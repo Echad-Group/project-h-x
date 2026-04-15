@@ -3,9 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectHX.Mobile.App"
              xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+             xmlns:converters="clr-namespace:ProjectHX.Mobile.Helpers.Converters"
              android:Application.WindowSoftInputModeAdjust="Resize">
     <Application.Resources>
         <ResourceDictionary>
+            <converters:StringToNotEmptyConverter x:Key="StringToNotEmptyConverter" />
+            <converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+
             <Color x:Key="PageBackground">#F3F4F6</Color>
             <Color x:Key="CardBackground">#FFFFFF</Color>
             <Color x:Key="CardBorder">#E5E7EB</Color>
